@@ -6,5 +6,5 @@ namespace EscrowApp.Services.Strategies;
 /// </summary>
 public interface IFundReleasable
 {
-    Task<bool> ReleaseFundsAsync(string externalReference, string idempotencyKey);
+    Task<bool> ReleaseFundsAsync(string externalReference, string idempotencyKey, CancellationToken ct = default);
 }

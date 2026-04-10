@@ -29,5 +29,16 @@ public sealed class EscrowTransactionConfiguration : IEntityTypeConfiguration<Es
 
         builder.HasIndex(e => e.Status);
         builder.HasIndex(e => e.CreatedAt);
+
+        builder.HasIndex(e => e.ClientEmail);
+        builder.HasIndex(e => e.ConsultantEmail);
+
+        builder.HasIndex(e => new { e.Status, e.CreatedAt })
+            .HasDatabaseName("IX_Transactions_Status_CreatedAt");
+
+        builder.HasIndex(e => e.ExternalReference)
+            .IsUnique()
+            .HasFilter("\"ExternalReference\" IS NOT NULL")
+            .HasDatabaseName("IX_Transactions_ExternalReference");
     }
 }

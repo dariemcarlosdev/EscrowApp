@@ -7,5 +7,5 @@ namespace EscrowApp.Services.Strategies;
 /// </summary>
 public interface IFundCancellable
 {
-    Task<bool> CancelHoldAsync(string externalReference, string idempotencyKey);
+    Task<bool> CancelHoldAsync(string externalReference, string idempotencyKey, CancellationToken ct = default);
 }

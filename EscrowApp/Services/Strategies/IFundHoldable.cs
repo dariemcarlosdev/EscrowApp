@@ -6,5 +6,5 @@ namespace EscrowApp.Services.Strategies;
 /// </summary>
 public interface IFundHoldable
 {
-    Task<string> HoldFundsAsync(decimal amount, string sourcePaymentMethodId, string idempotencyKey);
+    Task<string> HoldFundsAsync(decimal amount, string sourcePaymentMethodId, string idempotencyKey, CancellationToken ct = default);
 }

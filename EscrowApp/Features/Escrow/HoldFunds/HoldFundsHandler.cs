@@ -16,7 +16,7 @@ internal sealed class HoldFundsHandler(
 {
     public async Task<HoldFundsResult> Handle(HoldFundsCommand command, CancellationToken ct)
     {
-        var transaction = await repo.GetByIdAsync(command.TransactionId)
+        var transaction = await repo.GetByIdAsync(command.TransactionId, ct)
             ?? throw new InvalidOperationException($"Transaction {command.TransactionId} not found.");
 
         var holdStrategy = strategyFactory.ResolveHoldStrategy(command.ProviderName);
@@ -24,12 +24,13 @@ internal sealed class HoldFundsHandler(
         string externalReference = await holdStrategy.HoldFundsAsync(
             transaction.Amount,
             command.PaymentMethodId,
-            idempotencyKey: $"hold-{command.TransactionId}");
+            idempotencyKey: $"hold-{command.TransactionId}",
+            ct);
 
         transaction.ExternalReference = externalReference;
         transaction.ExternalProvider = command.ProviderName;
         transaction.Status = "Funded (Held)";
-        await repo.UpdateAsync(transaction);
+        await repo.UpdateAsync(transaction, ct);
 
         await eventBus.PublishAsync(new PaymentReceivedEvent
         {

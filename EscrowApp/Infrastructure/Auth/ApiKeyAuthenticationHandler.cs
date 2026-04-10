@@ -13,7 +13,7 @@ public sealed class ApiKeyAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
-    IConfiguration configuration)
+    IOptionsMonitor<ApiKeySettings> apiKeyOptions)
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     public const string SchemeName = "ApiKey";
@@ -28,11 +28,9 @@ public sealed class ApiKeyAuthenticationHandler(
         if (string.IsNullOrWhiteSpace(providedKey))
             return Task.FromResult(AuthenticateResult.Fail("API key is empty."));
 
-        var configuredKeys = configuration
-            .GetSection("ApiKeys")
-            .Get<Dictionary<string, ApiKeyConfig>>();
+        var configuredKeys = apiKeyOptions.CurrentValue.Clients;
 
-        if (configuredKeys is null || configuredKeys.Count == 0)
+        if (configuredKeys.Count == 0)
             return Task.FromResult(AuthenticateResult.Fail("No API keys configured."));
 
         var matchedClient = configuredKeys
@@ -56,6 +54,15 @@ public sealed class ApiKeyAuthenticationHandler(
 
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }
+}
+
+/// <summary>
+/// Strongly-typed configuration for API keys. Bound once at startup via Options pattern.
+/// </summary>
+public sealed class ApiKeySettings
+{
+    public const string SectionName = "ApiKeys";
+    public Dictionary<string, ApiKeyConfig> Clients { get; set; } = [];
 }
 
 /// <summary>

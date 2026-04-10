@@ -6,20 +6,23 @@ namespace EscrowApp.Data.Repositories;
 
 public sealed class EscrowTransactionRepository(EscrowDbContext context) : IEscrowTransactionRepository
 {
-    public async Task<EscrowTransaction?> GetByIdAsync(int id)
-        => await context.Transactions.FindAsync(id);
+    public async Task<EscrowTransaction?> GetByIdAsync(int id, CancellationToken ct = default)
+        => await context.Transactions.FindAsync(new object[] { id }, ct);
 
-    public async Task<EscrowTransaction> AddAsync(EscrowTransaction transaction)
+    public async Task<EscrowTransaction?> GetByIdReadOnlyAsync(int id, CancellationToken ct = default)
+        => await context.Transactions.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id, ct);
+
+    public async Task<EscrowTransaction> AddAsync(EscrowTransaction transaction, CancellationToken ct = default)
     {
         context.Transactions.Add(transaction);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(ct);
         return transaction;
     }
 
-    public async Task UpdateAsync(EscrowTransaction transaction)
+    public async Task UpdateAsync(EscrowTransaction transaction, CancellationToken ct = default)
     {
         context.Transactions.Update(transaction);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(ct);
     }
 
     public async Task<(IReadOnlyList<EscrowTransaction> Items, int TotalCount)> ListAsync(

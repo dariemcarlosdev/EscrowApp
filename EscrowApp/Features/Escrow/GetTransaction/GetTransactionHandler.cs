@@ -12,7 +12,7 @@ internal sealed class GetTransactionHandler(
     public async Task<EscrowTransactionResponse?> Handle(
         GetTransactionQuery query, CancellationToken ct)
     {
-        var tx = await repo.GetByIdAsync(query.TransactionId);
+        var tx = await repo.GetByIdReadOnlyAsync(query.TransactionId, ct);
         return tx is null ? null : MapToResponse(tx);
     }
 

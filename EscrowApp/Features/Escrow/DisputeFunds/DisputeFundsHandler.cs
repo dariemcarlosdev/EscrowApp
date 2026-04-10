@@ -22,7 +22,7 @@ internal sealed class DisputeFundsHandler(
 
     public async Task<DisputeFundsResult> Handle(DisputeFundsCommand command, CancellationToken ct)
     {
-        var transaction = await repo.GetByIdAsync(command.TransactionId)
+        var transaction = await repo.GetByIdAsync(command.TransactionId, ct)
             ?? throw new InvalidOperationException($"Transaction {command.TransactionId} not found.");
 
         if (transaction.Status != HeldStatus)
@@ -36,11 +36,12 @@ internal sealed class DisputeFundsHandler(
 
         bool holdCancelled = await cancelStrategy.CancelHoldAsync(
             transaction.ExternalReference,
-            idempotencyKey: $"dispute-{command.TransactionId}");
+            idempotencyKey: $"dispute-{command.TransactionId}",
+            ct);
 
         transaction.Status = "Disputed";
         transaction.DisputeReason = command.Reason;
-        await repo.UpdateAsync(transaction);
+        await repo.UpdateAsync(transaction, ct);
 
         await eventBus.PublishAsync(new DisputeRaisedEvent
         {

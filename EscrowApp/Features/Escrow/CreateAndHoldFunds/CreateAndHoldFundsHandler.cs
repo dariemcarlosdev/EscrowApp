@@ -28,19 +28,20 @@ internal sealed class CreateAndHoldFundsHandler(
             Status = "Pending"
         };
 
-        var created = await repo.AddAsync(transaction);
+        var created = await repo.AddAsync(transaction, ct);
 
         var holdStrategy = strategyFactory.ResolveHoldStrategy(command.ProviderName);
 
         string externalReference = await holdStrategy.HoldFundsAsync(
             created.Amount,
             command.PaymentMethodId,
-            idempotencyKey: $"hold-{created.Id}");
+            idempotencyKey: $"hold-{created.Id}",
+            ct);
 
         created.ExternalReference = externalReference;
         created.ExternalProvider = command.ProviderName;
         created.Status = "Funded (Held)";
-        await repo.UpdateAsync(created);
+        await repo.UpdateAsync(created, ct);
 
         await eventBus.PublishAsync(new PaymentReceivedEvent
         {
