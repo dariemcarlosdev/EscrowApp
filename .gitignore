@@ -1,0 +1,29 @@
+# --- Secrets & Credentials ---
+.claude/hooks/smtp-cred.xml
+.env
+.env.*
+
+# --- Build Outputs ---
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+
+# --- IDE ---
+.vs/
+.vscode/
+*.suo
+*.user
+
+# --- Logs ---
+*.log
+
+# --- Test Coverage ---
+coverage/
+coverage.opencover.xml
+coverage.cobertura.xml
+
+# --- OS ---
+.DS_Store
+Thumbs.db

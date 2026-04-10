@@ -1,0 +1,9 @@
+/* Scoped styles for Footer.razor */
+
+.footer-link {
+    transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+    color: var(--text-primary) !important;
+}

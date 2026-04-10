@@ -1,0 +1,130 @@
+# 16 — Testing Strategy
+
+> Test architecture, conventions, and coverage targets for the EscrowApp.
+
+## Overview
+
+The EscrowApp test suite lives in `EscrowApp.Tests/` as a separate project in the solution. It uses **xUnit** as the test framework, **FluentAssertions** for readable assertions, and **Moq** for mocking dependencies.
+
+## Test Project Structure
+
+```
+EscrowApp.Tests/
+├── EscrowApp.Tests.csproj         ← Project file (xUnit + FluentAssertions + Moq)
+├── GlobalUsings.cs                ← Common using statements
+├── Features/
+│   └── Escrow/
+│       ├── HoldFundsHandlerTests.cs
+│       ├── ReleaseFundsHandlerTests.cs
+│       ├── DisputeFundsHandlerTests.cs
+│       └── CancelFundsHandlerTests.cs
+└── Services/
+    └── Strategies/
+        └── StripePaymentStrategyTests.cs
+```
+
+## Technology Stack
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| xUnit | 2.9.x | Test framework |
+| FluentAssertions | 8.x | Readable assertion syntax |
+| Moq | 4.20.x | Mock framework for interfaces |
+| coverlet | 6.x | Code coverage collection |
+| Microsoft.NET.Test.Sdk | 17.x | Test host |
+
+## Naming Convention
+
+```
+MethodName_Scenario_ExpectedResult
+```
+
+Examples:
+- `Handle_ValidPendingTransaction_HoldsFundsAndReturnsSuccess`
+- `Handle_TransactionNotFound_ThrowsException`
+- `Handle_DisputedTransaction_ThrowsInvalidOperationException`
+
+## Test Categories
+
+### 1. MediatR Handler Tests (Unit)
+
+Test each command/query handler in isolation:
+- Mock `IEscrowTransactionRepository`, `IPaymentStrategyFactory`, `IEventBus`
+- Verify correct state transitions
+- Verify domain events are published after successful operations
+- Verify exceptions on invalid state transitions
+
+**Coverage target:** Every handler's happy path + every invalid state transition.
+
+### 2. Strategy Tests (Unit)
+
+Test `StripePaymentStrategy` with mocked Stripe SDK:
+- Verify PaymentIntent creation uses `capture_method: manual`
+- Verify idempotency keys are passed to Stripe
+- Verify correct Stripe API calls for hold/release/cancel
+- Verify Stripe exception mapping to domain exceptions
+
+### 3. Domain Model Tests (Unit — Future)
+
+Test `EscrowTransaction` entity behavior:
+- State transition validation (valid/invalid paths)
+- Constructor validation (required fields, amount > 0)
+- Domain event emission on state changes
+
+### 4. API Integration Tests (Future)
+
+Test full HTTP request/response cycle:
+- Use `WebApplicationFactory<Program>`
+- Test endpoint routing, auth, validation, and response codes
+- Use Testcontainers for PostgreSQL (real database per test class)
+
+### 5. Webhook Tests (Future)
+
+Test webhook processing:
+- Signature verification with valid/invalid signatures
+- Event type routing to correct handler
+- State updates from webhook events
+
+## Running Tests
+
+```bash
+# Run all tests
+dotnet test
+
+# Run with coverage
+dotnet test --collect:"XPlat Code Coverage"
+
+# Run specific test class
+dotnet test --filter "FullyQualifiedName~CancelFundsHandlerTests"
+
+# Run in CI
+dotnet test --no-build -c Release --verbosity normal
+```
+
+## Coverage Targets
+
+| Area | Target | Rationale |
+|------|--------|-----------|
+| Payment handlers (Hold, Release, Cancel) | > 90% | Financial operations — high risk |
+| Domain model state transitions | 100% | Business invariants must be bulletproof |
+| API endpoints | Every documented status code | Contract compliance |
+| Webhook processing | > 80% | External integration — failure-prone |
+| UI components | Not tested (MVP) | Blazor component testing deferred |
+
+## Current Status
+
+All test files contain **skeleton structure with TODO placeholders**. Tests use `Assert.True(true, "Placeholder")` to pass the build while implementations are pending.
+
+**Implementation priority:**
+1. CancelFundsHandlerTests (new feature)
+2. HoldFundsHandlerTests (core payment flow)
+3. ReleaseFundsHandlerTests (revenue-critical)
+4. StripePaymentStrategyTests (integration boundary)
+5. DisputeFundsHandlerTests (risk management)
+
+## CI Integration
+
+Tests run automatically via GitHub Actions (`.github/workflows/ci.yml`):
+- Every push to `main` or `develop`
+- Every pull request targeting `main`
+- Coverage reports uploaded as build artifacts

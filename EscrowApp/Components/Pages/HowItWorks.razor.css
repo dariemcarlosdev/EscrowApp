@@ -1,0 +1,42 @@
+/* Scoped styles for HowItWorks.razor */
+
+.section-subtitle {
+    max-width: 600px;
+}
+
+/* Step numbers styled as large display digits */
+.step-number {
+    font-size: 3.5rem;
+    line-height: 1;
+}
+
+/* Featured step card: lifted elevation on desktop */
+.card-elevated {
+    transform: translateY(-15px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Horizontal connector line behind cards (desktop only) */
+.step-connector {
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        rgba(59, 130, 246, 0.0) 0%,
+        rgba(59, 130, 246, 0.4) 15%,
+        rgba(217, 70, 239, 0.4) 50%,
+        rgba(59, 130, 246, 0.4) 85%,
+        rgba(59, 130, 246, 0.0) 100%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Disable card lift on stacked mobile layout */
+@media (max-width: 767.98px) {
+    .card-elevated {
+        transform: none;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+}

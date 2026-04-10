@@ -1,0 +1,13 @@
+/* Scoped styles for SocialProof.razor */
+
+.ls-wide {
+    letter-spacing: 0.15em;
+}
+
+.stat-card {
+    padding: 1.5rem 1rem;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}

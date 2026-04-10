@@ -1,0 +1,44 @@
+/* Scoped styles for FaqSection.razor */
+
+.section-subtitle {
+    max-width: 600px;
+}
+
+.faq-item {
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.faq-item:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.faq-item[open] {
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Style the summary marker */
+.faq-item summary {
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+}
+
+.faq-item summary::after {
+    content: "\F282";
+    font-family: "bootstrap-icons";
+    font-size: 1rem;
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+}
+
+.faq-item[open] summary::after {
+    transform: rotate(180deg);
+}
+
+/* Hide default browser marker */
+.faq-item summary::-webkit-details-marker {
+    display: none;
+}

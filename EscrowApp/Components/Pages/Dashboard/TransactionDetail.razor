@@ -1,0 +1,90 @@
+@page "/dashboard/transaction/{TransactionId:int}"
+@* TODO: Re-add [Authorize] after user authentication backend is implemented (MVP task #3) *@
+@attribute [StreamRendering]
+@using Microsoft.Extensions.Localization
+
+<!-- TODO: Implement Transaction Detail page
+     Shows full details of a single escrow transaction including:
+     - Transaction metadata (parties, amount, service description)
+     - Current status with visual state machine indicator
+     - Timeline of status changes
+     - Actions available based on current status and user role
+     - External references (Stripe PaymentIntent ID)
+-->
+
+<div class="container mt-4">
+    @if (_isLoading)
+    {
+        <div class="d-flex justify-content-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">@L["Loading"]</span>
+            </div>
+        </div>
+    }
+    else if (_notFound)
+    {
+        <div class="alert alert-warning">
+            <h4 class="alert-heading">@L["NotFound"]</h4>
+            <p>@L["TransactionNotFoundMessage"]</p>
+        </div>
+    }
+    else
+    {
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/dashboard/client">@L["Dashboard"]</a></li>
+                <li class="breadcrumb-item active">@L["TransactionDetail"] #@TransactionId</li>
+            </ol>
+        </nav>
+
+        <!-- TODO: Status indicator with state machine visualization -->
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0">@L["TransactionDetail"] #@TransactionId</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">@L["Client"]</dt>
+                            <dd class="col-sm-8">--</dd>
+                            <dt class="col-sm-4">@L["Consultant"]</dt>
+                            <dd class="col-sm-8">--</dd>
+                            <dt class="col-sm-4">@L["Amount"]</dt>
+                            <dd class="col-sm-8">$--</dd>
+                            <dt class="col-sm-4">@L["Status"]</dt>
+                            <dd class="col-sm-8"><span class="badge bg-secondary">--</span></dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">@L["Service"]</dt>
+                            <dd class="col-sm-8">--</dd>
+                            <dt class="col-sm-4">@L["CreatedAt"]</dt>
+                            <dd class="col-sm-8">--</dd>
+                            <dt class="col-sm-4">@L["Provider"]</dt>
+                            <dd class="col-sm-8">--</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TODO: Action buttons (context-sensitive based on status + role) -->
+        <div class="d-flex gap-2 mb-4">
+            <button class="btn btn-success" disabled>@L["ReleaseFunds"]</button>
+            <button class="btn btn-outline-warning" disabled>@L["RaiseDispute"]</button>
+            <button class="btn btn-outline-danger" disabled>@L["CancelHold"]</button>
+        </div>
+
+        <!-- TODO: Timeline / audit log of status changes -->
+        <div class="card">
+            <div class="card-header">@L["Timeline"]</div>
+            <div class="card-body">
+                <div class="alert alert-secondary">
+                    @L["TimelineComingSoon"]
+                </div>
+            </div>
+        </div>
+    }
+</div>

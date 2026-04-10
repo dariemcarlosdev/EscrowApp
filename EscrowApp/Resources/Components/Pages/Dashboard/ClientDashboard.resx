@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="0" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>My Escrow Payments</value></data>
+  <data name="PageSubtitle" xml:space="preserve"><value>Track your escrow transactions and manage payments</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="ActiveHolds" xml:space="preserve"><value>Active Holds</value></data>
+  <data name="Released" xml:space="preserve"><value>Released</value></data>
+  <data name="Disputed" xml:space="preserve"><value>Disputed</value></data>
+  <data name="TotalEscrowed" xml:space="preserve"><value>Total Escrowed</value></data>
+  <data name="TransactionsTitle" xml:space="preserve"><value>Your Transactions</value></data>
+  <data name="NewEscrow" xml:space="preserve"><value>+ New Escrow</value></data>
+  <data name="NoTransactionsYet" xml:space="preserve"><value>No transactions yet. Create your first escrow payment to get started.</value></data>
+</root>

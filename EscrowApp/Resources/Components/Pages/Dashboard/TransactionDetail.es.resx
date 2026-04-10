@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="0" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Loading" xml:space="preserve"><value>Cargando...</value></data>
+  <data name="NotFound" xml:space="preserve"><value>Transacción No Encontrada</value></data>
+  <data name="TransactionNotFoundMessage" xml:space="preserve"><value>La transacción solicitada no fue encontrada o no tienes acceso.</value></data>
+  <data name="Dashboard" xml:space="preserve"><value>Panel</value></data>
+  <data name="TransactionDetail" xml:space="preserve"><value>Transacción</value></data>
+  <data name="Client" xml:space="preserve"><value>Cliente</value></data>
+  <data name="Consultant" xml:space="preserve"><value>Consultor</value></data>
+  <data name="Amount" xml:space="preserve"><value>Monto</value></data>
+  <data name="Status" xml:space="preserve"><value>Estado</value></data>
+  <data name="Service" xml:space="preserve"><value>Servicio</value></data>
+  <data name="CreatedAt" xml:space="preserve"><value>Creado</value></data>
+  <data name="Provider" xml:space="preserve"><value>Proveedor</value></data>
+  <data name="ReleaseFunds" xml:space="preserve"><value>Liberar Fondos</value></data>
+  <data name="RaiseDispute" xml:space="preserve"><value>Levantar Disputa</value></data>
+  <data name="CancelHold" xml:space="preserve"><value>Cancelar Retención</value></data>
+  <data name="Timeline" xml:space="preserve"><value>Línea de Tiempo</value></data>
+  <data name="TimelineComingSoon" xml:space="preserve"><value>La línea de tiempo estará disponible en una próxima actualización.</value></data>
+</root>

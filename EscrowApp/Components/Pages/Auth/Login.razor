@@ -1,0 +1,39 @@
+@page "/auth/login"
+@using Microsoft.Extensions.Localization
+
+<!-- TODO: Implement login page
+     Options (choose one based on auth strategy decision):
+     A) Microsoft Entra ID — redirect to /MicrosoftIdentity/Account/SignIn
+     B) ASP.NET Core Identity — email/password form + social logins
+     C) Custom OIDC — redirect to IdentityServer authorize endpoint
+
+     For MVP: Consider starting with ASP.NET Core Identity for simplest setup,
+     then migrate to Entra ID for production.
+-->
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">@L["LoginTitle"]</h2>
+
+                    <!-- TODO: Replace with actual login form or SSO redirect -->
+                    <div class="alert alert-info">
+                        Authentication not yet configured. See docs/05-Hybrid-Identity for setup.
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" disabled>@L["SignInWithEmail"]</button>
+                        <button class="btn btn-outline-dark" disabled>@L["SignInWithMicrosoft"]</button>
+                    </div>
+
+                    <hr />
+                    <p class="text-center text-muted">
+                        @L["NoAccount"] <a href="/auth/register">@L["SignUp"]</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+/* TransactionDetail — Scoped CSS */
+
+h4 {
+    font-weight: 600;
+}
+
+dl dt {
+    font-weight: 500;
+    color: var(--bs-secondary);
+}
+
+.badge {
+    font-size: 0.9rem;
+    padding: 0.4em 0.8em;
+}
+
+/* TODO: Add timeline styles — vertical connector line, status dots,
+   state machine visualization with colored progress indicators */

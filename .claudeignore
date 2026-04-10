@@ -1,0 +1,32 @@
+# .claudeignore — Exclude from Claude Code context
+# Reduces token consumption by ignoring build artifacts and dependencies
+
+# Build outputs
+bin/
+obj/
+publish/
+
+# IDE files
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# Dependencies
+node_modules/
+
+# Temporary files
+*.tmp
+*.log
+*.cache
+
+# Database migrations (large, generated files)
+# Uncomment if migrations consume too much context:
+# EscrowApp/Migrations/
+
+# Docker volumes
+docker-data/
+
+# OS files
+Thumbs.db
+.DS_Store

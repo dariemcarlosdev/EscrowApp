@@ -1,10 +1,20 @@
 # Implementation Plan — NexTruzt.io Escrow Platform
 
-> Last synced with codebase: 2026-04-09
+> Last synced with codebase: 2026-04-10
+
+## Revenue Gate
+
+> Every item in this plan was evaluated against the **mvp-gatekeeper** revenue gate:
+> _"Does this put money in the bank, or is it engineering vanity?"_
+>
+> **Day-1 Revenue Model:** Client escrows $5,000 → Stripe holds funds → Work delivered → Funds released
+> - Stripe processing: 2.9% + $0.30 = $145.30
+> - **NexTruzt.io platform fee: 1.5% = $75.00** ← THIS IS THE PRODUCT
+> - Consultant receives: $4,779.70
+
+---
 
 ## Decisions Made
-
-These questions from the original plan have been answered by implementation:
 
 | Question | Decision |
 |---|---|
@@ -13,12 +23,14 @@ These questions from the original plan have been answered by implementation:
 | Database | **PostgreSQL** (Npgsql) — production-grade from day one |
 | Architecture | **Clean Architecture + CQRS/MediatR** — vertical slices |
 | CSS framework | **Bootstrap 5** — enterprise LOB UI |
+| Auth provider | **ASP.NET Identity** (MVP) — upgrade to Entra ID post-MVP |
+| MVP scope method | **mvp-gatekeeper skill** — revenue gate on every feature |
 
 ---
 
-## Phase 1: Landing Page — ✅ COMPLETE
+## What's Built ✅ (Foundation — Complete)
 
-All landing page components built with Blazor Server, code-behind pattern, scoped CSS, and i18n.
+### Phase 1: Landing Page — ✅ COMPLETE
 
 | Deliverable | Status | Component |
 |---|---|---|
@@ -28,77 +40,136 @@ All landing page components built with Blazor Server, code-behind pattern, scope
 | Social Proof | ✅ Done | `Components/Shared/SocialProof.*` |
 | NavBar + Footer | ✅ Done | `Components/Shared/NavBar.*`, `Footer.*` |
 | Home Orchestrator | ✅ Done | `Components/Pages/Home.*` |
-| Cloud Deployment | ❌ Pending | Dockerfile exists, no cloud hosting yet |
 
----
-
-## Phase 2: Escrow Engine — 🔶 ~85% COMPLETE
-
-### What's Built ✅
+### Phase 2: Escrow Engine — Scaffolding ✅
 
 **Domain Layer:**
-- `EscrowTransaction` aggregate with status state machine (Pending → Held → Released \| Disputed)
-- `Actor` entity (Web2/Web3 hybrid identity)
-- `IdentityMapping` entity (multi-provider: Email, Google, MetaMask, WalletConnect)
-- Domain events: `PaymentReceivedEvent`, `DisputeRaisedEvent`
-- `InMemoryEventBus` (MVP — swappable for MassTransit later)
+- `EscrowTransaction` aggregate (Pending → Held → Released | Disputed)
+- `Actor` entity, `IdentityMapping` entity, domain events
+- `InMemoryEventBus` (MVP — swappable later)
 
 **Application Layer (MediatR CQRS):**
-- `CreateAndHoldFunds` — create + hold atomically
-- `HoldFunds` — hold on existing transaction
-- `ReleaseFunds` — capture held PaymentIntent
-- `DisputeFunds` — cancel hold + dispute flag
+- `CreateAndHoldFunds`, `HoldFunds`, `ReleaseFunds`, `DisputeFunds` — working handlers
 - `GetTransaction` / `ListTransactions` — read queries
 
 **Infrastructure:**
-- `StripePaymentStrategy` — full ISP implementation (hold, release, cancel)
-- `PaymentStrategyFactory` — OCP runtime resolution
-- `EscrowTransactionRepository` — EF Core with pagination + filters
-- `EscrowDbContext` + 3 migrations (PostgreSQL)
-- `ApiKeyAuthenticationHandler` — X-Api-Key header validation
-- `ApiExceptionMiddleware` — RFC 7807 error responses
+- `StripePaymentStrategy` — full ISP (hold, release, cancel)
+- `PaymentStrategyFactory`, `EscrowTransactionRepository`, `EscrowDbContext` + 3 migrations
+- `ApiKeyAuthenticationHandler`, `ApiExceptionMiddleware` (RFC 7807)
+- `EscrowController` — 6 REST endpoints, Swagger, policy-based auth
 
-**API:**
-- `EscrowController` — 6 REST endpoints (`/api/escrow/*`)
-- Swagger/OpenAPI with API key security scheme
-- Policy-based authorization (`ApiAccess`)
+### Phase 3: Web UI — Scaffolding ✅
 
-### What's Missing ❌
-
-| Item | Priority | Effort | Notes |
-|---|---|---|---|
-| `CancelFunds` handler | High | ~1 hour | Stub exists; mirror DisputeFunds logic |
-| Webhook handlers | High | ~3 hours | `PaymentIntentEventHandler` is stub; needs Stripe signature verification |
-| Unit tests | High | ~4 hours | 16 test methods exist as stubs (`Assert.True(true)`); need real Arrange-Act-Assert |
-| FluentValidation | Medium | ~2 hours | No validators on commands yet |
+- Client Dashboard (`/dashboard/client`), Consultant Dashboard (`/dashboard/consultant`)
+- Transaction Detail (`/transaction/{id}`)
+- Login + Register pages (UI shells — no backend)
+- Localization (en-US + es-MX), Dockerfile + docker-compose
+- CI/CD pipeline (`.github/workflows/ci.yml`) — build + test + coverage
 
 ---
 
-## Phase 3: Web MVP — 🔶 ~60% COMPLETE
+## 🚀 MVP Release — Ship-to-Charge
 
-### What's Built ✅
+> **8 tasks** standing between the current codebase and Day-1 revenue.
+> Ordered by dependency chain. Complete sequentially unless marked parallel.
 
-| Deliverable | Status | Route |
-|---|---|---|
-| Client Dashboard | ✅ Done | `/dashboard/client` |
-| Consultant Dashboard | ✅ Done | `/dashboard/consultant` |
-| Transaction Detail | ✅ Done | `/transaction/{id}` |
-| Login Page | 🔶 UI Only | `/auth/login` (no auth backend) |
-| Register Page | 🔶 UI Only | `/auth/register` (no auth backend) |
-| Localization (en/es) | ✅ Wired | `IStringLocalizer` + .resx files + culture switch |
-| Dockerfile | ✅ Done | Multi-stage build at repo root |
-| docker-compose.yml | ✅ Done | App + PostgreSQL |
+### ⚠️ CRITICAL: Platform Fee — Revenue Blocker #1
 
-### What's Missing ❌
+**Current state:** The 1.5% platform fee is documented in `business-model.md` but **zero fee logic exists in code**. Every transaction today generates $0 revenue for NexTruzt.io.
 
-| Item | Priority | Effort | Notes |
+| # | Task | Revenue Impact | Status |
 |---|---|---|---|
-| User authentication | **Critical** | ~6 hours | Entra ID or ASP.NET Identity; Login/Register wired but non-functional |
-| Cloud deployment | High | ~2 hours | Dockerfile exists; needs Azure App Service or Render config |
-| .resx audit | Medium | ~1 hour | Verify all component keys exist in both en/es files |
-| CI/CD pipeline | Medium | ~2 hours | GitHub Actions for build + test + deploy |
-| Production secrets | Medium | ~1 hour | Move API keys from appsettings to Key Vault / env vars |
-| Polish (toasts, spinners) | Low | ~2 hours | Some loading states exist; needs consistent UX |
+| **1** | **Platform fee implementation** | Direct — $0 → $75/tx | ❌ Not started |
+| | Add `PlatformFee` + `PlatformFeePercentage` fields to `EscrowTransaction` | | |
+| | Fee calculation in `CreateAndHoldFundsHandler` (`amount × 0.015`) | | |
+| | EF Core migration for new columns | | |
+| | Config: `Platform:FeePercentage` in `appsettings.json` | | |
+
+### MVP Task Queue (Dependency-Ordered)
+
+| # | Task | Depends On | Revenue Gate Justification |
+|---|---|---|---|
+| **1** | Platform fee (1.5%) | — | No fee = no revenue. #1 blocker. |
+| **2** | CancelFunds handler | #1 | Users must cancel escrows — prevents chargebacks |
+| **3** | User authentication (ASP.NET Identity) | — | Can't identify users = can't process payments safely |
+| **4** | FluentValidation on all commands | #2 | Unvalidated payment amounts = lost money at Stripe |
+| **5** | Real unit tests (replace 16 stubs) | #4 | One test per handler proves money flows correctly |
+| **6** | Production secrets (env vars) | #5 | Hardcoded mock Stripe key + DB creds = can't deploy |
+| **7** | Minimal Stripe webhook | #1 | `payment_intent.succeeded` confirmation (signature verify only) |
+| **8** | Cloud deployment | #3, #6 | Can't charge money without a running production server |
+
+### MVP Parallelization
+
+```
+Track A (Money Pipe):  #1 Platform Fee → #2 CancelFunds → #4 Validation → #5 Tests → #6 Secrets
+Track B (User Access): #3 Auth (parallel with Track A)
+Track C (Stripe Sync): #7 Webhook (parallel after #1)
+Merge Point:           #8 Cloud Deploy (requires #3 + #6)
+```
+
+---
+
+## 📊 Business Strategy & AI Infrastructure — ✅ COMPLETE
+
+### Business Strategy
+
+| Deliverable | Status | Location |
+|---|---|---|
+| Competitive Analysis | ✅ Done | `docs/business/business-model/business-model.md` (lines ~152-300) |
+| Risk Severity Upgrade | ✅ Done | `docs/business/business-model/business-model.md` (lines ~371-385) |
+| Strategic Plan | ✅ Done | `docs/business/business-model/strategic-plan.md` |
+| Regulatory Compliance Rules | ✅ Done | All 4 instruction files (AGENTS.md, CLAUDE.md, GEMINI.md, copilot-instructions.md) |
+
+**Key Strategic Decisions:**
+- 4 GO/NO-GO pre-launch blockers identified (fintech attorney, terminology audit, ToS, Stripe Connect)
+- Project repositioned as "escrow-like secure payment holding" to avoid money transmitter licensing
+- Revenue projections: Year 1 $81K → Year 2 $360K platform revenue
+
+### AI Infrastructure Export System
+
+| Deliverable | Status | Location |
+|---|---|---|
+| Export Guide | ✅ Done | `.github/AI-INFRASTRUCTURE-EXPORT-GUIDE.md` (778 lines) |
+| Export Script | ✅ Done | `.github/scripts/export-ai-infrastructure.ps1` |
+| Tailoring Wizard | ✅ Done | `.github/scripts/tailor-ai-infrastructure.ps1` |
+
+**Portability:** 43 skills, 7 extensions, 10 rules, 10 hooks inventoried. ~88% domain-agnostic and portable.
+
+### AI Compatibility Audit (4-Tool)
+
+| Deliverable | Status | Location |
+|---|---|---|
+| Copilot CLI Audit | ✅ 100% | `.github/AI-COMPATIBILITY-AUDIT.md` |
+| Claude Code Audit | ✅ 100% | `.github/AI-COMPATIBILITY-AUDIT.md` |
+| Gemini/Antigravity Audit | ✅ 100% | `.agent/rules/` (11), `.agent/workflows/` (4), `.gemini/settings.json` |
+| Codex CLI Audit | ✅ 100% (was 65%) | Subdirectory `AGENTS.md` (5), `config.toml` context section |
+| CODEX.md | ✅ Created | `CODEX.md` (200 lines) |
+| .codex/ config | ✅ Created | `.codex/config.toml`, `.codex/README.md` |
+| .claudeignore | ✅ Created | `.claudeignore` |
+| Doc drift fixes | ✅ Fixed | 5 files updated (skill counts 36/41 → 43) |
+| Audit report | ✅ Created | `.github/AI-COMPATIBILITY-AUDIT.md` (260 lines) |
+
+**Result:** All 4 major agentic AI tools fully supported. Universal assets (AGENTS.md + 43 skills) work across all tools.
+
+---
+
+## 📋 Post-MVP Backlog — Explicitly Deferred
+
+> These items **failed the revenue gate**. Each has an explicit **upgrade trigger** — do not build until the trigger condition is met.
+
+| Item | Upgrade Trigger | Why Deferred |
+|---|---|---|
+| Email notifications | User retention drops below 60% | Users see status in dashboard; email infra is a rabbit hole |
+| Polly resilience (retry/circuit breaker) | Transaction volume > 100/day | <10 users = manual retry if Stripe fails |
+| Comprehensive test coverage (>90%) | Next feature sprint begins | One test per handler is MVP; full coverage is ongoing |
+| Web3/Ethereum bridge | 3+ users request crypto escrow | Zero proven demand; Stripe handles all payments today |
+| PayPal payment strategy | 5+ users request PayPal | Second provider doubles integration complexity |
+| Admin dashboard | Admin operations > 10/week | Use PostgreSQL queries directly until then |
+| .resx localization audit | User reports missing translation | Missing keys show key name — ugly but functional |
+| Real-time notifications (SignalR) | 100+ concurrent users | Page refresh works at <100 users |
+| Formal audit trail | Regulatory compliance required | DB records provide basic audit; formal log is v2 |
+| Performance monitoring | Production deployment stable | Premature optimization without production traffic data |
+| UI polish (toasts, spinners) | User feedback requests it | Bootstrap defaults ship; custom polish doesn't |
 
 ---
 
@@ -118,38 +189,29 @@ Data/Services/  EF Core repository, Stripe strategy, InMemoryEventBus
 Infrastructure/ ApiKey auth, exception middleware
 ```
 
-**Tech Stack Finalized:**
+**Tech Stack:**
 - .NET 10, Blazor Server (interactive SSR)
 - PostgreSQL + EF Core (Npgsql)
 - Stripe SDK (PaymentIntents, manual capture)
 - MediatR (CQRS vertical slices)
 - Bootstrap 5 (enterprise UI)
-- xUnit + FluentAssertions (test stubs in place)
+- xUnit + FluentAssertions + Moq
 - Docker (Dockerfile + docker-compose)
+- GitHub Actions CI/CD
 
 ---
 
-## MVP Completion Priorities
+## MVP Ship Checklist
 
-> Ordered by impact and dependency. Complete these to reach a shippable MVP.
+> All 10 gates must be green before declaring MVP complete. From `mvp-gatekeeper` skill.
 
-1. **Implement CancelFunds handler** — unblock full escrow lifecycle
-2. **Write unit tests** — 16 stubs ready; need real assertions with Moq
-3. **Implement user authentication** — Login/Register pages are UI-only
-4. **Implement Stripe webhooks** — async payment state sync
-5. **Deploy to cloud** — Docker ready; needs hosting config
-6. **Add FluentValidation** — input validation on all commands
-7. **CI/CD pipeline** — automate build → test → deploy
-
----
-
-## Verification Checklist
-
-- [ ] All 6 API endpoints return correct responses via Swagger
-- [ ] Stripe test card (`4242...`) completes hold → release flow
-- [ ] Dispute flow cancels PaymentIntent and updates status
-- [ ] Cancel flow voids held funds (after handler implementation)
-- [ ] Unit tests pass with `dotnet test` (after test implementation)
-- [ ] Docker Compose starts app + PostgreSQL successfully
-- [ ] Localization switches between en-US and es-MX correctly
-- [ ] All Blazor pages render without errors
+- [ ] **Money flows** — Stripe PaymentIntent hold → capture works with test card `4242...`
+- [ ] **Platform fee collected** — 1.5% fee calculated, stored, and visible in transaction
+- [ ] **Full lifecycle** — Create → Hold → Release AND Create → Hold → Cancel both work
+- [ ] **Auth blocks strangers** — `[Authorize]` on every page/endpoint, login/register functional
+- [ ] **Bad input rejected** — FluentValidation on all 5 payment commands
+- [ ] **Idempotency keys present** — every payment mutation is retry-safe
+- [ ] **No secrets in code** — zero hardcoded keys/creds in source
+- [ ] **HTTPS enforced** — HSTS + redirect in production config
+- [ ] **Errors don't crash** — friendly error message, not stack trace
+- [ ] **Tests pass** — `dotnet test` green with real assertions

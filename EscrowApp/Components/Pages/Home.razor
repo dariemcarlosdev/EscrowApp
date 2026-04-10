@@ -1,0 +1,24 @@
+@page "/"
+@rendermode InteractiveServer
+
+<PageTitle>@L["PageTitle"]</PageTitle>
+
+<a class="visually-hidden-focusable skip-link" href="#main-content">
+    @L["SkipToContent"]
+</a>
+
+<div class="page-container w-100 min-vh-100 position-relative">
+    <NavBar />
+
+    <div class="bg-blob blob-1" aria-hidden="true"></div>
+    <div class="bg-blob blob-2" aria-hidden="true"></div>
+
+    <main id="main-content">
+        <HeroSection />
+        <HowItWorks />
+        <SocialProof />
+        <FaqSection />
+    </main>
+
+    <Footer />
+</div>
