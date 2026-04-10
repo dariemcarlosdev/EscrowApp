@@ -1,16 +1,17 @@
 using EscrowApp.Components;
+using EscrowApp.Features.Behaviors;
 using EscrowApp.Data;
 using EscrowApp.Data.Repositories;
 using EscrowApp.Models.Repositories;
 using EscrowApp.Events;
 using EscrowApp.Infrastructure.Auth;
 using EscrowApp.Infrastructure.Middleware;
-using EscrowApp.Services;
 using EscrowApp.Services.Strategies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.ResponseCompression;
 using Stripe;
 using System.Globalization;
 
@@ -29,6 +30,14 @@ builder.Services.AddControllers()
     .AddDataAnnotationsLocalization(opts =>
         opts.DataAnnotationLocalizerProvider = (_, factory) =>
             factory.Create(typeof(EscrowApp.SharedResource)));
+
+// === API Key Options ===
+builder.Services.Configure<ApiKeySettings>(opts =>
+{
+    opts.Clients = builder.Configuration
+        .GetSection(ApiKeySettings.SectionName)
+        .Get<Dictionary<string, ApiKeyConfig>>() ?? [];
+});
 
 // === API Key Authentication ===
 builder.Services
@@ -79,7 +88,11 @@ builder.Services.AddSwaggerGen(opts =>
 });
 
 // === Stripe Configuration ===
-StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+var stripeApiKey = builder.Configuration["Stripe:SecretKey"] ?? string.Empty;
+StripeConfiguration.ApiKey = stripeApiKey;
+builder.Services.AddSingleton<IStripeClient>(new StripeClient(stripeApiKey));
+builder.Services.AddSingleton(sp =>
+    new PaymentIntentService(sp.GetRequiredService<IStripeClient>()));
 
 // === Data Layer ===
 builder.Services.AddScoped<IEscrowTransactionRepository, EscrowTransactionRepository>();
@@ -92,14 +105,31 @@ builder.Services.AddScoped<IEventBus, InMemoryEventBus>();
 builder.Services.AddScoped<IEscrowPaymentStrategy, StripePaymentStrategy>();
 builder.Services.AddScoped<IPaymentStrategyFactory, PaymentStrategyFactory>();
 
-// === Application Services ===
-// EscrowManagerService kept for backward-compat. Prefer IMediator + Feature slice Commands.
-builder.Services.AddScoped<IEscrowManagerService, EscrowManagerService>();
-
 // === MediatR — Vertical Slice Architecture (Phase 3) ===
 // Auto-discovers all IRequestHandler<,> implementations in this assembly.
 // UI calls: await Mediator.Send(new HoldFundsCommand(id, pmId));
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssemblyContaining<Program>();
+    cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
+    cfg.AddOpenBehavior(typeof(PerformanceBehavior<,>));
+});
+
+// === Response Compression ===
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.EnableForHttps = true;
+    opts.Providers.Add<BrotliCompressionProvider>();
+    opts.Providers.Add<GzipCompressionProvider>();
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        ["application/json", "application/javascript", "text/css"]);
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(opts =>
+    opts.Level = System.IO.Compression.CompressionLevel.Fastest);
+
+builder.Services.Configure<GzipCompressionProviderOptions>(opts =>
+    opts.Level = System.IO.Compression.CompressionLevel.SmallestSize);
 
 var app = builder.Build();
 
@@ -131,6 +161,8 @@ if (app.Environment.IsDevelopment())
         opts.RoutePrefix = "swagger";
     });
 }
+
+app.UseResponseCompression();
 
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
