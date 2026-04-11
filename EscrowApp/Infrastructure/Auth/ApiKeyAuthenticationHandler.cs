@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
@@ -7,7 +9,8 @@ namespace EscrowApp.Infrastructure.Auth;
 
 /// <summary>
 /// Authentication handler that validates API keys from the X-Api-Key header.
-/// Keys are stored in configuration for MVP — move to database/KeyVault for production.
+/// Uses timing-safe comparison to prevent side-channel attacks.
+/// Keys are stored in configuration — sourced from user-secrets locally, Key Vault in production.
 /// </summary>
 public sealed class ApiKeyAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -34,8 +37,7 @@ public sealed class ApiKeyAuthenticationHandler(
             return Task.FromResult(AuthenticateResult.Fail("No API keys configured."));
 
         var matchedClient = configuredKeys
-            .FirstOrDefault(kvp =>
-                string.Equals(kvp.Value.Key, providedKey, StringComparison.Ordinal));
+            .FirstOrDefault(kvp => TimingSafeEquals(kvp.Value.Key, providedKey));
 
         if (matchedClient.Value is null)
             return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
@@ -53,6 +55,13 @@ public sealed class ApiKeyAuthenticationHandler(
         var ticket = new AuthenticationTicket(principal, SchemeName);
 
         return Task.FromResult(AuthenticateResult.Success(ticket));
+    }
+
+    private static bool TimingSafeEquals(string expected, string actual)
+    {
+        var expectedBytes = Encoding.UTF8.GetBytes(expected);
+        var actualBytes = Encoding.UTF8.GetBytes(actual);
+        return CryptographicOperations.FixedTimeEquals(expectedBytes, actualBytes);
     }
 }
 

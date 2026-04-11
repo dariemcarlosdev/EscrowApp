@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Stripe;
 
 namespace EscrowApp.Services.Strategies;
@@ -8,13 +9,18 @@ namespace EscrowApp.Services.Strategies;
 /// Idempotency keys prevent double-actions on network retries (§4).
 /// Uses DI-injected PaymentIntentService for HTTP connection pooling.
 /// </summary>
-public sealed class StripePaymentStrategy(PaymentIntentService paymentIntentService)
+public sealed class StripePaymentStrategy(
+    PaymentIntentService paymentIntentService,
+    IConfiguration configuration)
     : IEscrowPaymentStrategy, IFundHoldable, IFundReleasable, IFundCancellable
 {
     public string ProviderName => "Stripe";
 
     public async Task<string> HoldFundsAsync(decimal amount, string sourcePaymentMethodId, string idempotencyKey, CancellationToken ct = default)
     {
+        var returnUrl = configuration["Stripe:PaymentReturnUrl"]
+            ?? throw new InvalidOperationException("Stripe:PaymentReturnUrl is not configured.");
+
         var options = new PaymentIntentCreateOptions
         {
             Amount = (long)(amount * 100),
@@ -22,7 +28,7 @@ public sealed class StripePaymentStrategy(PaymentIntentService paymentIntentServ
             PaymentMethod = sourcePaymentMethodId,
             CaptureMethod = "manual",
             Confirm = true,
-            ReturnUrl = "http://localhost:5222/payment-return"
+            ReturnUrl = returnUrl
         };
 
         var requestOptions = new RequestOptions { IdempotencyKey = idempotencyKey };

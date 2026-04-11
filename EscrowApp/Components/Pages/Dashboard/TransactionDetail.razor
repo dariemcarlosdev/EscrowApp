@@ -1,5 +1,6 @@
 @page "/dashboard/transaction/{TransactionId:int}"
-@* TODO: Re-add [Authorize] after user authentication backend is implemented (MVP task #3) *@
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @attribute [StreamRendering]
 @using Microsoft.Extensions.Localization
 

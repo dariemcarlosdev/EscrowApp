@@ -118,7 +118,7 @@ builder.Services.AddMediatR(cfg =>
 // === Response Compression ===
 builder.Services.AddResponseCompression(opts =>
 {
-    opts.EnableForHttps = true;
+    opts.EnableForHttps = false; // Disabled for HTTPS to prevent BREACH attacks
     opts.Providers.Add<BrotliCompressionProvider>();
     opts.Providers.Add<GzipCompressionProvider>();
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
@@ -151,6 +151,19 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// === Security Headers ===
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("X-Permitted-Cross-Domain-Policies", "none");
+    context.Response.Headers.Append(
+        "Content-Security-Policy",
+        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;");
+    await next();
+});
+
 // === Swagger (Development only) ===
 if (app.Environment.IsDevelopment())
 {
@@ -177,12 +190,24 @@ app.MapStaticAssets();
 app.MapControllers();
 
 // === Culture Switch Endpoint ===
+var allowedCultures = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "en", "es", "en-US", "es-MX" };
+
 app.MapGet("/culture/set", (string culture, string redirectUri, HttpContext ctx) =>
 {
+    if (!allowedCultures.Contains(culture))
+        return Results.BadRequest("Unsupported culture.");
+
     ctx.Response.Cookies.Append(
         CookieRequestCultureProvider.DefaultCookieName,
         CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
-        new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1), IsEssential = true });
+        new CookieOptions
+        {
+            Expires = DateTimeOffset.UtcNow.AddYears(1),
+            IsEssential = true,
+            SameSite = SameSiteMode.Lax,
+            Secure = true,
+            HttpOnly = true
+        });
 
     return Results.LocalRedirect(redirectUri);
 });
