@@ -1,5 +1,34 @@
+# --- NexSynapse IP Protection (NEVER commit AI infrastructure) ---
+# Model-specific agent configs
+.agent/
+.claude/
+.codex/
+.gemini/
+
+# Universal AI infrastructure
+NexSynapse/
+AGENTS.md
+CLAUDE.md
+CODEX.md
+GEMINI.md
+mempalace.yaml
+
+# Copilot / AI extensions, skills, hooks, scripts
+.github/skills/
+.github/extensions/
+.github/hooks/
+.github/scripts/
+.github/instructions/
+.github/docs/
+.github/copilot-instructions.md
+.github/copilot-mcp.json
+.github/copilot-setup-steps.yml
+.github/AI-COMPATIBILITY-AUDIT.md
+.github/AI-INFRASTRUCTURE-EXPORT-GUIDE.md
+.github/SETUP-GUIDE.md
+.github/lsp.json
+
 # --- Secrets & Credentials ---
-.claude/hooks/smtp-cred.xml
 .env
 .env.*
 
