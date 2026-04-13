@@ -105,7 +105,7 @@ Client UI          MediatR           DisputeFundsHandler     StripePaymentStrate
 - **Auto-Refund**: Cancelling a PaymentIntent in `requires_capture` state automatically
   releases the authorization — funds return to the client's card
 - **Success Check**: `PaymentIntent.Status == "canceled"`
-- **Idempotency Key**: `$"cancel-{transactionId}"`
+- **Idempotency Key**: `$"dispute-{transactionId}"`
 - **Timing**: Must cancel before the 7-day Stripe hold expiration
 
 ## Domain Event Published

@@ -113,14 +113,16 @@ dotnet test --no-build -c Release --verbosity normal
 
 ## Current Status
 
-All test files contain **skeleton structure with TODO placeholders**. Tests use `Assert.True(true, "Placeholder")` to pass the build while implementations are pending.
+All test files contain **skeleton structure with TODO placeholders**. Tests use `Assert.True(true, "Placeholder")` to pass the build while implementations are pending. This is tracked as **MVP Task #5** in the [task checklist](../../../docs/planning/task-checklist.md).
+
+**Test count:** 16 placeholder tests across 5 test files — all pass but test nothing real.
 
 **Implementation priority:**
-1. CancelFundsHandlerTests (new feature)
-2. HoldFundsHandlerTests (core payment flow)
-3. ReleaseFundsHandlerTests (revenue-critical)
-4. StripePaymentStrategyTests (integration boundary)
-5. DisputeFundsHandlerTests (risk management)
+1. HoldFundsHandlerTests — 3 real tests (core payment flow)
+2. ReleaseFundsHandlerTests — 3 real tests (revenue-critical)
+3. DisputeFundsHandlerTests — 2 real tests (risk management)
+4. CancelFundsHandlerTests — 4 real tests (depends on CancelFunds handler implementation)
+5. StripePaymentStrategyTests — 4 real tests with mocked Stripe SDK (integration boundary)
 
 ## CI Integration
 

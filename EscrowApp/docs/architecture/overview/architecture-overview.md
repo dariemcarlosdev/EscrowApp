@@ -129,25 +129,61 @@ Webhooks are split: transport/verification in Infrastructure, business logic in 
 ## Testing
 
 Test project at `EscrowApp.Tests/` — xUnit + FluentAssertions + Moq.
-See `docs/16-Testing/` for full strategy.
+All test files currently contain **skeleton placeholders** — real test implementations are pending (MVP Task #5).
+See [Testing Strategy](cross-cutting/testing/testing-strategy.md) for full strategy.
+
+## Security Hardening
+
+The following security measures were added in the 2026-04-11 audit:
+
+| Measure | Implementation |
+|---------|---------------|
+| **Security headers** | Custom middleware: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `X-Permitted-Cross-Domain-Policies: none`, Content-Security-Policy |
+| **BREACH protection** | Response compression disabled for HTTPS requests |
+| **Timing-safe auth** | `ApiKeyAuthenticationHandler` uses `CryptographicOperations.FixedTimeEquals()` |
+| **Cookie security** | Culture cookies: `Secure = true`, `HttpOnly = true`, `SameSite = Lax` |
+| **Secrets removed** | `appsettings.json` and `appsettings.Development.json` cleared of hardcoded secrets |
+| **[Authorize] enforced** | Re-enabled on all dashboard pages (Client, Consultant, TransactionDetail) |
+
+## MediatR Pipeline Behaviors
+
+| Behavior | Purpose |
+|----------|---------|
+| `LoggingBehavior<,>` | Structured logging for all MediatR requests |
+| `PerformanceBehavior<,>` | Alerts on slow-running handlers |
 
 ## Configuration
 
-- **Database**: `ConnectionStrings:DefaultConnection` in `appsettings.json`
-- **Stripe**: `Stripe:SecretKey` — must be set via user-secrets or environment variable in production
+- **Database**: `ConnectionStrings:DefaultConnection` — must be set via user-secrets or environment variable
+- **Stripe**: `Stripe:SecretKey` — must be set via user-secrets or environment variable
+- **Stripe Return URL**: `Stripe:PaymentReturnUrl` — configurable 3D Secure redirect URL
 - **Stripe Webhooks**: `Stripe:WebhookSecret` — HMAC verification key
+- **API Keys**: `ApiKeys:{clientId}:Key` — via options pattern (`ApiKeySettings` / `ApiKeyConfig`)
 - **Localization**: Supported cultures `en-US`, `es-MX` — cookie-based switching via `/culture/set`
 
 ## Documentation Index
 
-| Doc | Topic |
-|-----|-------|
-| 00 | Architecture Overview (this file) |
-| 01-09 | Core features (Hold, Release, Dispute, Strategies, Identity, Events, i18n, UI, API) |
-| 10 | Security Audit |
-| 11 | Cancel Funds |
-| 12 | Stripe Webhooks |
-| 13-15 | Dashboard pages (Client, Consultant, Transaction Detail) |
-| 16 | Testing Strategy |
-| 17 | Deployment |
-| 18 | Business Model & Revenue |
+| Category | Doc | Topic |
+|----------|-----|-------|
+| Architecture | `architecture/overview` | Architecture Overview (this file) |
+| Architecture | `architecture/payment-strategies` | Strategy Pattern + ISP interfaces |
+| Architecture | `architecture/event-bus` | Domain events + IEventBus |
+| Architecture | `architecture/api-integration` | REST API + Swagger |
+| Architecture | `architecture/stripe-webhooks` | Stripe webhook handling |
+| Features | `features/hold-funds` | Hold Funds (Stripe manual capture) |
+| Features | `features/release-funds` | Release Funds (capture) |
+| Features | `features/dispute-funds` | Dispute Funds (cancel + refund) |
+| Features | `features/cancel-funds` | Cancel Funds (void hold) |
+| Features | `features/landing-page` | Landing page components |
+| Features | `features/client-dashboard` | Client dashboard |
+| Features | `features/consultant-dashboard` | Consultant dashboard |
+| Features | `features/transaction-detail` | Transaction detail view |
+| Cross-cutting | `cross-cutting/hybrid-identity` | Actor model + identity mapping |
+| Cross-cutting | `cross-cutting/localization` | i18n/l10n setup |
+| Cross-cutting | `cross-cutting/testing` | Test strategy |
+| Audits | `audits/security-audit` | OWASP audit findings |
+| Audits | `audits/compliance-audit` | Compliance audit log |
+| Operations | `operations/deployment` | Deployment strategy |
+| Business | `business/business-model` | Revenue model + pricing |
+| Planning | `planning/implementation-plan` | Implementation plan |
+| Planning | `planning/task-checklist` | Execution checklist |

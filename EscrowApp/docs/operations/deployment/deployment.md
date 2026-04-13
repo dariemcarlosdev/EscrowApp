@@ -64,9 +64,10 @@ docker-compose down -v
 |----------|----------|-------------|
 | `ConnectionStrings__DefaultConnection` | Yes | PostgreSQL connection string |
 | `Stripe__SecretKey` | Yes | Stripe API secret key |
+| `Stripe__PaymentReturnUrl` | Yes | 3D Secure redirect URL (e.g., `https://yourdomain.com/payment-return`) |
 | `Stripe__WebhookSecret` | Yes | Stripe webhook signing secret |
-| `Authentication__ApiKey` | Yes | API authentication key |
-| `POSTGRES_PASSWORD` | Yes | Database password |
+| `ApiKeys__dev-client-01__Key` | Yes | API authentication key (Options pattern: `ApiKeySettings`) |
+| `POSTGRES_PASSWORD` | Yes | Database password (docker-compose only) |
 | `ASPNETCORE_ENVIRONMENT` | No | Defaults to Production |
 
 > ⚠️ **Never commit secrets to docker-compose.yml.** Use a `.env` file (git-ignored) or pass via command line.

@@ -42,19 +42,19 @@ public interface IEscrowPaymentStrategy
 // File: Services/Strategies/IFundHoldable.cs
 public interface IFundHoldable
 {
-    Task<string> HoldFundsAsync(decimal amount, string sourcePaymentMethodId, string idempotencyKey);
+    Task<string> HoldFundsAsync(decimal amount, string sourcePaymentMethodId, string idempotencyKey, CancellationToken ct = default);
 }
 
 // File: Services/Strategies/IFundReleasable.cs
 public interface IFundReleasable
 {
-    Task<bool> ReleaseFundsAsync(string externalReference, string idempotencyKey);
+    Task<bool> ReleaseFundsAsync(string externalReference, string idempotencyKey, CancellationToken ct = default);
 }
 
 // File: Services/Strategies/IFundCancellable.cs
 public interface IFundCancellable
 {
-    Task<bool> CancelHoldAsync(string externalReference, string idempotencyKey);
+    Task<bool> CancelHoldAsync(string externalReference, string idempotencyKey, CancellationToken ct = default);
 }
 ```
 
@@ -101,6 +101,10 @@ Stripe implements **all three** capabilities because it supports auth-and-captur
 | `HoldFundsAsync`    | `PaymentIntentService.CreateAsync` (manual capture) | PaymentIntent ID  |
 | `ReleaseFundsAsync` | `PaymentIntentService.CaptureAsync`                 | `true` if succeeded |
 | `CancelHoldAsync`   | `PaymentIntentService.CancelAsync`                  | `true` if canceled  |
+
+**Configuration:** `StripePaymentStrategy` reads `Stripe:PaymentReturnUrl` from `IConfiguration` for 3D Secure redirect URLs. This value must be set in `appsettings.json` or environment variables — the strategy throws `InvalidOperationException` if not configured.
+
+**Security:** All three methods accept idempotency keys via `RequestOptions { IdempotencyKey }` to prevent duplicate operations on network retries.
 
 ## DI Registration
 

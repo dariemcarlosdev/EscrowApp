@@ -1,6 +1,6 @@
 # Implementation Plan — NexTruzt.io Escrow Platform
 
-> Last synced with codebase: 2026-04-10
+> Last synced with codebase: 2026-04-13
 
 ## Revenue Gate
 
@@ -70,7 +70,7 @@
 
 ## 🚀 MVP Release — Ship-to-Charge
 
-> **8 tasks** standing between the current codebase and Day-1 revenue.
+> **7 tasks remaining** (1 of 8 completed) standing between the current codebase and Day-1 revenue.
 > Ordered by dependency chain. Complete sequentially unless marked parallel.
 
 ### ⚠️ CRITICAL: Platform Fee — Revenue Blocker #1
@@ -94,7 +94,7 @@
 | **3** | User authentication (ASP.NET Identity) | — | Can't identify users = can't process payments safely |
 | **4** | FluentValidation on all commands | #2 | Unvalidated payment amounts = lost money at Stripe |
 | **5** | Real unit tests (replace 16 stubs) | #4 | One test per handler proves money flows correctly |
-| **6** | Production secrets (env vars) | #5 | Hardcoded mock Stripe key + DB creds = can't deploy |
+| **6** | Production secrets (env vars) | #5 | Hardcoded mock Stripe key + DB creds = can't deploy | ✅ Done (2026-04-11) |
 | **7** | Minimal Stripe webhook | #1 | `payment_intent.succeeded` confirmation (signature verify only) |
 | **8** | Cloud deployment | #3, #6 | Can't charge money without a running production server |
 

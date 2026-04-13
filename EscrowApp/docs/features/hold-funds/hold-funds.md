@@ -142,7 +142,7 @@ API ──POST /api/escrow/hold──► CreateAndHoldFundsHandler
 - **API Call**: `PaymentIntentService.CreateAsync()` with `CaptureMethod = "manual"`, `Confirm = true`
 - **Amount Conversion**: `decimal amount × 100` → cents (Stripe uses smallest currency unit)
 - **Idempotency**: Every request includes an idempotency key (`$"hold-{transactionId}"`)
-- **Return URL**: `http://localhost:5222/payment-return` (3D Secure redirect)
+- **Return URL**: Configurable via `Stripe:PaymentReturnUrl` in `appsettings.json` (used for 3D Secure redirect). Throws `InvalidOperationException` if not configured.
 - **Hold Duration**: Stripe holds expire after **7 days** if not captured or cancelled
 
 ## Error Handling

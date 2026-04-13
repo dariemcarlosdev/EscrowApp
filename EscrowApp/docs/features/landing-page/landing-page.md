@@ -42,12 +42,12 @@ App.razor
         │       └── Legal links, copyright, brand
         │
         ├── Dashboard/
-        │   ├── ClientDashboard.razor (/dashboard/client)
-        │   │   └── Client transaction table with status, actions
-        │   ├── ConsultantDashboard.razor (/dashboard/consultant)
-        │   │   └── Consultant earnings and transaction list
-        │   └── TransactionDetail.razor (/transaction/{id})
-        │       └── Full transaction details, status timeline, actions
+        │   ├── ClientDashboard.razor (/dashboard/client) [Authorize]
+        │   │   └── Client transaction table with status, actions (stub — data loading not implemented)
+        │   ├── ConsultantDashboard.razor (/dashboard/consultant) [Authorize]
+        │   │   └── Consultant earnings and transaction list (stub — data loading not implemented)
+        │   └── TransactionDetail.razor (/transaction/{id}) [Authorize]
+        │       └── Full transaction details, status timeline, actions (stub — data loading not implemented)
         │
         ├── Auth/
         │   ├── Login.razor (/auth/login)

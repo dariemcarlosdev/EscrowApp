@@ -41,13 +41,18 @@ public sealed record ReleaseFundsResult(
 UI ──Send(ReleaseFundsCommand)──► ReleaseFundsHandler
                                        │
                             1. Retrieve EscrowTransaction by ID
-                            2. Validate ExternalReference and ExternalProvider exist
-                            3. Resolve IFundReleasable strategy (from stored provider)
-                            4. Call strategy.ReleaseFundsAsync(externalRef, idempotencyKey)
-                            5. On success: Status = "Completed (Released)"
-                            6. UpdateAsync(transaction)
-                            7. Return ReleaseFundsResult
+                            2. Reject if Status == "Disputed" (dispute blocks release)
+                            3. Validate Status == "Held" (strict state check)
+                            4. Validate ExternalReference and ExternalProvider exist
+                            5. Resolve IFundReleasable strategy (from stored provider)
+                            6. Call strategy.ReleaseFundsAsync(externalRef, idempotencyKey)
+                            7. On success: Status = "Completed (Released)"
+                            8. UpdateAsync(transaction)
+                            9. Return ReleaseFundsResult
 ```
+
+> **Security hardening (2026-04-11):** Steps 2–3 were added to enforce dispute integrity
+> and strict status validation — a disputed transaction can never be released.
 
 ## Sequence Diagram
 
@@ -100,6 +105,10 @@ Client UI          MediatR           ReleaseFundsHandler     StripePaymentStrate
 
 - **No ProviderName parameter**: The handler reads `ExternalProvider` from the stored transaction.
   This guarantees the same provider that created the hold will release it.
+- **Dispute blocks release**: The handler explicitly rejects any transaction with `Status == "Disputed"`.
+  This is a fintech guardrail — once disputed, a transaction cannot be released without explicit resolution.
+- **Strict status check**: Only transactions in `"Held"` status can be released. This prevents
+  double-capture or releasing pending transactions.
 - **No event published**: Unlike HoldFunds, the release flow does not currently publish a domain
   event. This is intentional for MVP — a `FundsReleasedEvent` can be added when webhook
   notifications to consultants are implemented.
@@ -108,6 +117,8 @@ Client UI          MediatR           ReleaseFundsHandler     StripePaymentStrate
 
 ## Error Handling
 
+- Transaction status is `"Disputed"` → `InvalidOperationException` (dispute blocks release)
+- Transaction status is not `"Held"` → `InvalidOperationException` (invalid state transition)
 - Missing `ExternalReference` → `InvalidOperationException` (transaction was never held)
 - Missing `ExternalProvider` → `InvalidOperationException` (cannot resolve strategy)
 - Strategy not registered → `InvalidOperationException` from factory

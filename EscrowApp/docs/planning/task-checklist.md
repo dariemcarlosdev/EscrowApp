@@ -1,6 +1,6 @@
 # Escrow Prototype — Execution Checklist
 
-> Last synced with codebase: 2026-04-10
+> Last synced with codebase: 2026-04-13
 > Scope method: **mvp-gatekeeper** revenue gate applied to every item
 
 ---
@@ -90,11 +90,12 @@
   - [ ] `DisputeFundsHandlerTests` — 2 real tests
   - [ ] `CancelFundsHandlerTests` — 4 real tests
   - [ ] `StripePaymentStrategyTests` — 4 real tests with mocked Stripe SDK
-- [ ] **#6 — Production secrets**
-  - [ ] Remove hardcoded `sk_test_MockEscrowAPIKey123` from `appsettings.json`
-  - [ ] Remove hardcoded DB connection string with `Password=admin123`
-  - [ ] Create `appsettings.Production.json` template with `${ENV_VAR}` placeholders
-  - [ ] Document required environment variables in deployment doc
+- [x] **#6 — Production secrets** *(partially done — 2026-04-11 security audit)*
+  - [x] Remove hardcoded `sk_test_MockEscrowAPIKey123` from `appsettings.json`
+  - [x] Remove hardcoded DB connection string with `Password=admin123`
+  - [x] Remove hardcoded API key from `appsettings.Development.json`
+  - [x] Create `appsettings.Production.json` template with placeholder comments
+  - [x] Document required environment variables in deployment doc
 
 ### Track B: User Access (parallel with Track A)
 

@@ -77,6 +77,9 @@ A user who starts with email authentication can later link a MetaMask wallet. Bo
 ## Infrastructure Integration
 
 - `Infrastructure/Auth/ApiKeyAuthenticationHandler` handles API key-based authentication
+  - Uses **timing-safe comparison** via `CryptographicOperations.FixedTimeEquals()` to prevent side-channel attacks
+  - Reads API keys from configuration via strongly-typed `ApiKeySettings` / `ApiKeyConfig` options pattern
+  - Issues claims on successful authentication: `NameIdentifier`, `Name`, `api_client_id`, `scope` (`escrow:read escrow:write`)
 - Future: `IClaimsTransformation` to enrich `ClaimsPrincipal` with Actor-based claims
 - Future: Wallet signature verification middleware for Web3 authentication
 
