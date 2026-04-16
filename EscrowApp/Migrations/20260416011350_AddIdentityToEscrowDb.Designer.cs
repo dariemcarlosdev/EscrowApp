@@ -3,6 +3,7 @@ using System;
 using EscrowApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EscrowApp.Migrations
 {
     [DbContext(typeof(EscrowDbContext))]
-    partial class EscrowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260416011350_AddIdentityToEscrowDb")]
+    partial class AddIdentityToEscrowDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
