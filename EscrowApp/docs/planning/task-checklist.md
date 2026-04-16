@@ -1,6 +1,6 @@
 # Escrow Prototype — Execution Checklist
 
-> Last synced with codebase: 2026-04-16
+> Last synced with codebase: 2026-04-16 01:21
 > Scope method: **mvp-gatekeeper** revenue gate applied to every item
 
 ---
@@ -102,20 +102,20 @@
 
 ### Track B: User Access (parallel with Track A)
 
-- [ ] **#3 — User authentication (ASP.NET Identity)**
-  - [ ] Install NuGet packages: `Microsoft.AspNetCore.Identity.EntityFrameworkCore`
-  - [ ] Create `Models/ApplicationUser.cs` (extends IdentityUser<int>, links to Actor)
-  - [ ] Add Identity configuration to `EscrowDbContext` + migration
-  - [ ] Register Identity in `Program.cs` (AddIdentity, AddAuthentication, AddAuthorization)
-  - [ ] Configure Blazor auth: `RevalidatingServerAuthenticationStateProvider` + `<CascadingAuthenticationState>`
-  - [ ] Create `Components/Pages/Login.razor` + `Login.razor.cs` (code-behind pattern)
-  - [ ] Create `Components/Pages/Register.razor` + `Register.razor.cs` (code-behind pattern)
-  - [ ] Add `[Authorize]` attribute on dashboard pages
-  - [ ] Implement logout button in `NavBar.razor.cs`
-  - [ ] Add login/register localization keys to `Resources/SharedResource.resx`
-  - [ ] Unit test: RegisterHandlerTests (create user, hash password, actor linkage)
-  - [ ] Unit test: LoginHandlerTests (valid/invalid credentials, session creation)
-  - [ ] Integration test: Login flow (register → login → redirect to dashboard)
+- [ ] **#3 — User authentication (ASP.NET Identity)** — **4 of 14 slices complete (29%)**
+  - [x] Install NuGet packages: `Microsoft.AspNetCore.Identity.EntityFrameworkCore` ✅ Slice 2
+  - [x] Create `Models/ApplicationUser.cs` (extends IdentityUser<int>, links to Actor) ✅ Slice 1
+  - [x] Add Identity configuration to `EscrowDbContext` + migration ✅ Slices 2-3
+  - [x] Register Identity in `Program.cs` (AddIdentity, AddAuthentication, AddAuthorization) ✅ Slice 4
+  - [ ] Configure Blazor auth: `RevalidatingServerAuthenticationStateProvider` + `<CascadingAuthenticationState>` ⏳ Slice 5
+  - [ ] Create `Components/Pages/Login.razor` + `Login.razor.cs` (code-behind pattern) ⏳ Slice 6
+  - [ ] Create `Components/Pages/Register.razor` + `Register.razor.cs` (code-behind pattern) ⏳ Slice 7
+  - [ ] Add `[Authorize]` attribute on dashboard pages ⏳ Slice 10
+  - [ ] Implement logout button in `NavBar.razor.cs` ⏳ Slice 8
+  - [ ] Add login/register localization keys to `Resources/SharedResource.resx` ⏳ Slice 9
+  - [ ] Unit test: RegisterHandlerTests (create user, hash password, actor linkage) ⏳ Slice 11
+  - [ ] Unit test: LoginHandlerTests (valid/invalid credentials, session creation) ⏳ Slice 11
+  - [ ] Integration test: Login flow (register → login → redirect to dashboard) ⏳ Slice 12
   - [ ] Document: `docs/cross-cutting/authentication/aspnet-identity-mvp.md` ✅ **Done**
 
 ### Track C: Stripe Sync (parallel after #1)
