@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using EscrowApp.Models;
 
 namespace EscrowApp.Data;
 
-public class EscrowDbContext : DbContext
+public class EscrowDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
 {
     public EscrowDbContext(DbContextOptions<EscrowDbContext> options) : base(options) { }
 
@@ -23,5 +25,12 @@ public class EscrowDbContext : DbContext
         modelBuilder.Entity<IdentityMapping>()
             .HasIndex(m => new { m.Provider, m.ExternalId })
             .IsUnique();
+
+        // Configure ApplicationUser ↔ Actor relationship
+        modelBuilder.Entity<ApplicationUser>()
+            .HasOne(u => u.Actor)
+            .WithMany()
+            .HasForeignKey(u => u.ActorId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
