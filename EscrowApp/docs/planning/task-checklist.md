@@ -1,6 +1,6 @@
 # Escrow Prototype — Execution Checklist
 
-> Last synced with codebase: 2026-04-13
+> Last synced with codebase: 2026-04-16
 > Scope method: **mvp-gatekeeper** revenue gate applied to every item
 
 ---
@@ -65,32 +65,35 @@
 
 ### Track A: Money Pipe (sequential)
 
-- [ ] **#1 — Platform fee (1.5%)** ⚠️ REVENUE BLOCKER
-  - [ ] Add `PlatformFee` (decimal) + `PlatformFeePercentage` (decimal) fields to `EscrowTransaction`
-  - [ ] Create EF Core migration for new columns
-  - [ ] Add `Platform:FeePercentage` config to `appsettings.json` (default: `0.015`)
-  - [ ] Implement fee calculation in `CreateAndHoldFundsHandler` (`amount × rate`)
-  - [ ] Include platform fee in Stripe charge amount (`escrowAmount + platformFee`)
-  - [ ] Publish fee amount in domain events for audit trail
-- [ ] **#2 — CancelFunds handler**
-  - [ ] Replace `NotImplementedException` with real logic
-  - [ ] Cancel Stripe PaymentIntent via `IFundCancellable`
-  - [ ] Update transaction status to `Cancelled`
-  - [ ] Publish `FundsCancelledEvent` via `IEventBus`
-- [ ] **#4 — FluentValidation on all commands**
-  - [ ] `CreateAndHoldFundsCommandValidator` (amount > 0, emails required, idempotency key)
-  - [ ] `HoldFundsCommandValidator`
-  - [ ] `ReleaseFundsCommandValidator`
-  - [ ] `DisputeFundsCommandValidator` (reason required)
-  - [ ] `CancelFundsCommandValidator`
-  - [ ] Register validation pipeline behavior in `Program.cs`
-- [ ] **#5 — Real unit tests (replace 16 stubs)**
-  - [ ] `HoldFundsHandlerTests` — 3 real tests with Moq + FluentAssertions
-  - [ ] `ReleaseFundsHandlerTests` — 3 real tests
-  - [ ] `DisputeFundsHandlerTests` — 2 real tests
-  - [ ] `CancelFundsHandlerTests` — 4 real tests
-  - [ ] `StripePaymentStrategyTests` — 4 real tests with mocked Stripe SDK
-- [x] **#6 — Production secrets** *(partially done — 2026-04-11 security audit)*
+- [x] **#1 — Platform fee (1.5%)** ✅ DONE — 2026-04-14
+  - [x] Add `PlatformFee` (decimal) + `PlatformFeePercentage` (decimal) fields to `EscrowTransaction`
+  - [x] Create EF Core migration (`AddPlatformFeeToEscrowTransaction`)
+  - [x] Add `Platform:FeePercentage` config to `appsettings.json` + `appsettings.Production.json` (default: `0.015`)
+  - [x] `Infrastructure/Options/PlatformOptions.cs` — typed Options record registered in `Program.cs`
+  - [x] Implement fee calculation in `CreateAndHoldFundsHandler` (`max(amount × rate, minimumFee)`)
+  - [x] Include platform fee in Stripe charge amount (`escrowAmount + platformFee`)
+  - [x] Publish `PlatformFee` + `PlatformFeePercentage` in `PaymentReceivedEvent` for audit trail
+  - [x] Extend `EscrowTransactionResponse` with `PlatformFee`, `PlatformFeePercentage`, `TotalCharged`
+- [x] **#2 — CancelFunds handler** ✅ DONE — 2026-04-14
+  - [x] Replace `NotImplementedException` with real logic
+  - [x] Cancel Stripe PaymentIntent via `IFundCancellable`
+  - [x] Update transaction status to `Cancelled`
+  - [x] Publish `FundsCancelledEvent` via `IEventBus`
+- [x] **#4 — FluentValidation on all commands** ✅ DONE — 2026-04-16
+  - [x] `CreateAndHoldFundsCommandValidator` (amount > 0, emails required, idempotency key)
+  - [x] `HoldFundsCommandValidator`
+  - [x] `ReleaseFundsCommandValidator`
+  - [x] `DisputeFundsCommandValidator` (reason required)
+  - [x] `CancelFundsCommandValidator`
+  - [x] Register validation pipeline behavior in `Program.cs`
+- [x] **#5 — Real unit tests (replace 16 stubs)** ✅ DONE — 2026-04-16
+  - [x] `HoldFundsHandlerTests` — 3 real tests with Moq + FluentAssertions
+  - [x] `ReleaseFundsHandlerTests` — 3 real tests
+  - [x] `DisputeFundsHandlerTests` — 2 real tests
+  - [x] `CancelFundsHandlerTests` — 4 real tests
+  - [x] `StripePaymentStrategyTests` — 5 real tests with mocked Stripe SDK
+  - [x] All 51 tests passing (validators + handlers + strategy)
+- [x] **#6 — Production secrets** ✅ DONE — 2026-04-16 (security audit 2026-04-11)
   - [x] Remove hardcoded `sk_test_MockEscrowAPIKey123` from `appsettings.json`
   - [x] Remove hardcoded DB connection string with `Password=admin123`
   - [x] Remove hardcoded API key from `appsettings.Development.json`
@@ -100,30 +103,53 @@
 ### Track B: User Access (parallel with Track A)
 
 - [ ] **#3 — User authentication (ASP.NET Identity)**
-  - [ ] Add ASP.NET Identity NuGet packages
-  - [ ] Configure Identity in `Program.cs`
-  - [ ] Create `ApplicationUser` entity + Identity DbContext integration
-  - [ ] Wire Login page backend (`Login.razor.cs`)
-  - [ ] Wire Register page backend (`Register.razor.cs`)
-  - [ ] Add `[Authorize]` on all business pages (dashboards, transaction detail)
-  - [ ] Session management for Blazor Server
+  - [ ] Install NuGet packages: `Microsoft.AspNetCore.Identity.EntityFrameworkCore`
+  - [ ] Create `Models/ApplicationUser.cs` (extends IdentityUser<int>, links to Actor)
+  - [ ] Add Identity configuration to `EscrowDbContext` + migration
+  - [ ] Register Identity in `Program.cs` (AddIdentity, AddAuthentication, AddAuthorization)
+  - [ ] Configure Blazor auth: `RevalidatingServerAuthenticationStateProvider` + `<CascadingAuthenticationState>`
+  - [ ] Create `Components/Pages/Login.razor` + `Login.razor.cs` (code-behind pattern)
+  - [ ] Create `Components/Pages/Register.razor` + `Register.razor.cs` (code-behind pattern)
+  - [ ] Add `[Authorize]` attribute on dashboard pages
+  - [ ] Implement logout button in `NavBar.razor.cs`
+  - [ ] Add login/register localization keys to `Resources/SharedResource.resx`
+  - [ ] Unit test: RegisterHandlerTests (create user, hash password, actor linkage)
+  - [ ] Unit test: LoginHandlerTests (valid/invalid credentials, session creation)
+  - [ ] Integration test: Login flow (register → login → redirect to dashboard)
+  - [ ] Document: `docs/cross-cutting/authentication/aspnet-identity-mvp.md` ✅ **Done**
 
 ### Track C: Stripe Sync (parallel after #1)
 
 - [ ] **#7 — Minimal Stripe webhook**
-  - [ ] Register webhook endpoint in `Program.cs`
-  - [ ] Implement Stripe signature verification (`StripeWebhookEndpoint`)
-  - [ ] Handle `payment_intent.succeeded` event → update transaction status
-  - [ ] Return 200 OK for unhandled event types (don't break Stripe retry)
+  - [ ] Create `Infrastructure/Webhooks/Stripe/StripeWebhookEndpoint.cs` (POST /api/webhooks/stripe)
+  - [ ] Create `Infrastructure/Webhooks/Stripe/StripeSignatureVerifier.cs` (HMAC-SHA256 validation)
+  - [ ] Create `Features/Escrow/Webhooks/PaymentIntentEventHandler.cs` (INotificationHandler)
+  - [ ] Register verifier + endpoint in `Program.cs`
+  - [ ] Configure webhook secret in `appsettings.json` (use env var override)
+  - [ ] Test signature verification (valid, invalid, old timestamp cases)
+  - [ ] Test event handler (payment_intent.succeeded only, other events ignored)
+  - [ ] Local test with Stripe CLI: `stripe listen --forward-to localhost:8080/api/webhooks/stripe`
+  - [ ] Document: `docs/architecture/stripe-webhooks/minimal-webhook-handler-mvp.md` ✅ **Done**
+  - [ ] All webhook tests passing (signature + event handler)
 
 ### Merge Point
 
-- [ ] **#8 — Cloud deployment** (requires #3 + #6)
-  - [ ] Choose hosting: Azure App Service or Render
-  - [ ] Configure environment variables for Stripe key + DB connection
-  - [ ] Deploy using existing Dockerfile
-  - [ ] Verify HTTPS + HSTS enforcement
-  - [ ] Smoke test: create → hold → release flow with Stripe test card
+- [ ] **#8 — Cloud deployment** (requires #3 + #6) ✅ **Docs Ready**
+  - [ ] Create Azure resource group + container registry
+  - [ ] Build & push Docker image to Azure Container Registry (ACR)
+  - [ ] Create PostgreSQL Flexible Server (managed database)
+  - [ ] Create Azure Key Vault (secret storage)
+  - [ ] Create managed identity (no hardcoded secrets)
+  - [ ] Create Container Apps environment + deploy app
+  - [ ] Apply database migrations (dotnet ef database update)
+  - [ ] Configure Stripe webhooks endpoint in Stripe dashboard
+  - [ ] Health check endpoint: GET /health → 200 OK
+  - [ ] Smoke test: Register → Login → Create transaction
+  - [ ] Smoke test: Webhook signature verification
+  - [ ] Setup Application Insights monitoring
+  - [ ] Configure alerting (restart rate, DB pool exhaustion, 5xx errors)
+  - [ ] Document: `docs/operations/deployment/cloud-deployment-steps-mvp.md` ✅ **Done**
+  - [ ] Create rollback procedure (revert to previous image version)
 
 ---
 

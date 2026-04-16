@@ -1,6 +1,9 @@
 # Implementation Plan — NexTruzt.io Escrow Platform
 
-> Last synced with codebase: 2026-04-13
+> Last synced with codebase: 2026-04-16
+> 
+> **Next Phase Status:** Track A (Money Pipe) ✅ 100% complete. Track B (#3) and Track C (#7/#8) ready to start.
+> Documentation for #3, #7, #8 completed. See [Next Steps](#-next-steps---ready-to-implement) below.
 
 ## Revenue Gate
 
@@ -73,28 +76,32 @@
 > **7 tasks remaining** (1 of 8 completed) standing between the current codebase and Day-1 revenue.
 > Ordered by dependency chain. Complete sequentially unless marked parallel.
 
-### ⚠️ CRITICAL: Platform Fee — Revenue Blocker #1
+### ⚠️ CRITICAL: Platform Fee — ✅ DONE (2026-04-14)
 
-**Current state:** The 1.5% platform fee is documented in `business-model.md` but **zero fee logic exists in code**. Every transaction today generates $0 revenue for NexTruzt.io.
+**Previous state:** The 1.5% platform fee was documented in `business-model.md` but had zero fee logic in code. Every transaction generated $0 revenue for NexTruzt.io.
 
-| # | Task | Revenue Impact | Status |
-|---|---|---|---|
-| **1** | **Platform fee implementation** | Direct — $0 → $75/tx | ❌ Not started |
-| | Add `PlatformFee` + `PlatformFeePercentage` fields to `EscrowTransaction` | | |
-| | Fee calculation in `CreateAndHoldFundsHandler` (`amount × 0.015`) | | |
-| | EF Core migration for new columns | | |
-| | Config: `Platform:FeePercentage` in `appsettings.json` | | |
+**Completed:**
+- `EscrowTransaction` — `PlatformFee` + `PlatformFeePercentage` fields added
+- `Infrastructure/Options/PlatformOptions.cs` — typed Options record, bound from `Platform` config section
+- `appsettings.json` + `appsettings.Production.json` — `Platform` section with 1.5% default
+- `Program.cs` — `services.Configure<PlatformOptions>` registered
+- `CreateAndHoldFundsHandler` — fee = `max(amount × 0.015, $0.50)`; Stripe charged `escrowAmount + platformFee`
+- `PaymentReceivedEvent` — extended with `PlatformFee` + `PlatformFeePercentage` for audit trail
+- `EscrowTransactionResponse` — `PlatformFee`, `PlatformFeePercentage`, `TotalCharged` surfaced to callers
+- EF Core migration `AddPlatformFeeToEscrowTransaction` — created and ready to apply
+
+> ⚠️ **Compliance-sensitive** — requires legal review before production deployment.
 
 ### MVP Task Queue (Dependency-Ordered)
 
 | # | Task | Depends On | Revenue Gate Justification |
 |---|---|---|---|
-| **1** | Platform fee (1.5%) | — | No fee = no revenue. #1 blocker. |
-| **2** | CancelFunds handler | #1 | Users must cancel escrows — prevents chargebacks |
+| **1** | ~~Platform fee (1.5%)~~ | — | ✅ Done 2026-04-14 |
+| **2** | ~~CancelFunds handler~~ | #1 | ✅ Done 2026-04-14 |
 | **3** | User authentication (ASP.NET Identity) | — | Can't identify users = can't process payments safely |
-| **4** | FluentValidation on all commands | #2 | Unvalidated payment amounts = lost money at Stripe |
-| **5** | Real unit tests (replace 16 stubs) | #4 | One test per handler proves money flows correctly |
-| **6** | Production secrets (env vars) | #5 | Hardcoded mock Stripe key + DB creds = can't deploy | ✅ Done (2026-04-11) |
+| **4** | ~~FluentValidation on all commands~~ | #2 | ✅ Done 2026-04-16 — Unvalidated payment amounts = lost money at Stripe |
+| **5** | Real unit tests (replace 16 stubs) | #4 | One test per handler proves money flows correctly | ✅ Done (2026-04-16) |
+| **6** | Production secrets (env vars) | #5 | Hardcoded mock Stripe key + DB creds = can't deploy | ✅ Done (2026-04-16) |
 | **7** | Minimal Stripe webhook | #1 | `payment_intent.succeeded` confirmation (signature verify only) |
 | **8** | Cloud deployment | #3, #6 | Can't charge money without a running production server |
 
@@ -206,8 +213,10 @@ Infrastructure/ ApiKey auth, exception middleware
 > All 10 gates must be green before declaring MVP complete. From `mvp-gatekeeper` skill.
 
 - [ ] **Money flows** — Stripe PaymentIntent hold → capture works with test card `4242...`
-- [ ] **Platform fee collected** — 1.5% fee calculated, stored, and visible in transaction
+- [x] **Platform fee collected** — 1.5% fee calculated, stored, and visible in transaction ✅ 2026-04-14
 - [ ] **Full lifecycle** — Create → Hold → Release AND Create → Hold → Cancel both work
+  - [x] Cancel code implemented and event published ✅ 2026-04-14
+  - [x] Release code fixed (status string bug) ✅ 2026-04-14
 - [ ] **Auth blocks strangers** — `[Authorize]` on every page/endpoint, login/register functional
 - [ ] **Bad input rejected** — FluentValidation on all 5 payment commands
 - [ ] **Idempotency keys present** — every payment mutation is retry-safe
@@ -215,3 +224,102 @@ Infrastructure/ ApiKey auth, exception middleware
 - [ ] **HTTPS enforced** — HSTS + redirect in production config
 - [ ] **Errors don't crash** — friendly error message, not stack trace
 - [ ] **Tests pass** — `dotnet test` green with real assertions
+
+---
+
+## 🚀 Next Steps — Ready to Implement
+
+### Track A (Money Pipe) — ✅ 100% COMPLETE
+
+| # | Task | Complexity | Dependencies | Status |
+|---|------|-----------|--------------|--------|
+| **#1** | ~~Platform Fee (1.5%)~~ | L | — | ✅ Done 2026-04-14 |
+| **#2** | ~~CancelFunds handler~~ | M | #1 | ✅ Done 2026-04-14 |
+| **#4** | ~~FluentValidation on all commands~~ | M | #2 | ✅ Done 2026-04-16 |
+| **#5** | ~~Real unit tests (17 stubs)~~ | L | #4 | ✅ Done 2026-04-16 |
+| **#6** | ~~Production secrets (env vars)~~ | S | #5 | ✅ Done 2026-04-16 |
+
+**Unblocks:** Track B (#3), Track C (#7, #8)
+
+### Track B (User Access) — 📋 READY
+
+| # | Task | Complexity | Dependencies | Status | Documentation |
+|---|------|-----------|--------------|--------|-----------------|
+| **#3** | ASP.NET Identity (email/password auth) | L | None (parallel) | 📋 READY | [`aspnet-identity-mvp.md`](cross-cutting/authentication/aspnet-identity-mvp.md) |
+
+**Scope:** User registration + login, Blazor Server auth integration, `ApplicationUser` + IdentityDbContext, password hashing, session management
+
+**Subtasks:** 14 checkbox items in task-checklist.md (NuGet packages, migration, Program.cs config, Login/Register pages, tests)
+
+**Unblocks:** #8 Cloud deployment (merge point)
+
+### Track C (Stripe Sync) — 📋 READY
+
+| # | Task | Complexity | Dependencies | Status | Documentation |
+|---|------|-----------|--------------|--------|-----------------|
+| **#7** | Minimal Stripe webhook (`payment_intent.succeeded`) | M | #1 (parallel after) | 📋 READY | [`minimal-webhook-handler-mvp.md`](../../architecture/stripe-webhooks/minimal-webhook-handler-mvp.md) |
+
+**Scope:** Webhook endpoint (POST /api/webhooks/stripe), signature verification, event handler for `payment_intent.succeeded` only (other events deferred)
+
+**Subtasks:** 10 checkbox items in task-checklist.md (endpoint, verifier, handler, tests, local Stripe CLI testing)
+
+**Unblocks:** Real-time payment confirmation logging
+
+### Merge Point (Production Ready) — 📋 READY
+
+| # | Task | Complexity | Dependencies | Status | Documentation |
+|---|------|-----------|--------------|--------|-----------------|
+| **#8** | Cloud deployment (Azure Container Apps) | L | #3 + #6 + #7 (opt) | 📋 READY | [`cloud-deployment-steps-mvp.md`](operations/deployment/cloud-deployment-steps-mvp.md) |
+
+**Scope:** Azure resource setup (ACR, PostgreSQL, Key Vault, Container Apps), deployment, health checks, monitoring, rollback procedure
+
+**Subtasks:** 15 checkbox items in task-checklist.md (resource creation, Docker push, migrations, webhook config, smoke tests, Application Insights)
+
+**Pre-Launch Blockers:** 
+- 🔴 Fintech attorney review (12 weeks)
+- 🔴 Money transmitter license assessment
+- 🔴 Terms of Service approval
+- 🔴 "Escrow" terminology audit
+
+## Parallelization Strategy
+
+```
+Start: 2026-04-16 (after Track A completion)
+
+Track B (#3):    [=================== 2–3 weeks ===================]
+                 Register → Login → Blazor auth integration → 14 tests
+                 
+Track C (#7):    [============ 1–2 weeks after start =============]
+                 Webhook endpoint → Signature verify → Event handler → Tests
+                 
+        ↓ (when both #3 + #6 done)
+        
+Merge (#8):      [==================== 1–2 weeks ====================]
+                 Azure setup → Deploy → Health checks → Smoke tests → Production
+                 
+Post-MVP Legal:  [======== 8–12 weeks (start NOW, parallel) ========]
+                 Attorney review → License assessment → ToS approval → Terminology audit
+```
+
+## Documentation Ready
+
+All three next steps have comprehensive implementation guides:
+
+| Document | Lines | Coverage |
+|-----------|-------|----------|
+| **#3 — ASP.NET Identity** | 320 | Database schema, DI registration, Blazor config, Login/Register patterns, security guardrails, testing strategies, post-MVP enhancements |
+| **#7 — Stripe Webhook** | 420 | Architecture (endpoint + verifier + handler), MVP scope (only `payment_intent.succeeded`), code examples, local testing with Stripe CLI, post-MVP events |
+| **#8 — Cloud Deployment** | 370 | Azure step-by-step (ACR, PostgreSQL, Key Vault, Container Apps), alternative platforms (AWS/GCP), post-launch verification, monitoring, cost estimation, rollback procedure |
+
+## Definition of Done
+
+When moving to the next phase, update:
+1. `task-checklist.md` — Mark all subtasks `[x]` and add completion date
+2. `implementation-plan.md` — Update this section with ✅ status
+3. Review for compliance:
+   - All tests passing (`dotnet test`)
+   - All docs updated (`docs-status` tool shows no stale docs)
+   - No hardcoded secrets
+   - Code-behind pattern on all Blazor components
+   - FluentValidation on all commands
+   - MediatR handlers + events properly designed

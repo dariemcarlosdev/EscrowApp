@@ -68,6 +68,12 @@ public sealed record EscrowTransactionResponse
     public string? ExternalReference { get; init; }
     public string? ExternalProvider { get; init; }
     public string? DisputeReason { get; init; }
+
+    // Platform fee breakdown — shown to caller for transparency
+    public decimal PlatformFee { get; init; }
+    public decimal PlatformFeePercentage { get; init; }
+    public decimal TotalCharged => Amount + PlatformFee;
+
     public DateTime CreatedAt { get; init; }
 }
 

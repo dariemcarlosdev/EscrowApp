@@ -11,4 +11,9 @@ public sealed class PaymentReceivedEvent : DomainEvent
     public decimal Amount { get; init; }
     public string ExternalReference { get; init; } = string.Empty;
     public string Provider { get; init; } = string.Empty;
+
+    // Platform fee audit trail — immutable snapshot of fee amount and rate applied at hold time.
+    // Required for regulatory traceability per fintech guardrails (AGENTS.md).
+    public decimal PlatformFee { get; init; }
+    public decimal PlatformFeePercentage { get; init; }
 }

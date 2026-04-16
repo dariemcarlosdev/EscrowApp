@@ -20,8 +20,10 @@ internal sealed class ReleaseFundsHandler(
         if (transaction.Status == "Disputed")
             throw new InvalidOperationException($"Transaction {command.TransactionId} is disputed and cannot be released.");
 
-        if (transaction.Status != "Held")
-            throw new InvalidOperationException($"Transaction {command.TransactionId} must be in 'Held' status to release. Current: '{transaction.Status}'.");
+        // "Funded (Held)" is the canonical status set by CreateAndHoldFundsHandler and HoldFundsHandler.
+        // Previously this guard incorrectly checked for "Held" — fixed 2026-04-14.
+        if (transaction.Status != "Funded (Held)")
+            throw new InvalidOperationException($"Transaction {command.TransactionId} must be in 'Funded (Held)' status to release. Current: '{transaction.Status}'.");
 
         if (string.IsNullOrEmpty(transaction.ExternalReference) || string.IsNullOrEmpty(transaction.ExternalProvider))
             throw new InvalidOperationException("Transaction is not in a valid state for release.");

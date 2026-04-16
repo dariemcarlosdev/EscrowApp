@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EscrowApp.Infrastructure.Middleware;
@@ -21,6 +22,11 @@ public sealed class ApiExceptionMiddleware(RequestDelegate next, ILogger<ApiExce
         try
         {
             await next(context);
+        }
+        catch (ValidationException ex)
+        {
+            logger.LogWarning(ex, "Validation error on {Path}", context.Request.Path);
+            await WriteValidationProblemDetails(context, ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -61,6 +67,33 @@ public sealed class ApiExceptionMiddleware(RequestDelegate next, ILogger<ApiExce
             Detail = detail,
             Instance = context.Request.Path,
             Type = $"https://httpstatuses.com/{(int)statusCode}"
+        };
+
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+
+    private static async Task WriteValidationProblemDetails(
+        HttpContext context, ValidationException ex)
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        context.Response.ContentType = "application/problem+json";
+
+        // Group validation errors by property name
+        var errors = ex.Errors
+            .GroupBy(f => f.PropertyName)
+            .ToDictionary(g => g.Key, g => g.Select(f => f.ErrorMessage).ToArray());
+
+        var problem = new ProblemDetails
+        {
+            Status = (int)HttpStatusCode.BadRequest,
+            Title = "Validation Failed",
+            Detail = "One or more validation errors occurred.",
+            Instance = context.Request.Path,
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+            Extensions = new Dictionary<string, object?>
+            {
+                { "errors", errors }
+            }
         };
 
         await context.Response.WriteAsJsonAsync(problem);

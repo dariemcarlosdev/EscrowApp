@@ -56,7 +56,55 @@ Test each command/query handler in isolation:
 
 **Coverage target:** Every handler's happy path + every invalid state transition.
 
-### 2. Strategy Tests (Unit)
+### 2. FluentValidation Validator Tests (Unit)
+
+Test each command validator in isolation using **FluentValidation.TestHelper**:
+
+```csharp
+[Fact]
+public async Task Validate_ValidInput_Passes()
+{
+    var command = new CreateAndHoldFundsCommand(
+        clientEmail: "client@ex.com",
+        consultantEmail: "consultant@ex.com",
+        amount: 100m,
+        serviceDescription: "Services",
+        paymentMethodId: "pm_visa",
+        idempotencyKey: "key-123");
+
+    var result = await validator.TestValidateAsync(command);
+    
+    result.ShouldNotHaveAnyValidationErrors();
+}
+
+[Fact]
+public async Task Validate_AmountZero_Fails()
+{
+    var command = new CreateAndHoldFundsCommand(
+        // ... amount: 0m ...
+    );
+
+    var result = await validator.TestValidateAsync(command);
+    
+    result
+        .ShouldHaveValidationErrorFor(x => x.Amount)
+        .WithErrorMessage("*greater than zero*");
+}
+```
+
+**Pattern:** 
+- One test per validation rule (positive + negative paths)
+- Use `TestValidate()` / `TestValidateAsync()` from FluentValidation.TestHelper
+- Verify both rule name and error message
+
+**Coverage target:** Every validation rule in every validator (CreateAndHold: 9 rules, HoldFunds: 3, ReleaseFunds: 2, DisputeFunds: 4, CancelFunds: 4 = 22+ test cases).
+
+**Key files:**
+- `Features/Behaviors/ValidationBehavior.cs` — Pipeline behavior that runs all validators
+- `Features/Escrow/*/[Command]Validator.cs` — 5 validators with business rules
+- `EscrowApp.Tests/Features/Escrow/*ValidatorTests.cs` — Test classes
+
+### 3. Strategy Tests (Unit)
 
 Test `StripePaymentStrategy` with mocked Stripe SDK:
 - Verify PaymentIntent creation uses `capture_method: manual`
@@ -64,21 +112,21 @@ Test `StripePaymentStrategy` with mocked Stripe SDK:
 - Verify correct Stripe API calls for hold/release/cancel
 - Verify Stripe exception mapping to domain exceptions
 
-### 3. Domain Model Tests (Unit — Future)
+### 4. Domain Model Tests (Unit — Future)
 
 Test `EscrowTransaction` entity behavior:
 - State transition validation (valid/invalid paths)
 - Constructor validation (required fields, amount > 0)
 - Domain event emission on state changes
 
-### 4. API Integration Tests (Future)
+### 5. API Integration Tests (Future)
 
 Test full HTTP request/response cycle:
 - Use `WebApplicationFactory<Program>`
 - Test endpoint routing, auth, validation, and response codes
 - Use Testcontainers for PostgreSQL (real database per test class)
 
-### 5. Webhook Tests (Future)
+### 6. Webhook Tests (Future)
 
 Test webhook processing:
 - Signature verification with valid/invalid signatures

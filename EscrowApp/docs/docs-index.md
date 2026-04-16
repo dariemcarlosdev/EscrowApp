@@ -13,6 +13,7 @@ Core system design, patterns, and integration boundaries.
 | [architecture/event-bus](architecture/event-bus/event-bus.md) | Domain events, IEventBus, InMemoryEventBus |
 | [architecture/api-integration](architecture/api-integration/api-integration.md) | REST API, Swagger, API key authentication |
 | [architecture/stripe-webhooks](architecture/stripe-webhooks/stripe-webhooks.md) | Stripe webhook handling and event processing |
+| [architecture/stripe-webhooks (MVP)](architecture/stripe-webhooks/minimal-webhook-handler-mvp.md) | Minimal webhook handler for `payment_intent.succeeded` (#7) |
 
 ## Features
 
@@ -35,6 +36,7 @@ Concerns that span multiple layers.
 
 | Doc | Topic |
 |---|---|
+| [cross-cutting/authentication](cross-cutting/authentication/aspnet-identity-mvp.md) | ASP.NET Core Identity for MVP email/password auth (#3) |
 | [cross-cutting/hybrid-identity](cross-cutting/hybrid-identity/hybrid-identity.md) | Actor model, IdentityMapping, Web2/Web3 bridge |
 | [cross-cutting/localization](cross-cutting/localization/localization.md) | IStringLocalizer, .resx files, culture switching |
 | [cross-cutting/testing](cross-cutting/testing/testing-strategy.md) | Test strategy, xUnit, FluentAssertions |
@@ -55,6 +57,7 @@ Deployment and infrastructure.
 | Doc | Topic |
 |---|---|
 | [operations/deployment](operations/deployment/deployment.md) | Deployment strategy and environments |
+| [operations/deployment (MVP)](operations/deployment/cloud-deployment-steps-mvp.md) | Cloud deployment steps for Azure Container Apps (#8) |
 
 ## Business
 

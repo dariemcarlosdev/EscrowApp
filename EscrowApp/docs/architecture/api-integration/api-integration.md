@@ -91,6 +91,23 @@ Content-Type: application/json
 }
 ```
 
+**Response: 400 Bad Request (Validation Error)**
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7807",
+  "title": "Validation Failed",
+  "status": 400,
+  "detail": "One or more validation errors occurred.",
+  "errors": {
+    "Amount": ["Escrow amount must be greater than zero."],
+    "IdempotencyKey": ["Idempotency key is required."],
+    "ClientEmail": ["Client and consultant cannot be the same person."]
+  }
+}
+```
+
+> **Note:** All POST endpoints (`/hold`, `/release`, `/dispute`, `/cancel`) validate input before handler execution. Validation failures always return 400 with grouped errors (errors grouped by property name for client-side mapping).
+
 ### List Transactions (Paginated)
 
 ```http
@@ -114,10 +131,13 @@ All API errors return RFC 7807 ProblemDetails:
 
 | Status | When                                    |
 |--------|-----------------------------------------|
+| 400    | Validation failed (invalid input)       |
 | 401    | Missing or invalid API key              |
 | 404    | Transaction not found                   |
 | 422    | Business rule violation (wrong state)   |
 | 500    | Unexpected server error (details hidden)|
+
+> **Validation errors (400):** Grouped by property name for client-side mapping. See example above.
 
 ## Swagger / OpenAPI
 

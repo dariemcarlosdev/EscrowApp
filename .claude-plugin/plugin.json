@@ -1,0 +1,30 @@
+{
+  "name": "nextruzt-escrowapp-skills",
+  "description": "AI skills infrastructure for NexTruzt.io EscrowApp — 50 skills across 12 categories for .NET/Blazor/fintech development",
+  "version": "3.0.0",
+  "author": "NexTruzt.io",
+  "commands": ".claude/commands",
+  "skills": ".claude/skills",
+  "hooks": ".github/hooks/hooks.json",
+  "agents": ".github/agents",
+  "categories": [
+    "code-quality",
+    "security",
+    "architecture",
+    "testing",
+    "database",
+    "devops",
+    "documentation",
+    "research",
+    "project-management",
+    "ai",
+    "language",
+    "workflow"
+  ],
+  "platforms": [
+    "copilot-cli",
+    "claude-code",
+    "codex-cli",
+    "gemini"
+  ]
+}

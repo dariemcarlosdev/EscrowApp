@@ -54,7 +54,7 @@ namespace EscrowApp.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric(18,4)");
 
                     b.Property<string>("ClientEmail")
                         .IsRequired()
@@ -76,15 +76,38 @@ namespace EscrowApp.Migrations
                     b.Property<string>("ExternalReference")
                         .HasColumnType("text");
 
+                    b.Property<decimal>("PlatformFee")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("PlatformFeePercentage")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("ServiceDescription")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClientEmail");
+
+                    b.HasIndex("ConsultantEmail");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("ExternalReference")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Transactions_ExternalReference")
+                        .HasFilter("\"ExternalReference\" IS NOT NULL");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("Status", "CreatedAt")
+                        .HasDatabaseName("IX_Transactions_Status_CreatedAt");
 
                     b.ToTable("Transactions");
                 });

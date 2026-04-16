@@ -1,0 +1,27 @@
+{
+  "plugins": [
+    {
+      "name": "nextruzt-escrowapp-skills",
+      "title": "NexTruzt.io EscrowApp AI Skills",
+      "description": "50 AI-assisted development skills for .NET 10 / Blazor Server / Clean Architecture / fintech projects. Includes OWASP security auditing, TDD coaching, MediatR/CQRS patterns, Stripe integration patterns, and multi-agent planning.",
+      "version": "3.0.0",
+      "author": "NexTruzt.io",
+      "homepage": "https://github.com/nextruzt/escrowapp",
+      "tags": [
+        "dotnet",
+        "blazor",
+        "fintech",
+        "clean-architecture",
+        "cqrs",
+        "security",
+        "owasp",
+        "stripe",
+        "tdd",
+        "code-quality"
+      ],
+      "commands": 10,
+      "skills": 50,
+      "agents": 3
+    }
+  ]
+}

@@ -102,30 +102,54 @@ public sealed class DisputeRaisedEvent : DomainEvent
 
 **Maps to:** Manual admin review queue or future dispute-resolution smart contract.
 
+### FundsCancelledEvent
+
+```csharp
+// File: Events/FundsCancelledEvent.cs
+public sealed class FundsCancelledEvent : DomainEvent
+{
+    public int TransactionId { get; init; }
+    public decimal EscrowAmount { get; init; }
+    public string ExternalReference { get; init; } = string.Empty;
+    public string Provider { get; init; } = string.Empty;
+    public string Reason { get; init; } = string.Empty;          // audit trail
+    public string CancelledBy { get; init; } = string.Empty;    // audit trail
+}
+```
+
+**Published by:** `CancelFundsHandler` after voiding the Stripe authorization and persisting `Status = "Cancelled"`.
+
+**Regulatory note:** `Reason` and `CancelledBy` are required in the payload even though no
+revenue is generated — every state transition must be traceable per fintech guardrails.
+
 ## Event Flow Diagram
 
 ```
-HoldFundsHandler ──PublishAsync──► IEventBus ──► InMemoryEventBus ──► Console Log
-                                       │
-DisputeFundsHandler ──PublishAsync──────┘
-                                       │
-                                  (Future)
-                                       │
-                          ┌────────────┼────────────┐
-                          ▼            ▼            ▼
-                     MassTransit   Azure SB    Webhook HTTP
-                     /RabbitMQ                  Delivery
+CreateAndHoldFundsHandler ──PublishAsync──► IEventBus ──► InMemoryEventBus ──► Console Log
+HoldFundsHandler ──────────PublishAsync──────┤
+DisputeFundsHandler ───────PublishAsync──────┤
+CancelFundsHandler ────────PublishAsync──────┘
+                                        │
+                                   (Future)
+                                        │
+                           ┌────────────┼────────────┐
+                           ▼            ▼            ▼
+                      MassTransit   Azure SB    Webhook HTTP
+                      /RabbitMQ                  Delivery
 ```
 
 ## Where Events Are Published
 
-| Handler                | Event                  | Trigger                          |
-| ---------------------- | ---------------------- | -------------------------------- |
-| `HoldFundsHandler`     | `PaymentReceivedEvent` | After funds successfully held    |
-| `DisputeFundsHandler`  | `DisputeRaisedEvent`   | After hold cancelled + disputed  |
+| Handler                       | Event                  | Trigger                             | Status |
+| ----------------------------- | ---------------------- | ----------------------------------- | ------ |
+| `HoldFundsHandler`            | `PaymentReceivedEvent` | After funds successfully held       | ✅ Live |
+| `CreateAndHoldFundsHandler`   | `PaymentReceivedEvent` | After create + hold (includes fee)  | ✅ Live |
+| `DisputeFundsHandler`         | `DisputeRaisedEvent`   | After hold cancelled + disputed     | ✅ Live |
+| `CancelFundsHandler`          | `FundsCancelledEvent`  | After hold voided cooperatively     | ✅ Live |
+| `ReleaseFundsHandler`         | *(none)*               | —                                   | 🔜 `FundsReleasedEvent` planned |
 
 > **Note:** `ReleaseFundsHandler` does not currently publish an event.
-> A `FundsReleasedEvent` is planned for consultant notifications.
+> A `FundsReleasedEvent` is planned for consultant payment notifications.
 
 ## Future: Production Event Bus
 
@@ -156,10 +180,11 @@ builder.Services.AddScoped<IEventBus, MassTransitEventBus>();
 
 ## Source Files
 
-| File                               | Purpose                               |
-| ---------------------------------- | ------------------------------------- |
-| `Events/DomainEvent.cs`           | Abstract base with EventId + timestamp |
-| `Events/IEventBus.cs`             | Publishing abstraction                 |
-| `Events/InMemoryEventBus.cs`      | MVP implementation (console logging)   |
-| `Events/PaymentReceivedEvent.cs`  | Emitted when funds are held            |
-| `Events/DisputeRaisedEvent.cs`    | Emitted when dispute is raised         |
+| File                               | Purpose                               | Status |
+| ---------------------------------- | ------------------------------------- | ------ |
+| `Events/DomainEvent.cs`           | Abstract base with EventId + timestamp | ✅ |
+| `Events/IEventBus.cs`             | Publishing abstraction                 | ✅ |
+| `Events/InMemoryEventBus.cs`      | MVP implementation (console logging)   | ✅ |
+| `Events/PaymentReceivedEvent.cs`  | Emitted when funds are held (+ fee fields added 2026-04-14) | ✅ |
+| `Events/DisputeRaisedEvent.cs`    | Emitted when dispute is raised         | ✅ |
+| `Events/FundsCancelledEvent.cs`   | Emitted on cooperative cancellation (added 2026-04-14) | ✅ |

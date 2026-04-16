@@ -26,6 +26,7 @@
 │  Features/Escrow/HoldFunds/  ReleaseFunds/  DisputeFunds/       │
 │  CancelFunds/  Webhooks/  CreateAndHoldFunds/                   │
 │  Commands · Handlers · Result DTOs                              │
+│  ValidationBehavior (pipeline) · Validators (FluentValidation)  │
 │  IEscrowManagerService (legacy facade)                          │
 └────────────────────────────┬────────────────────────────────────┘
                              │
@@ -74,6 +75,7 @@ Presentation ──► Application ──► Domain
 | Pattern                | Where Used                                     | Purpose                                  |
 | ---------------------- | ---------------------------------------------- | ---------------------------------------- |
 | **MediatR (CQRS)**    | `Features/Escrow/*/`                           | Decouple UI from business logic          |
+| **Pipeline Behavior** | `Features/Behaviors/ValidationBehavior`        | Auto-validate all commands before handlers |
 | **Strategy**           | `Services/Strategies/`                         | Multi-provider payment support (OCP)     |
 | **Factory**            | `PaymentStrategyFactory`                       | Resolve strategy at runtime by provider  |
 | **Repository**         | `IEscrowTransactionRepository`                 | Abstract data access behind interface    |

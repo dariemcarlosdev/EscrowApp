@@ -26,6 +26,7 @@ public sealed class EscrowController(IMediator mediator) : ControllerBase
     /// </summary>
     [HttpPost("hold")]
     [ProducesResponseType(typeof(EscrowTransactionResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreateAndHold(
         [FromBody] CreateAndHoldRequest request,
@@ -38,6 +39,7 @@ public sealed class EscrowController(IMediator mediator) : ControllerBase
             request.Amount,
             request.ServiceDescription,
             request.PaymentMethodId,
+            idempotencyKey ?? Guid.NewGuid().ToString(),
             request.ProviderName);
 
         var result = await mediator.Send(command, ct);
@@ -78,13 +80,15 @@ public sealed class EscrowController(IMediator mediator) : ControllerBase
     /// </summary>
     [HttpPost("{id:int}/release")]
     [ProducesResponseType(typeof(EscrowTransactionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Release(
         int id,
         [FromHeader(Name = "X-Idempotency-Key")] string? idempotencyKey,
         CancellationToken ct)
     {
-        var result = await mediator.Send(new ReleaseFundsCommand(id), ct);
+        var result = await mediator.Send(
+            new ReleaseFundsCommand(id, idempotencyKey ?? Guid.NewGuid().ToString()), ct);
         return Ok(result);
     }
 
@@ -94,17 +98,19 @@ public sealed class EscrowController(IMediator mediator) : ControllerBase
     /// </summary>
     [HttpPost("{id:int}/dispute")]
     [ProducesResponseType(typeof(EscrowTransactionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Dispute(
         int id,
         [FromBody] DisputeFundsApiRequest request,
+        [FromHeader(Name = "X-Idempotency-Key")] string? idempotencyKey,
         CancellationToken ct)
     {
         // RaisedBy derived from authenticated principal — not from request body (security)
         var raisedBy = User.Identity?.Name ?? "API Client";
 
         var result = await mediator.Send(
-            new DisputeFundsCommand(id, request.Reason, raisedBy), ct);
+            new DisputeFundsCommand(id, request.Reason, raisedBy, idempotencyKey ?? Guid.NewGuid().ToString()), ct);
         return Ok(result);
     }
 

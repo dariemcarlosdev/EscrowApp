@@ -7,6 +7,7 @@ using EscrowApp.Events;
 using EscrowApp.Infrastructure.Auth;
 using EscrowApp.Infrastructure.Middleware;
 using EscrowApp.Services.Strategies;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,12 @@ builder.Services.Configure<ApiKeySettings>(opts =>
         .GetSection(ApiKeySettings.SectionName)
         .Get<Dictionary<string, ApiKeyConfig>>() ?? [];
 });
+
+// === Platform Fee Options ===
+// PlatformOptions lives in Shared/Configuration/ — cross-cutting, accessible by all layers.
+// Program.cs (composition root) is the only place that wires config to the DI container.
+builder.Services.Configure<EscrowApp.Shared.Configuration.PlatformOptions>(
+    builder.Configuration.GetSection(EscrowApp.Shared.Configuration.PlatformOptions.SectionName));
 
 // === API Key Authentication ===
 builder.Services
@@ -108,11 +115,13 @@ builder.Services.AddScoped<IPaymentStrategyFactory, PaymentStrategyFactory>();
 // === MediatR — Vertical Slice Architecture (Phase 3) ===
 // Auto-discovers all IRequestHandler<,> implementations in this assembly.
 // UI calls: await Mediator.Send(new HoldFundsCommand(id, pmId));
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssemblyContaining<Program>();
     cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
     cfg.AddOpenBehavior(typeof(PerformanceBehavior<,>));
+    cfg.AddBehavior(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 });
 
 // === Response Compression ===
