@@ -2,6 +2,7 @@ using EscrowApp.Components;
 using EscrowApp.Features.Behaviors;
 using EscrowApp.Data;
 using EscrowApp.Data.Repositories;
+using EscrowApp.Models;
 using EscrowApp.Models.Repositories;
 using EscrowApp.Events;
 using EscrowApp.Infrastructure.Auth;
@@ -9,6 +10,7 @@ using EscrowApp.Infrastructure.Middleware;
 using EscrowApp.Services.Strategies;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -21,6 +23,22 @@ var builder = WebApplication.CreateBuilder(args);
 // === Infrastructure ===
 builder.Services.AddDbContext<EscrowDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// === Identity (ASP.NET Core Identity with EF Core storage) ===
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
+    {
+        // Password requirements
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        options.SignIn.RequireConfirmedEmail = false; // TODO: enable in production
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddEntityFrameworkStores<EscrowDbContext>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
