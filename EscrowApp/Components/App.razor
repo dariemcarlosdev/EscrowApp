@@ -21,6 +21,8 @@
                     // toggle a short-lived class to force style recalculation/repaint
                     try{
                         document.documentElement.classList.add('theme-updating');
+                        // also update a CSS variable to force recalculation of computed styles
+                        try { document.documentElement.style.setProperty('--theme-flush', Date.now()); } catch(e) {}
                         window.requestAnimationFrame(function(){
                             document.documentElement.classList.remove('theme-updating');
                         });

@@ -12,6 +12,9 @@ public sealed class EscrowTransactionRepository(EscrowDbContext context) : IEscr
     public async Task<EscrowTransaction?> GetByIdReadOnlyAsync(int id, CancellationToken ct = default)
         => await context.Transactions.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id, ct);
 
+    public async Task<EscrowTransaction?> GetByExternalReferenceAsync(string externalReference, CancellationToken ct = default)
+        => await context.Transactions.FirstOrDefaultAsync(t => t.ExternalReference == externalReference, ct);
+
     public async Task<EscrowTransaction> AddAsync(EscrowTransaction transaction, CancellationToken ct = default)
     {
         context.Transactions.Add(transaction);

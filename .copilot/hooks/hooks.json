@@ -1,0 +1,9 @@
+{
+  "hooks": {
+    "SessionStart": {
+      "command": "powershell -File .github/hooks/session-start.ps1",
+      "description": "Load the meta-skill and project context at session start",
+      "priority": "IMPORTANT"
+    }
+  }
+}

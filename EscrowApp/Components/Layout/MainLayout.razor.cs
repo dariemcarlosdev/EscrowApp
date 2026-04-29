@@ -8,11 +8,14 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
 {
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private EscrowApp.Services.ThemeService ThemeService { get; set; } = default!;
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
         Nav.LocationChanged += OnLocationChanged;
+        // subscribe to theme service to trigger full layout rerender when theme changes
+        ThemeService.ThemeChanged += OnThemeChanged;
     }
 
     private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -37,8 +40,15 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
         }
     }
 
+    private void OnThemeChanged()
+    {
+        // Force Blazor to rerender layout + child components
+        try { InvokeAsync(StateHasChanged); } catch { }
+    }
+
     public void Dispose()
     {
         try { Nav.LocationChanged -= OnLocationChanged; } catch { }
+        try { ThemeService.ThemeChanged -= OnThemeChanged; } catch { }
     }
 }

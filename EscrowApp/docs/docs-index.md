@@ -14,6 +14,7 @@ Core system design, patterns, and integration boundaries.
 | [architecture/api-integration](architecture/api-integration/api-integration.md) | REST API, Swagger, API key authentication |
 | [architecture/stripe-webhooks](architecture/stripe-webhooks/stripe-webhooks.md) | Stripe webhook handling and event processing |
 | [architecture/stripe-webhooks (MVP)](architecture/stripe-webhooks/minimal-webhook-handler-mvp.md) | Minimal webhook handler for `payment_intent.succeeded` (#7) |
+| [architecture/patterns](architecture/patterns/README.md) | **NEW:** Design patterns catalog (Observational Webhook Handler, Strategy, Repository, CQRS) |
 
 ## Features
 
@@ -69,9 +70,12 @@ Business model and monetization.
 
 ## Planning
 
-Project execution tracking (historical).
+Project execution tracking and roadmaps.
 
 | Doc | Topic |
 |---|---|
-| [planning/task-checklist](planning/task-checklist.md) | Sprint execution checklist |
-| [planning/implementation-plan](planning/implementation-plan.md) | 30-day implementation plan |
+| [planning/task-checklist](planning/task-checklist.md) | Sprint execution checklist (MVP + Track D placeholder) |
+| [planning/implementation-plan](planning/implementation-plan.md) | 30-day MVP implementation plan |
+| [planning/v1.1-roadmap](planning/v1.1-roadmap.md) | **NEW (Post-MVP):** 6-week v1.1 roadmap with task breakdown (tc-12 through tc-14) |
+| [planning/post-mvp-patterns-analysis](planning/post-mvp-patterns-analysis.md) | **NEW (Post-MVP):** Deep-dive analysis of 7 webhook patterns (dedup, sourcing, outbox, saga, DLQ, enrichment, circuit breaker) |
+| [planning/post-mvp-implementation-guide](planning/post-mvp-implementation-guide.md) | **NEW (Post-MVP):** Execution guide with timeline, resources, success criteria, rollback strategy |

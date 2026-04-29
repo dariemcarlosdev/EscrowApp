@@ -1,0 +1,84 @@
+{
+  "$schema": "./config-schema.json",
+  "appRoot": "EscrowApp",
+  "projectFile": "EscrowApp.csproj",
+  "docsDir": "docs",
+  "planningDocs": [
+    "docs/planning/implementation-plan.md",
+    "docs/planning/task-checklist.md"
+  ],
+  "featureMap": [
+    { "pattern": "Features/Escrow/HoldFunds", "doc": "features/hold-funds" },
+    { "pattern": "Features/Escrow/CreateAndHoldFunds", "doc": "features/hold-funds" },
+    { "pattern": "Features/Escrow/ReleaseFunds", "doc": "features/release-funds" },
+    { "pattern": "Features/Escrow/DisputeFunds", "doc": "features/dispute-funds" },
+    { "pattern": "Features/Escrow/CancelFunds", "doc": "features/cancel-funds" },
+    { "pattern": "Services/Strategies", "doc": "architecture/payment-strategies" },
+    { "pattern": "Services/", "doc": "architecture/payment-strategies" },
+    { "pattern": "Infrastructure/Auth", "doc": "cross-cutting/hybrid-identity" },
+    { "pattern": "Events/", "doc": "architecture/event-bus" },
+    { "pattern": "Resources/", "doc": "cross-cutting/localization" },
+    { "pattern": "Components/Pages/", "doc": "features/landing-page" },
+    { "pattern": "Features/Escrow/Api", "doc": "architecture/api-integration" },
+    { "pattern": "Features/Escrow/GetTransaction", "doc": "architecture/api-integration" },
+    { "pattern": "Features/Escrow/ListTransactions", "doc": "architecture/api-integration" },
+    { "pattern": "Infrastructure/Middleware", "doc": "architecture/api-integration" },
+    { "pattern": "Infrastructure/Webhooks", "doc": "architecture/stripe-webhooks" }
+  ],
+  "watchedDirs": [
+    "Features",
+    "Services",
+    "Models",
+    "Events",
+    "Components",
+    "Infrastructure",
+    "Resources"
+  ],
+  "planningAffectingDirs": [
+    "Features",
+    "Services",
+    "Models",
+    "Events",
+    "Components",
+    "Infrastructure",
+    "Resources",
+    "Data",
+    "Migrations"
+  ],
+  "planningAffectingFiles": [
+    "Program.cs"
+  ],
+  "planningAffectingPatterns": [
+    "Tests/"
+  ],
+  "statusMap": [
+    { "label": "Escrow Hold Funds", "srcDir": "Features/Escrow/HoldFunds", "doc": "features/hold-funds" },
+    { "label": "Escrow Release Funds", "srcDir": "Features/Escrow/ReleaseFunds", "doc": "features/release-funds" },
+    { "label": "Escrow Dispute Funds", "srcDir": "Features/Escrow/DisputeFunds", "doc": "features/dispute-funds" },
+    { "label": "Cancel Funds", "srcDir": "Features/Escrow/CancelFunds", "doc": "features/cancel-funds" },
+    { "label": "Payment Strategies", "srcDir": "Services/Strategies", "doc": "architecture/payment-strategies" },
+    { "label": "Hybrid Identity", "srcDir": "Infrastructure/Auth", "doc": "cross-cutting/hybrid-identity" },
+    { "label": "Event Bus", "srcDir": "Events", "doc": "architecture/event-bus" },
+    { "label": "Localization", "srcDir": "Resources", "doc": "cross-cutting/localization" },
+    { "label": "Landing Page UI", "srcDir": "Components/Pages", "doc": "features/landing-page" },
+    { "label": "API Integration", "srcDir": "Features/Escrow/Api", "doc": "architecture/api-integration" },
+    { "label": "Stripe Webhooks", "srcDir": "Infrastructure/Webhooks", "doc": "architecture/stripe-webhooks" },
+    { "label": "Architecture", "srcDir": "Models", "doc": "architecture/overview" },
+    { "label": "Testing", "srcDir": "../EscrowApp.Tests", "doc": "cross-cutting/testing" }
+  ],
+  "planningCheckDirs": [
+    { "label": "Features/Escrow", "dir": "Features/Escrow" },
+    { "label": "Models", "dir": "Models" },
+    { "label": "Events", "dir": "Events" },
+    { "label": "Services", "dir": "Services" },
+    { "label": "Data", "dir": "Data" },
+    { "label": "Components/Pages", "dir": "Components/Pages" },
+    { "label": "Infrastructure", "dir": "Infrastructure" },
+    { "label": "Tests", "dir": "../EscrowApp.Tests" }
+  ],
+  "cooldowns": {
+    "featureDocReminderMs": 60000,
+    "planningDocReminderMs": 120000
+  },
+  "defaultDocFallback": "architecture/overview"
+}

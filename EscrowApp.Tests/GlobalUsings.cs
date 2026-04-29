@@ -6,3 +6,4 @@ global using EscrowApp.Models;
 global using EscrowApp.Models.Repositories;
 global using EscrowApp.Events;
 global using EscrowApp.Services.Strategies;
+global using Microsoft.Extensions.Logging;

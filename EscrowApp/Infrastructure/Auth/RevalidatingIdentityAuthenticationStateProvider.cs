@@ -9,30 +9,47 @@ namespace EscrowApp.Infrastructure.Auth;
 /// <summary>
 /// Revalidating authentication state provider for Blazor Server with ASP.NET Core Identity.
 ///
-/// Extends <see cref="RevalidatingServerAuthenticationStateProvider"/> — the correct Blazor Server
-/// base class — which manages a background timer and creates properly scoped DI contexts for
-/// each revalidation cycle. This avoids the DI scope violation thrown by
-/// <see cref="Microsoft.AspNetCore.Components.Server.ServerAuthenticationStateProvider"/> when
-/// called outside a component rendering pipeline.
-///
+/// Inherits from <see cref="AuthenticationStateProvider"/> and manages security stamp validation.
 /// On each revalidation tick the user's security stamp is verified against Identity's store.
 /// If the stamp has changed (password reset, role change, explicit logout) the circuit is
 /// notified and the user is signed out.
 /// </summary>
-public sealed class RevalidatingIdentityAuthenticationStateProvider(
-    ILoggerFactory loggerFactory,
-    IServiceScopeFactory scopeFactory)
-    : RevalidatingServerAuthenticationStateProvider(loggerFactory)
+public sealed class RevalidatingIdentityAuthenticationStateProvider : AuthenticationStateProvider
 {
-    protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(30);
+    private readonly ILoggerFactory _loggerFactory;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    protected override async Task<bool> ValidateAuthenticationStateAsync(
-        AuthenticationState authenticationState,
-        CancellationToken cancellationToken)
+    public RevalidatingIdentityAuthenticationStateProvider(
+        ILoggerFactory loggerFactory,
+        IServiceScopeFactory scopeFactory)
     {
-        await using var scope = scopeFactory.CreateAsyncScope();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        return await ValidateSecurityStampAsync(userManager, authenticationState.User);
+        _loggerFactory = loggerFactory;
+        _scopeFactory = scopeFactory;
+    }
+
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    {
+        await using var scope = _scopeFactory.CreateAsyncScope();
+        var httpContext = scope.ServiceProvider.GetService<IHttpContextAccessor>()?.HttpContext;
+
+        if (httpContext?.User?.Identity?.IsAuthenticated == true)
+        {
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var isValid = await ValidateSecurityStampAsync(userManager, httpContext.User);
+            if (isValid)
+                return new AuthenticationState(httpContext.User);
+        }
+
+        return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+    }
+
+    /// <summary>
+    /// Invalidates the current authentication state, triggering a re-evaluation of the user's auth status.
+    /// Called on logout or when credentials are revoked.
+    /// </summary>
+    public void InvalidateAuthState()
+    {
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
     private static async Task<bool> ValidateSecurityStampAsync(

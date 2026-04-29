@@ -96,6 +96,164 @@ app.MapPost("/api/webhooks/stripe", StripeWebhookEndpoint.HandleAsync)
    .AllowAnonymous(); // Auth via signature verification, not API key
 ```
 
+## Phase 1: Infrastructure Implementation ✅ COMPLETE
+
+**Status:** Implemented and compiling (tc-1, tc-2, tc-3) — 2026-04-28
+
+### StripeWebhookOptions.cs (tc-1)
+
+Configuration record for binding webhook endpoint secret from `appsettings.json`:
+
+```csharp
+namespace EscrowApp.Infrastructure.Options;
+
+public sealed record StripeWebhookOptions
+{
+    /// <summary>
+    /// Stripe webhook endpoint signing secret (whsec_...).
+    /// Bound from Stripe:Webhook:EndpointSecret configuration.
+    /// </summary>
+    public string EndpointSecret { get; init; } = string.Empty;
+}
+```
+
+**DI Registration (in Program.cs):**
+```csharp
+builder.Services.Configure<StripeWebhookOptions>(
+    builder.Configuration.GetSection("Stripe:Webhook"));
+```
+
+**appsettings.json:**
+```jsonc
+{
+  "Stripe": {
+    "Webhook": {
+      "EndpointSecret": "whsec_test_secret_here"  // Override via env var in production
+    }
+  }
+}
+```
+
+### StripeSignatureVerifier.cs (tc-2)
+
+HMAC-SHA256 signature verification using Stripe.EventUtility for constant-time comparison:
+
+```csharp
+namespace EscrowApp.Infrastructure.Webhooks.Stripe;
+
+public sealed class StripeSignatureVerifier
+{
+    private readonly ILogger<StripeSignatureVerifier> _logger;
+
+    public StripeSignatureVerifier(ILogger<StripeSignatureVerifier> logger)
+    {
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Verifies Stripe webhook signature and returns parsed event.
+    /// Throws StripeException on invalid signature or expired timestamp.
+    /// </summary>
+    public global::Stripe.Event VerifyAndParse(
+        string rawBody,
+        string stripeSignatureHeader,
+        string webhookSecret)
+    {
+        // Uses Stripe.EventUtility.ConstructEvent:
+        // - Parses Stripe-Signature header (t={timestamp},v1={signature})
+        // - Computes HMAC-SHA256 signature
+        // - Constant-time comparison (prevents timing attacks)
+        // - Rejects if timestamp > 5 minutes old (replay attack prevention)
+        
+        var stripeEvent = EventUtility.ConstructEvent(
+            rawBody,
+            stripeSignatureHeader,
+            webhookSecret,
+            throwOnApiVersionMismatch: true);
+
+        _logger.LogInformation(
+            "✅ Webhook signature verified: EventId={EventId}, EventType={EventType}",
+            stripeEvent.Id,
+            stripeEvent.Type);
+
+        return stripeEvent;
+    }
+}
+```
+
+**Error Handling:**
+- `StripeException` with "timestamp" → Signature outside tolerance window (possible replay attack)
+- `StripeException` with "signature" → Invalid signature (possible spoofed event)
+- `StripeException` (other) → Unexpected error
+
+### StripeWebhookEndpoint.cs (tc-3)
+
+Minimal API endpoint receiving raw Stripe events and dispatching via MediatR:
+
+```csharp
+namespace EscrowApp.Infrastructure.Webhooks.Stripe;
+
+public static class StripeWebhookEndpoint
+{
+    public static async Task<IResult> HandleAsync(
+        HttpContext httpContext,
+        [FromServices] StripeSignatureVerifier verifier,
+        [FromServices] IOptions<StripeWebhookOptions> webhookOptions,
+        [FromServices] IPublisher mediator,
+        [FromServices] ILogger logger,
+        CancellationToken ct)
+    {
+        // 1. Read raw body (required for signature verification)
+        var rawBody = await ReadRawBodyAsync(httpContext.Request, ct);
+        
+        // 2. Extract Stripe-Signature header
+        if (!httpContext.Request.Headers.TryGetValue("Stripe-Signature", out var sig))
+            return Results.BadRequest("Missing Stripe-Signature header");
+
+        // 3. Verify signature
+        var stripeEvent = verifier.VerifyAndParse(
+            rawBody,
+            sig.ToString(),
+            webhookOptions.Value.EndpointSecret);
+
+        // 4. Dispatch to MediatR
+        await DispatchEventAsync(stripeEvent, mediator, logger, ct);
+
+        // 5. Return 204 NoContent (Stripe expects 2xx)
+        return Results.NoContent();
+    }
+}
+```
+
+**MediatR Notification (defined in endpoint module):**
+
+```csharp
+public sealed record PaymentIntentSucceededNotification(
+    string PaymentIntentId,
+    long Amount,
+    string Currency,
+    string StripeEventId) : INotification;
+```
+
+**Endpoint Registration (in Program.cs):**
+```csharp
+// Add after other endpoint mappings
+app.MapPost("/api/webhooks/stripe", StripeWebhookEndpoint.HandleAsync)
+   .WithName("StripeWebhook")
+   .WithOpenApi()
+   .Produces(StatusCodes.Status204NoContent)
+   .Produces(StatusCodes.Status400BadRequest)
+   .Produces(StatusCodes.Status401Unauthorized)
+   .Produces(StatusCodes.Status500InternalServerError)
+   .AllowAnonymous(); // Auth via signature verification, not API key
+```
+
+**Response Codes:**
+- `204 NoContent` → Webhook verified and processed successfully
+- `400 Bad Request` → Missing body or header
+- `401 Unauthorized` → Invalid signature
+- `500 Internal Server Error` → Unexpected error (Stripe will retry)
+
 ## Files
 
 | File | Layer | Purpose |

@@ -3,6 +3,8 @@
 > Track C: Real-time payment event processing from Stripe.
 > 
 > Status: **Planned for #7** — MVP covers `payment_intent.succeeded` signature verification only.
+>
+> **Design Pattern:** See [`docs/platform/architecture/patterns/observational-webhook-handler.md`](../patterns/observational-webhook-handler.md) for the underlying pattern design and rationale. This document shows the implementation.
 
 ## Overview
 
@@ -51,29 +53,63 @@ Stripe servers
 
 ## Implementation Checklist — #7
 
-### Phase 7a: Endpoint Setup (Infrastructure)
+### Phase 7a: Endpoint Setup (Infrastructure) ✅ COMPLETE (2026-04-28)
+
+**Status:** All files created and compiling (tc-1, tc-2, tc-3)
+
+**Implementation Notes:**
+
+1. **StripeWebhookOptions.cs** (tc-1)
+   - Configuration record with `EndpointSecret` property (string, init)
+   - Bound from `Stripe:Webhook:EndpointSecret` section
+   - Uses IOptions{T} pattern for DI injection (no hardcoded secrets)
+
+2. **StripeSignatureVerifier.cs** (tc-2)
+   - Method signature: `public Stripe.Event VerifyAndParse(string rawBody, string stripeSignatureHeader, string webhookSecret)`
+   - Uses `Stripe.EventUtility.ConstructEvent()` for HMAC verification
+   - Constant-time comparison prevents timing attacks
+   - Rejects timestamps > 5 minutes old (replay attack prevention)
+   - Throws `StripeException` on verification failure (caller handles as security event)
+   - Structured logging with correlation IDs (never logs raw body or secrets)
+
+3. **StripeWebhookEndpoint.cs** (tc-3)
+   - Defined `PaymentIntentSucceededNotification` record (implements `INotification`)
+   - 5-step flow: read body → extract header → verify signature → dispatch to MediatR → return 204
+   - Returns 204 NoContent immediately (async processing via MediatR notification)
+   - Only processes `payment_intent.succeeded`; other events logged but ignored
+   - Security: No [Authorize] attribute (signature verification is auth)
+   - Returns 401 Unauthorized on invalid signature, 500 on unexpected errors
+   - MediatR handlers auto-discovered via assembly scanning
 
 ```
-- [ ] Create StripeWebhookEndpoint.cs
-  - [ ] Minimal API endpoint at POST /api/webhooks/stripe
-  - [ ] AllowAnonymous() — Stripe doesn't send API keys
-  - [ ] Read raw request body (Stripe SDK requirement)
-  - [ ] Inject IStripeSignatureVerifier
+- [x] Create StripeWebhookOptions.cs (tc-1)
+  - [x] Configuration record for webhook endpoint secret
+  - [x] Bind from Stripe:Webhook:EndpointSecret
+  - [x] IOptions<T> pattern for DI injection
   
-- [ ] Create StripeSignatureVerifier.cs
-  - [ ] Verify Stripe-Signature header
-  - [ ] HMAC-SHA256 validation
-  - [ ] Timestamp check (prevents old replays)
-  - [ ] Return 400 Bad Request if invalid
-  - [ ] Log verification failures as security events
+- [x] Create StripeSignatureVerifier.cs (tc-2)
+  - [x] Verify Stripe-Signature header (t={ts},v1={sig})
+  - [x] HMAC-SHA256 validation using Stripe.EventUtility.ConstructEvent()
+  - [x] Timestamp check (rejects if > 5 minutes old — replay attack prevention)
+  - [x] Return 401 Unauthorized on invalid signature
+  - [x] Structured logging with security context (never logs raw body or secrets)
   
-- [ ] Update Program.cs
-  - [ ] Register StripeSignatureVerifier in DI
+- [x] StripeWebhookEndpoint.cs (tc-3)
+  - [x] Minimal API endpoint at POST /api/webhooks/stripe
+  - [x] AllowAnonymous() — Stripe doesn't send API keys
+  - [x] Read raw request body (Stripe SDK requirement)
+  - [x] Inject StripeSignatureVerifier + IOptions<StripeWebhookOptions>
+  - [x] Dispatch to MediatR via PaymentIntentSucceededNotification
+  - [x] Return 204 NoContent on success, error responses on failure
+  
+- ⏳ Update Program.cs (tc-4 prerequisite)
+  - [ ] Register StripeWebhookOptions via Configure<T>
+  - [ ] Register StripeSignatureVerifier as singleton
   - [ ] Map endpoint: app.MapPost("/api/webhooks/stripe", ...)
-  - [ ] Get webhook secret from configuration
+  - [ ] Add webhook secret to appsettings.json configuration
 ```
 
-### Phase 7b: Event Handler (Application)
+### Phase 7b: Event Handler (Application) ⏳ NEXT (tc-4)
 
 ```
 - [ ] Create PaymentIntentEventHandler.cs

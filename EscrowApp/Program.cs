@@ -148,6 +148,11 @@ builder.Services.AddSingleton<IStripeClient>(new StripeClient(stripeApiKey));
 builder.Services.AddSingleton(sp =>
     new PaymentIntentService(sp.GetRequiredService<IStripeClient>()));
 
+// === Stripe Webhook Configuration ===
+builder.Services.Configure<EscrowApp.Infrastructure.Options.StripeWebhookOptions>(
+    builder.Configuration.GetSection("Stripe:Webhook"));
+builder.Services.AddScoped<EscrowApp.Infrastructure.Webhooks.Stripe.StripeSignatureVerifier>();
+
 // === Data Layer ===
 builder.Services.AddScoped<IEscrowTransactionRepository, EscrowTransactionRepository>();
 
@@ -163,6 +168,9 @@ builder.Services.AddScoped<IPaymentStrategyFactory, PaymentStrategyFactory>();
 // Auto-discovers all IRequestHandler<,> implementations in this assembly.
 // UI calls: await Mediator.Send(new HoldFundsCommand(id, pmId));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+// Theme service: notify server components when JS theme changes
+builder.Services.AddSingleton<EscrowApp.Services.ThemeService>();
+
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssemblyContaining<Program>();
@@ -256,6 +264,14 @@ app.MapStaticAssets();
 
 // === API Controllers ===
 app.MapControllers();
+
+// === Stripe Webhook Endpoint ===
+app.MapPost("/api/webhooks/stripe", EscrowApp.Infrastructure.Webhooks.Stripe.StripeWebhookEndpoint.HandleAsync)
+   .Produces(StatusCodes.Status204NoContent)
+   .Produces(StatusCodes.Status400BadRequest)
+   .Produces(StatusCodes.Status401Unauthorized)
+   .WithName("StripeWebhook")
+   .DisableAntiforgery(); // Webhook doesn't have CSRF token
 
 // === Culture Switch Endpoint ===
 var allowedCultures = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "en", "es", "en-US", "es-MX" };

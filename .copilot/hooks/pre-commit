@@ -1,0 +1,116 @@
+#!/bin/sh
+# NexSynapse Pre-Commit Security Guard
+# Part of the NexSynapse portable AI infrastructure
+# Works across: Git Bash (Windows), Bash (macOS/Linux), sh (CI)
+#
+# Install: cp .github/hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# Or use: install_pre_commit_hook tool in Copilot CLI
+# Bypass: git commit --no-verify
+#
+# This hook scans CRITICAL-only patterns — extension provides full scan.
+
+echo "🛡️  NexSynapse Pre-Commit Security Guard"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# ── CHECK 1: Block NexSynapse IP files from ever being committed ──
+IP_BLOCKED_PATHS="^\.agent/|^\.claude/|^\.codex/|^\.gemini/|^NexSynapse/|^AGENTS\.md$|^CLAUDE\.md$|^CODEX\.md$|^GEMINI\.md$|^mempalace\.yaml$|^\.github/skills/|^\.github/extensions/|^\.github/hooks/|^\.github/scripts/|^\.github/instructions/|^\.github/docs/|^\.github/copilot-instructions\.md$|^\.github/copilot-mcp\.json$|^\.github/copilot-setup-steps\.yml$|^\.github/AI-|^\.github/SETUP-GUIDE\.md$|^\.github/lsp\.json$"
+
+ALL_STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+IP_FILES=$(echo "$ALL_STAGED" | grep -E "$IP_BLOCKED_PATHS" 2>/dev/null)
+
+if [ -n "$IP_FILES" ]; then
+  echo ""
+  echo "⛔ BLOCKED — NexSynapse IP protection triggered!"
+  echo "   These files contain proprietary AI infrastructure and MUST NOT be committed:"
+  echo ""
+  echo "$IP_FILES" | while read -r f; do echo "   🔒 $f"; done
+  echo ""
+  echo "   Unstage with: git reset HEAD <file>"
+  echo "   These files are gitignored for a reason — they are local-only IP."
+  exit 1
+fi
+
+# ── CHECK 2: Scan staged source files for secrets ──
+STAGED_FILES=$(echo "$ALL_STAGED" | grep -E '\.(cs|razor|json|yaml|yml|xml|config|env|csproj)$')
+
+if [ -z "$STAGED_FILES" ]; then
+  echo "✅ No scannable files staged. Proceeding."
+  exit 0
+fi
+
+FOUND_ISSUES=0
+FILE_COUNT=0
+
+for FILE in $STAGED_FILES; do
+  if [ ! -f "$FILE" ]; then
+    continue
+  fi
+
+  FILE_COUNT=$((FILE_COUNT + 1))
+
+  # Skip scanning our own security pattern definitions
+  case "$FILE" in
+    .github/extensions/pre-commit-guard/*) continue ;;
+    .github/extensions/security-scanner/*) continue ;;
+    .github/skills/security/*) continue ;;
+    .github/hooks/*) continue ;;
+  esac
+
+  # CRIT-001: Stripe secret keys
+  if grep -qE 'sk_(live|test)_[a-zA-Z0-9]{20,}' "$FILE" 2>/dev/null; then
+    echo "⛔ CRIT-001: Stripe secret key found in $FILE"
+    FOUND_ISSUES=1
+  fi
+
+  # CRIT-002: GitHub tokens
+  if grep -qE '(ghp|gho|ghu|ghs|ghr)_[a-zA-Z0-9]{36,}' "$FILE" 2>/dev/null; then
+    echo "⛔ CRIT-002: GitHub token found in $FILE"
+    FOUND_ISSUES=1
+  fi
+
+  # CRIT-003: AWS secret keys
+  if grep -qiE '(aws_secret_access_key|AKIA)[a-zA-Z0-9/+=]{20,}' "$FILE" 2>/dev/null; then
+    echo "⛔ CRIT-003: AWS secret key found in $FILE"
+    FOUND_ISSUES=1
+  fi
+
+  # CRIT-004: Hardcoded passwords (in config/source, not comments)
+  if grep -qiE '(password|passwd|pwd)[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"']{4,}["'"'"']' "$FILE" 2>/dev/null; then
+    echo "⛔ CRIT-004: Hardcoded password found in $FILE"
+    FOUND_ISSUES=1
+  fi
+
+  # CRIT-005: Connection string passwords
+  if grep -qiE '(Password|PWD)[[:space:]]*=[[:space:]]*[^;"[:space:]]{4,}' "$FILE" 2>/dev/null; then
+    echo "⛔ CRIT-005: Connection string password found in $FILE"
+    FOUND_ISSUES=1
+  fi
+
+  # CRIT-006: Private keys
+  if grep -qE 'BEGIN[[:space:]]+(RSA[[:space:]]+)?PRIVATE[[:space:]]+KEY' "$FILE" 2>/dev/null; then
+    echo "⛔ CRIT-006: Private key found in $FILE"
+    FOUND_ISSUES=1
+  fi
+
+  # HIGH-005: SQL injection (warning only, does not block)
+  if grep -qiE '(FromSqlRaw|ExecuteSqlRaw)' "$FILE" 2>/dev/null; then
+    echo "⚠️  HIGH-005: Potential SQL injection (FromSqlRaw) in $FILE"
+  fi
+done
+
+echo ""
+echo "Scanned $FILE_COUNT file(s)."
+
+if [ $FOUND_ISSUES -eq 1 ]; then
+  echo ""
+  echo "⛔ COMMIT BLOCKED — CRITICAL security issues found."
+  echo "   Fix the issues above or use 'git commit --no-verify' to bypass."
+  echo ""
+  echo "   For a detailed scan, use one of these in your AI assistant:"
+  echo "   • Copilot CLI: pre_commit_security_scan tool"
+  echo "   • Claude/Codex/Gemini: read .github/skills/security/pre-commit-guard/SKILL.md"
+  exit 1
+fi
+
+echo "✅ Pre-commit security scan passed. Proceeding with commit."
+exit 0
