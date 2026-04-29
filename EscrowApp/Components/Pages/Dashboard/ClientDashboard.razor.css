@@ -1,15 +1,202 @@
-/* ClientDashboard — Scoped CSS */
+/* All styles in wwwroot/app.css */
 
-h1 {
-    color: var(--bs-primary);
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
 }
 
-.card {
-    transition: box-shadow 0.2s ease;
+.page-subtitle {
+    font-size: .85rem;
+    color: var(--muted-medium);
+    margin: .2rem 0 0;
 }
+
+/* Primary button */
+.btn-primary-dash {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    background: linear-gradient(135deg, var(--dash-accent-blue), var(--dash-accent-purple));
+    color: var(--text-primary);
+    border: none;
+    border-radius: .5rem;
+    padding: .5rem 1.1rem;
+    font-size: .875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .15s;
+}
+
+.btn-primary-dash:hover { opacity: .88; }
+
+/* Loader */
+.dash-loader {
+    display: flex;
+    justify-content: center;
+    padding: 4rem 0;
+}
+
+/* ── KPI grid ─────────────────────────────────────────────────────────── */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 540px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+.kpi-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    padding: 1.25rem 1.25rem 1rem;
+    border-radius: .75rem;
+    background: var(--dash-surface-2);
+    border: 1px solid var(--dash-border);
+    overflow: hidden;
+    transition: border-color .2s;
+}
+
+.kpi-card:hover { border-color: var(--hover-bg); }
+
+.kpi-label {
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--muted-medium);
+}
+
+.kpi-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text-primary);
+}
+
+.kpi-currency { font-size: 1.5rem; }
+
+.kpi-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1.1rem;
+    font-size: 1.4rem;
+    opacity: .18;
+}
+
+.kpi-blue  { border-left: 3px solid var(--dash-accent-blue); }
+.kpi-green { border-left: 3px solid var(--dash-accent-green); }
+.kpi-amber { border-left: 3px solid var(--dash-accent-amber); }
+.kpi-purple{ border-left: 3px solid var(--dash-accent-purple); }
+
+.kpi-blue  .kpi-value { color: var(--dash-accent-blue); }
+.kpi-green .kpi-value { color: var(--dash-accent-green); }
+.kpi-amber .kpi-value { color: var(--dash-accent-amber); }
+.kpi-purple .kpi-value { color: var(--dash-accent-purple); }
+
+/* ── Panel ────────────────────────────────────────────────────────────── */
+.dash-panel {
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-border);
+    border-radius: .75rem;
+    overflow: hidden;
+}
+
+.dash-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .9rem 1.25rem;
+    border-bottom: 1px solid var(--dash-border);
+}
+
+.panel-title {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.panel-header-actions { display: flex; gap: .5rem; align-items: center; }
+
+.status-badge {
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    padding: .2rem .6rem;
+    border-radius: 999px;
+}
+
+.badge-all {
+    background: var(--bg-weak);
+    color: var(--muted-medium);
+    border: 1px solid var(--glass-border);
+}
+
+.dash-panel-body { padding: 1.25rem; }
+
+/* ── Empty state ──────────────────────────────────────────────────────── */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 2.5rem;
+    color: var(--muted-weak);
+    margin-bottom: 1rem;
+}
+
+.empty-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--muted-medium);
+    margin: 0 0 .35rem;
+}
+
+.empty-sub {
+    font-size: .85rem;
+    color: var(--muted-weak);
+    margin: 0;
+}
+
+/* ── Table ────────────────────────────────────────────────────────────── */
+.dash-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .875rem;
+}
+
+.dash-table th {
+    padding: .6rem .9rem;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--muted-weak);
+    border-bottom: 1px solid var(--dash-border);
+    white-space: nowrap;
+}
+
+.dash-table td {
+    padding: .8rem .9rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--dash-border);
+    vertical-align: middle;
+}
+
+.dash-table tbody tr:last-child td { border-bottom: none; }
+.dash-table tbody tr:hover td { background: var(--hover-bg); }
 
 .card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--shadow-1);
 }
 
 /* TODO: Add status badge styles, table row hover effects,

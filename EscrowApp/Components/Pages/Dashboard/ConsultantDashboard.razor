@@ -1,75 +1,90 @@
 @page "/dashboard/consultant"
+@layout DashboardLayout
 @using Microsoft.AspNetCore.Authorization
+@using EscrowApp.Components.Layout
 @attribute [Authorize]
 @attribute [StreamRendering]
 @using Microsoft.Extensions.Localization
 
-<!-- TODO: Implement Consultant Dashboard UI
-     This page shows the CONSULTANT (payee) their escrow transactions.
-     Key features:
-     - List of transactions where the user is the consultant (ConsultantEmail match)
-     - "Funds Secured" indicator showing held amounts
-     - Actions: View Details, Mark Delivered, Request Release
-     - Earnings summary (released funds)
--->
+@* ── Page header ──────────────────────────────────────────────────────── *@
+<div class="dash-page-header mb-4">
+    <div>
+        <h1 class="page-title">@L["PageTitle"]</h1>
+        <p class="page-subtitle">@L["PageSubtitle"]</p>
+    </div>
+</div>
 
-<div class="container-fluid mt-4">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="fw-bold">@L["PageTitle"]</h1>
-            <p class="text-muted">@L["PageSubtitle"]</p>
+@if (_isLoading)
+{
+    <div class="dash-loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">@L["Loading"]</span>
+        </div>
+    </div>
+}
+else
+{
+    @* ── KPI cards ─────────────────────────────────────────────────────── *@
+    <div class="kpi-grid mb-4">
+        <div class="kpi-card kpi-green">
+            <span class="kpi-label">@L["FundsSecured"]</span>
+            <span class="kpi-value kpi-currency">$@_fundsSecured.ToString("N2")</span>
+            <span class="kpi-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+        </div>
+        <div class="kpi-card kpi-blue">
+            <span class="kpi-label">@L["TotalEarned"]</span>
+            <span class="kpi-value kpi-currency">$@_totalEarned.ToString("N2")</span>
+            <span class="kpi-icon"><i class="bi bi-wallet2" aria-hidden="true"></i></span>
+        </div>
+        <div class="kpi-card kpi-amber">
+            <span class="kpi-label">@L["PendingDelivery"]</span>
+            <span class="kpi-value">@_pendingCount</span>
+            <span class="kpi-icon"><i class="bi bi-hourglass-split" aria-hidden="true"></i></span>
+        </div>
+        <div class="kpi-card kpi-purple">
+            <span class="kpi-label">@L["Disputed"]</span>
+            <span class="kpi-value">@_disputedCount</span>
+            <span class="kpi-icon"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i></span>
         </div>
     </div>
 
-    @if (_isLoading)
-    {
-        <div class="d-flex justify-content-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">@L["Loading"]</span>
+    @* ── Active engagements panel ───────────────────────────────────────── *@
+    <div class="dash-panel">
+        <div class="dash-panel-header">
+            <span class="panel-title">@L["ActiveEngagements"]</span>
+            <div class="panel-header-actions">
+                <span class="status-badge badge-all">All</span>
             </div>
         </div>
-    }
-    else
-    {
-        <!-- TODO: Earnings summary cards -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card border-success">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-success">@L["FundsSecured"]</h5>
-                        <p class="display-6 fw-bold">$--</p>
-                        <small class="text-muted">@L["FundsSecuredDesc"]</small>
+        <div class="dash-panel-body">
+            @if (!_hasEngagements)
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-briefcase" aria-hidden="true"></i>
                     </div>
+                    <p class="empty-title">No active engagements</p>
+                    <p class="empty-sub">@L["NoEngagementsYet"]</p>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-primary">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-primary">@L["TotalEarned"]</h5>
-                        <p class="display-6 fw-bold">$--</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-warning">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-warning">@L["PendingDelivery"]</h5>
-                        <p class="display-6 fw-bold">--</p>
-                    </div>
-                </div>
-            </div>
+            }
+            else
+            {
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Client</th>
+                            <th class="text-end">Secured</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @* Populated when data layer is wired *@
+                    </tbody>
+                </table>
+            }
         </div>
-
-        <!-- TODO: Active engagements table -->
-        <div class="card">
-            <div class="card-header bg-dark text-white">
-                @L["ActiveEngagements"]
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    @L["NoEngagementsYet"]
-                </div>
-            </div>
-        </div>
-    }
-</div>
+    </div>
+}

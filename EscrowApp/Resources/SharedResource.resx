@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -234,5 +234,86 @@
   </data>
   <data name="ViewDetails" xml:space="preserve">
     <value>View Details</value>
+  </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>Sign In to Your Account</value>
+  </data>
+  <data name="SignIn" xml:space="preserve">
+    <value>Sign In</value>
+  </data>
+  <data name="SigningIn" xml:space="preserve">
+    <value>Signing In...</value>
+  </data>
+  <data name="NoAccount" xml:space="preserve">
+    <value>Don't have an account?</value>
+  </data>
+  <data name="RegisterTitle" xml:space="preserve">
+    <value>Create Your Account</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Confirm Password</value>
+  </data>
+  <data name="PasswordMismatch" xml:space="preserve">
+    <value>Passwords do not match.</value>
+  </data>
+  <data name="RoleLabel" xml:space="preserve">
+    <value>I am joining as a</value>
+  </data>
+  <data name="RoleClient" xml:space="preserve">
+    <value>Client — I need work done</value>
+  </data>
+  <data name="RoleConsultant" xml:space="preserve">
+    <value>Consultant — I provide services</value>
+  </data>
+  <data name="RoleRequired" xml:space="preserve">
+    <value>Please select your account type.</value>
+  </data>
+  <data name="Registering" xml:space="preserve">
+    <value>Creating Account...</value>
+  </data>
+  <data name="HaveAccount" xml:space="preserve">
+    <value>Already have an account?</value>
+  </data>
+  <data name="UnauthorizedMessage" xml:space="preserve">
+    <value>You need to sign in to access this page. Please log in with your account credentials.</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="RememberMe" xml:space="preserve">
+    <value>Remember Me</value>
+  </data>
+  <data name="SignUp" xml:space="preserve">
+    <value>Sign Up</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="SignInTitle" xml:space="preserve">
+    <value>Sign In to Your Account</value>
+  </data>
+  <data name="CreateAccountTitle" xml:space="preserve">
+    <value>Create Your Account</value>
+  </data>
+  <data name="EmailHelp" xml:space="preserve">
+    <value>Please enter the email associated with your account.</value>
+  </data>
+  <data name="PasswordHelp" xml:space="preserve">
+    <value>Use a strong password. Minimum 8 characters.</value>
+  </data>
+  <data name="PasswordStrength" xml:space="preserve">
+    <value>Strength: {0}%</value>
+  </data>
+  <data name="ShowPassword" xml:space="preserve">
+    <value>Show password</value>
+  </data>
+  <data name="HidePassword" xml:space="preserve">
+    <value>Hide password</value>
   </data>
 </root>

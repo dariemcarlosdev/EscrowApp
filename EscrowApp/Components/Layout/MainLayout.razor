@@ -1,5 +1,10 @@
 @inherits LayoutComponentBase
 
+@using EscrowApp.Components.Shared
+<header class="theme-toggle-container">
+    <ThemeToggle />
+</header>
+
 <div class="page-container w-100 min-vh-100 position-relative">
     <main class="w-100 min-vh-100 d-flex flex-column">
         <article class="w-100 flex-grow-1">
@@ -7,6 +12,8 @@
         </article>
     </main>
 </div>
+
+<script src="/js/theme.js"></script>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.

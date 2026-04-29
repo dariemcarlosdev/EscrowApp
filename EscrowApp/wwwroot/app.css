@@ -1,17 +1,80 @@
 /* Custom Escrow Premium Styles */
 :root {
-    --bg-dark: #0f172a;
-    --bg-darker: #020617;
+    /* DEFAULT (dark) semantic tokens */
+    --bg: #020617;
+    --surface: #0f172a;
+    --surface-2: #111827;
     --text-primary: #f8fafc;
     --text-secondary: #a8b8cc;
+    --text-muted: rgba(248,250,252,0.7);
     --accent-blue: #3b82f6;
     --accent-magenta: #d946ef;
+    --accent-green: #22c55e;
+    --accent-amber: #f59e0b;
+    --accent-red: #ef4444;
+    /* RGB helpers for alpha variants */
+    --accent-blue-rgb: 59,130,246;
+    --accent-magenta-rgb: 217,70,239;
+    --accent-green-rgb: 34,197,94;
+    --accent-amber-rgb: 245,158,11;
+    --accent-red-rgb: 239,68,68;
     --glass-bg: rgba(30, 41, 59, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    /* Overlay tokens for panels and status rows, adapt per theme */
+    --overlay-surface: rgba(0, 0, 0, 0.44);
+    --muted-on-surface: rgba(255,255,255,0.40);
+    --muted-weak: rgba(255,255,255,0.12);
+    --muted-medium: rgba(255,255,255,0.55);
+    --hover-bg: rgba(255,255,255,0.06);
+    --bg-weak: rgba(255,255,255,0.07);
+    --hover-weak: rgba(255,255,255,0.025);
+    /* Shadows & scrim */
+    --shadow-1: rgba(0, 0, 0, 0.08);
+    --modal-scrim: rgba(0, 0, 0, 0.6);
+    /* waitlist control tokens (dark default) */
+    --waitlist-bg: rgba(255,255,255,0.06);
+    --waitlist-text: var(--text-primary);
+}
+
+/* LIGHT THEME OVERRIDES */
+[data-theme="light"] {
+    --bg: #f4f7fb; /* slightly stronger background for contrast */
+    --surface: #ffffff;
+    --surface-2: #f6f9fc;
+    --text-primary: #0b1220; /* darker main text for better legibility */
+    --text-secondary: #334155;
+    --accent-blue: #2563eb;
+    --accent-magenta: #be185d;
+    --accent-green: #16a34a;
+    --accent-amber: #f59e0b;
+    --accent-red: #ef4444;
+    /* RGB helpers for alpha variants */
+    --accent-blue-rgb: 37,99,235;
+    --accent-magenta-rgb: 190,24,93;
+    --accent-green-rgb: 22,163,74;
+    --accent-amber-rgb: 245,158,11;
+    --accent-red-rgb: 239,68,68;
+    --glass-bg: rgba(255, 255, 255, 1); /* card white to separate surfaces */
+    --glass-border: rgba(15, 23, 42, 0.06);
+    /* light-theme overlays */
+    --overlay-surface: rgba(15, 23, 42, 0.06);
+    --muted-on-surface: rgba(15,23,42,0.75); /* stronger secondary contrast */
+    --muted-weak: rgba(15,23,42,0.32);
+    --muted-medium: rgba(15,23,42,0.72);
+    --hover-bg: rgba(15,23,42,0.08);
+    --bg-weak: rgba(15,23,42,0.08);
+    --hover-weak: rgba(15,23,42,0.04);
+    --modal-scrim: rgba(15,23,42,0.4);
+    --shadow-1: rgba(0, 0, 0, 0.06);
+    --text-muted: rgba(11,18,32,0.65);
+    --panel-border: rgba(15,23,42,0.06);
+    /* light theme: make waitlist input a white filled control with subtle border */
+    --waitlist-bg: #ffffff;
+    --waitlist-text: var(--text-primary);
 }
 
 body {
-    background-color: var(--bg-darker);
+    background-color: var(--bg);
     color: var(--text-primary);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     margin: 0;
@@ -22,7 +85,7 @@ body {
 .bg-blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px);
+    filter: blur(40px);
     z-index: -1;
     animation: drift 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -31,14 +94,14 @@ body {
     left: -10%;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0) 70%);
 }
 .blob-2 {
     bottom: -10%;
     right: -10%;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(217,70,239,0.15) 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, rgba(217,70,239,0.06) 0%, rgba(0,0,0,0) 70%);
     animation-delay: -10s;
 }
 
@@ -67,6 +130,13 @@ body {
 }
 
 /* Typography */
+
+/* Utility mapping: make legacy classes theme-aware
+   Many components used Bootstrap's text-white in dark mode — override it
+   so it maps to our semantic --text-primary in both themes. */
+.text-white { color: var(--text-primary) !important; }
+.text-muted-legacy { color: var(--text-muted) !important; }
+
 .text-gradient {
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-magenta));
     -webkit-background-clip: text;
@@ -74,35 +144,51 @@ body {
     background-clip: text;
 }
 
+/* Step titles and waitlist control */
+.how-step-title { color: var(--text-primary) !important; }
+.waitlist-input { background: var(--waitlist-bg); color: var(--waitlist-text); border: 1px solid var(--panel-border); padding: .6rem 1rem; border-radius: 50px; box-shadow: inset 0 2px 8px rgba(11,18,32,0.04); height: 48px; }
+.waitlist-input::placeholder { color: var(--muted-on-surface); opacity: 0.9; }
+.waitlist-input:focus { outline: none; box-shadow: 0 0 0 0.15rem rgba(var(--accent-blue-rgb), 0.12); border-color: var(--accent-blue); }
+
+
+/* Navbar overrides to ensure links are visible in both themes */
+.navbar-overlay .nav-link { color: var(--muted-on-surface); transition: color .15s ease; }
+.navbar-overlay .nav-link:hover, .navbar-overlay .nav-link:focus { color: var(--text-primary); }
+
+.navbar-overlay .btn, .navbar-overlay .navbar-brand { color: var(--text-primary); }
+
+/* Ensure headings inside glass panels are legible in both themes */
+.glass-panel h3, .glass-panel h4 { color: var(--text-primary) !important; }
+
 /* Buttons */
 .btn-glass {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(217, 70, 239, 0.8));
-    color: white;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-magenta));
+    color: var(--text-primary);
     border: none;
     padding: 0.75rem 2rem;
     border-radius: 50px;
     font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.18);
 }
 
 .btn-glass:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(217, 70, 239, 0.5);
-    color: white;
+    box-shadow: 0 6px 20px rgba(217, 70, 239, 0.22);
+    color: var(--text-primary);
 }
 
 .form-control-glass {
-    background: rgba(15, 23, 42, 0.6);
+    background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    color: white;
+    color: var(--text-primary);
     border-radius: 8px;
 }
 .form-control-glass:focus {
-    background: rgba(15, 23, 42, 0.8);
-    color: white;
+    background: var(--glass-bg);
+    color: var(--text-primary);
     border-color: var(--accent-blue);
-    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.18);
 }
 
 h1:focus {
@@ -110,11 +196,324 @@ h1:focus {
 }
 
 .blazor-error-boundary {
-    background: url(data:image/svg+xml;base64,PHN2Zy...) no-repeat 1rem/1.8rem, #b32121;
+    background: url(data:image/svg+xml;base64,PHN2Zy...) no-repeat 1rem/1.8rem, var(--dash-accent-red);
     padding: 1rem 1rem 1rem 3.7rem;
-    color: white;
+    color: var(--text-primary);
 }
 
 .blazor-error-boundary::after {
     content: "An error has occurred."
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DASHBOARD SHELL — Global (not scoped) so CSS variables and fixed sidebar
+   work correctly across layout + child component boundaries.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* DASH defaults mapped to semantic tokens (will adapt with theme) */
+    --dash-sidebar-w: 220px;
+    --dash-topbar-h: 56px;
+    --dash-bg:        var(--surface);
+    --dash-surface:   var(--surface);
+    --dash-surface-2: var(--surface-2);
+    --dash-border:    rgba(255,255,255,0.07);
+    --dash-muted:     rgba(255,255,255,0.40);
+    --dash-accent-blue:   var(--accent-blue);
+    --dash-accent-green:  #22c55e;
+    --dash-accent-amber:  #f59e0b;
+    --dash-accent-red:    #ef4444;
+    --dash-accent-purple: var(--accent-magenta);
+}
+
+/* Light theme dash adjustments */
+[data-theme="light"] {
+    --dash-bg: var(--surface);
+    --dash-surface: var(--surface);
+    --dash-surface-2: var(--surface-2);
+    --dash-border: rgba(15,23,42,0.06);
+    --dash-muted: rgba(15,23,42,0.5);
+}
+
+/* Shell */
+.dash-shell {
+    display: flex;
+    min-height: 100vh;
+    background: var(--dash-bg);
+    color: var(--text-primary);
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────────── */
+.dash-sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: var(--dash-sidebar-w);
+    background: var(--dash-surface);     /* solid — never transparent */
+    border-right: 1px solid var(--dash-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+    overflow-y: auto;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: 1.1rem 1.1rem .9rem;
+    border-bottom: 1px solid var(--dash-border);
+    flex-shrink: 0;
+}
+
+.sidebar-brand .brand-name {
+    font-size: .9rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: .75rem .65rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .55rem .8rem;
+    border-radius: .45rem;
+    color: var(--dash-muted);
+    text-decoration: none;
+    font-size: .84rem;
+    font-weight: 500;
+    transition: background .14s, color .14s;
+    line-height: 1.3;
+}
+
+.sidebar-link i { width: 16px; text-align: center; font-size: .95rem; }
+.sidebar-link:hover  { background: var(--hover-bg); color: var(--text-primary); }
+.sidebar-link.active { background: rgba(79,156,249,.13); color: var(--dash-accent-blue); }
+
+.sidebar-footer {
+    padding: .65rem;
+    border-top: 1px solid var(--dash-border);
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+    flex-shrink: 0;
+}
+
+.sidebar-logout {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    width: 100%;
+    padding: .55rem .8rem;
+    border-radius: .45rem;
+    background: transparent;
+    border: none;
+    color: var(--dash-muted);
+    font-size: .84rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background .14s, color .14s;
+}
+
+.sidebar-logout:hover { background: rgba(239,68,68,.1); color: var(--dash-accent-red); }
+
+/* ── Main area ────────────────────────────────────────────────────────── */
+.dash-main {
+    margin-left: var(--dash-sidebar-w);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-width: 0;           /* prevent flex overflow */
+}
+
+.dash-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--dash-topbar-h);
+    background: var(--dash-surface);
+    border-bottom: 1px solid var(--dash-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+}
+
+.topbar-greeting { font-size: .82rem; color: var(--dash-muted); }
+
+.badge-env {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    padding: .18rem .5rem;
+    border-radius: 999px;
+    background: rgba(245,158,11,.14);
+    color: var(--dash-accent-amber);
+    border: 1px solid rgba(245,158,11,.3);
+}
+
+.dash-body { padding: 1.75rem 1.5rem; flex: 1; }
+
+/* ── Page header ──────────────────────────────────────────────────────── */
+.dash-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-bottom: 1.5rem;
+}
+
+.page-title    { font-size: 1.35rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+.page-subtitle { font-size: .82rem; color: var(--dash-muted); margin: .2rem 0 0; }
+
+.btn-primary-dash {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    background: linear-gradient(135deg, var(--dash-accent-blue), var(--dash-accent-purple));
+    color: #fff;
+    border: none;
+    border-radius: .5rem;
+    padding: .48rem 1rem;
+    font-size: .84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .15s;
+    white-space: nowrap;
+}
+
+.btn-primary-dash:hover { opacity: .88; }
+.dash-loader { display: flex; justify-content: center; padding: 4rem 0; }
+
+/* ── KPI grid ─────────────────────────────────────────────────────────── */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: .9rem;
+    margin-bottom: 1.25rem;
+}
+
+@media (max-width: 960px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 540px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+.kpi-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    padding: 1.1rem 1.1rem .9rem;
+    border-radius: .65rem;
+    background: var(--dash-surface-2);
+    border: 1px solid var(--dash-border);
+    border-left-width: 3px;
+    overflow: hidden;
+    transition: border-color .2s;
+}
+
+.kpi-card:hover { border-color: rgba(255,255,255,.14); }
+
+.kpi-label {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--dash-muted);
+}
+
+.kpi-value    { font-size: 1.9rem; font-weight: 700; line-height: 1; color: var(--text-primary); }
+.kpi-currency { font-size: 1.4rem; }
+.kpi-icon     { position: absolute; top: .9rem; right: 1rem; font-size: 1.3rem; opacity: .16; }
+
+.kpi-blue   { border-left-color: var(--dash-accent-blue);   }
+.kpi-green  { border-left-color: var(--dash-accent-green);  }
+.kpi-amber  { border-left-color: var(--dash-accent-amber);  }
+.kpi-purple { border-left-color: var(--dash-accent-purple); }
+.kpi-red    { border-left-color: var(--dash-accent-red);    }
+
+.kpi-blue   .kpi-value { color: var(--dash-accent-blue);   }
+.kpi-green  .kpi-value { color: var(--dash-accent-green);  }
+.kpi-amber  .kpi-value { color: var(--dash-accent-amber);  }
+.kpi-purple .kpi-value { color: var(--dash-accent-purple); }
+
+/* ── Panel ────────────────────────────────────────────────────────────── */
+.dash-panel {
+    background: var(--dash-surface-2);
+    border: 1px solid var(--dash-border);
+    border-radius: .65rem;
+    overflow: hidden;
+}
+
+.dash-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .8rem 1.1rem;
+    border-bottom: 1px solid var(--dash-border);
+}
+
+.panel-title          { font-size: .84rem; font-weight: 600; color: var(--text-primary); }
+.panel-header-actions { display: flex; gap: .5rem; align-items: center; }
+
+.status-badge {
+    font-size: .68rem; font-weight: 600;
+    letter-spacing: .04em;
+    padding: .18rem .55rem;
+    border-radius: 999px;
+}
+
+.badge-all {
+    background: var(--bg-weak);
+    color: var(--muted-medium);
+    border: 1px solid var(--glass-border);
+}
+
+.dash-panel-body { padding: 1.1rem; }
+
+/* ── Empty state ──────────────────────────────────────────────────────── */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.empty-icon  { font-size: 2.5rem; color: var(--muted-weak); margin-bottom: .9rem; }
+.empty-title { font-size: .95rem; font-weight: 600; color: var(--muted-medium); margin: 0 0 .3rem; }
+.empty-sub   { font-size: .82rem; color: var(--muted-weak); margin: 0; }
+
+/* ── Data table ───────────────────────────────────────────────────────── */
+.dash-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+
+.dash-table th {
+    padding: .55rem .8rem;
+    font-size: .7rem; font-weight: 700;
+    letter-spacing: .05em; text-transform: uppercase;
+    color: var(--dash-muted);
+    border-bottom: 1px solid var(--dash-border);
+    white-space: nowrap;
+}
+
+.dash-table td {
+    padding: .75rem .8rem;
+    color: var(--muted-medium);
+    border-bottom: 1px solid var(--dash-border);
+    vertical-align: middle;
+}
+
+.dash-table tbody tr:last-child td { border-bottom: none; }
+.dash-table tbody tr:hover td      { background: var(--hover-weak); }
+
+/* Accessibility & reduced-motion */
+:focus-visible { outline: 3px solid rgba(59,130,246,0.18); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; animation-iteration-count: 1 !important; } }

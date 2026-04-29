@@ -10,11 +10,11 @@
 }
 
 .faq-item:hover {
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--dash-border);
 }
 
 .faq-item[open] {
-    border-color: rgba(59, 130, 246, 0.3);
+    border-color: rgba(var(--accent-blue-rgb), 0.3);
 }
 
 /* Style the summary marker */

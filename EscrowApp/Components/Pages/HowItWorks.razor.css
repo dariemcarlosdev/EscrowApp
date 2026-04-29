@@ -13,7 +13,7 @@
 /* Featured step card: lifted elevation on desktop */
 .card-elevated {
     transform: translateY(-15px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
 }
 
 /* Horizontal connector line behind cards (desktop only) */
@@ -24,11 +24,11 @@
     right: 10%;
     height: 2px;
     background: linear-gradient(90deg,
-        rgba(59, 130, 246, 0.0) 0%,
-        rgba(59, 130, 246, 0.4) 15%,
-        rgba(217, 70, 239, 0.4) 50%,
-        rgba(59, 130, 246, 0.4) 85%,
-        rgba(59, 130, 246, 0.0) 100%);
+        rgba(var(--accent-blue-rgb), 0) 0%,
+        rgba(var(--accent-blue-rgb), 0.4) 15%,
+        rgba(var(--accent-magenta-rgb), 0.4) 50%,
+        rgba(var(--accent-blue-rgb), 0.4) 85%,
+        rgba(var(--accent-blue-rgb), 0) 100%);
     z-index: 0;
     pointer-events: none;
 }
@@ -37,6 +37,6 @@
 @media (max-width: 767.98px) {
     .card-elevated {
         transform: none;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
     }
 }

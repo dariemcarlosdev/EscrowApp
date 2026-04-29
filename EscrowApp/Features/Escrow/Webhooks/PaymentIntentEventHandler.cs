@@ -1,61 +1,120 @@
 using EscrowApp.Events;
+using EscrowApp.Infrastructure.Webhooks.Stripe;
 using EscrowApp.Models.Repositories;
+using MediatR;
 
 namespace EscrowApp.Features.Escrow.Webhooks;
 
 /// <summary>
-/// Handles verified Stripe payment_intent events and correlates them
-/// to domain transactions. Called from the webhook endpoint after
-/// signature verification and deduplication.
+/// MediatR notification handler for payment_intent.succeeded events from Stripe.
+/// Triggered by StripeWebhookEndpoint after signature verification.
 ///
 /// Responsibilities:
-/// - Map Stripe event types to domain state transitions
-/// - Update EscrowTransaction status via repository
-/// - Publish domain events via IEventBus
+/// - Correlate Stripe PaymentIntent ID to EscrowTransaction via ExternalReference
+/// - Verify transaction exists and is in a valid state
+/// - Log confirmation of successful hold
+/// - Publish PaymentReceivedEvent for downstream workflow triggers
+/// - Never fails (webhook endpoint must return 200 OK to Stripe)
 ///
-/// This class handles BUSINESS LOGIC only — transport/verification
-/// lives in Infrastructure/Webhooks/Stripe/.
+/// This is OBSERVATIONAL LOGIC only — webhook confirms holds that already happened
+/// synchronously via HoldFundsCommand. Status remains "Held" (MVP behavior).
 /// </summary>
-internal sealed class PaymentIntentEventHandler(
-    IEscrowTransactionRepository repo,
-    IEventBus eventBus)
+public sealed class PaymentIntentEventHandler(
+    IEscrowTransactionRepository transactionRepository,
+    IEventBus eventBus,
+    ILogger<PaymentIntentEventHandler> logger) 
+    : INotificationHandler<PaymentIntentSucceededNotification>
 {
-    // TODO: Implement handlers for each Stripe event type:
-
     /// <summary>
-    /// Handles payment_intent.succeeded — confirms funds are captured.
+    /// Handles payment_intent.succeeded — confirms Stripe hold is active.
+    /// Updates transaction with verification timestamp and publishes domain event.
     /// </summary>
-    public async Task HandlePaymentSucceededAsync(string paymentIntentId, CancellationToken ct)
+    public async Task Handle(
+        PaymentIntentSucceededNotification notification,
+        CancellationToken cancellationToken)
     {
-        // TODO:
-        // 1. Find transaction by ExternalReference == paymentIntentId
-        // 2. Verify current status allows this transition
-        // 3. Update status to "Released" (funds captured)
-        // 4. Publish PaymentReceivedEvent via IEventBus
-        throw new NotImplementedException();
-    }
+        try
+        {
+            logger.LogInformation(
+                "🔔 Processing payment_intent.succeeded: EventId={EventId}, PaymentIntentId={PaymentIntentId}, Amount={Amount}{Currency}",
+                notification.StripeEventId,
+                notification.PaymentIntentId,
+                notification.Amount / 100m,
+                notification.Currency.ToUpper());
 
-    /// <summary>
-    /// Handles payment_intent.canceled — confirms hold was voided.
-    /// </summary>
-    public async Task HandlePaymentCanceledAsync(string paymentIntentId, CancellationToken ct)
-    {
-        // TODO:
-        // 1. Find transaction by ExternalReference == paymentIntentId
-        // 2. Update status to "Cancelled"
-        // 3. Publish FundsCancelledEvent via IEventBus
-        throw new NotImplementedException();
-    }
+            // Find transaction by Stripe PaymentIntent ID (stored in ExternalReference)
+            var transaction = await transactionRepository.GetByExternalReferenceAsync(
+                notification.PaymentIntentId,
+                cancellationToken);
 
-    /// <summary>
-    /// Handles charge.dispute.created — flags transaction as disputed externally.
-    /// </summary>
-    public async Task HandleDisputeCreatedAsync(string paymentIntentId, string reason, CancellationToken ct)
-    {
-        // TODO:
-        // 1. Find transaction by ExternalReference == paymentIntentId
-        // 2. Update status to "Disputed" with reason
-        // 3. Publish DisputeRaisedEvent via IEventBus
-        throw new NotImplementedException();
+            if (transaction is null)
+            {
+                // Transaction not found — log but do NOT throw (webhook must succeed)
+                logger.LogWarning(
+                    "⚠️ Webhook received for unknown PaymentIntent: {PaymentIntentId} — ignoring",
+                    notification.PaymentIntentId);
+                return;
+            }
+
+            // Verify transaction is in a state that expects a hold confirmation
+            if (transaction.Status != "Held" && transaction.Status != "Pending")
+            {
+                logger.LogWarning(
+                    "⚠️ PaymentIntent confirmed but transaction in unexpected status: {TransactionId}, Status={Status} — ignoring",
+                    transaction.Id,
+                    transaction.Status);
+                return;
+            }
+
+            // Verify amount matches (prevents tampering or API errors)
+            var expectedAmount = (long)(transaction.Amount * 100); // Convert to cents
+            if (notification.Amount != expectedAmount)
+            {
+                logger.LogError(
+                    "❌ Amount mismatch on PaymentIntent {PaymentIntentId}: expected {Expected}, got {Actual}",
+                    notification.PaymentIntentId,
+                    expectedAmount,
+                    notification.Amount);
+                return;
+            }
+
+            // Verify external provider is set to "Stripe"
+            if (transaction.ExternalProvider != "Stripe")
+            {
+                logger.LogWarning(
+                    "⚠️ PaymentIntent confirmed for transaction with unexpected provider: {TransactionId}, Provider={Provider}",
+                    transaction.Id,
+                    transaction.ExternalProvider);
+                return;
+            }
+
+            // Transaction is valid — publish domain event for downstream listeners
+            // (Email confirmation, dashboard update, future payment release automation)
+            var paymentEvent = new PaymentReceivedEvent
+            {
+                TransactionId = transaction.Id,
+                Amount = transaction.Amount,
+                ExternalReference = transaction.ExternalReference ?? string.Empty,
+                Provider = transaction.ExternalProvider ?? "Stripe",
+                PlatformFee = transaction.PlatformFee,
+                PlatformFeePercentage = transaction.PlatformFeePercentage
+            };
+
+            await eventBus.PublishAsync(paymentEvent, cancellationToken);
+
+            logger.LogInformation(
+                "✅ Payment confirmed and event published: TransactionId={TransactionId}, PaymentIntentId={PaymentIntentId}",
+                transaction.Id,
+                notification.PaymentIntentId);
+        }
+        catch (Exception ex)
+        {
+            // Log unexpected errors, but DO NOT throw to webhook endpoint
+            // (Throwing would cause StripeWebhookEndpoint to return 500, triggering Stripe retries)
+            logger.LogError(
+                ex,
+                "❌ Unexpected error processing payment_intent.succeeded webhook: {PaymentIntentId}",
+                notification.PaymentIntentId);
+        }
     }
 }

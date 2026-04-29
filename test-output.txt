@@ -1,0 +1,97 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  EscrowApp -> C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp\bin\Debug\net10.0\EscrowApp.dll
+  EscrowApp.Tests -> C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\bin\Debug\net10.0\EscrowApp.Tests.dll
+Test run for C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\bin\Debug\net10.0\EscrowApp.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.31]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "user@example.com", password: "SecurePass123!", confirmPassword: "SecurePass123!", displayName: "") [FAIL]
+[xUnit.net 00:00:00.32]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "user@example.com", password: "", confirmPassword: "", displayName: "John Doe") [FAIL]
+[xUnit.net 00:00:00.32]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "", password: "SecurePass123!", confirmPassword: "SecurePass123!", displayName: "John Doe") [FAIL]
+[xUnit.net 00:00:00.33]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerFails_ShouldReturnFailureWithErrors [FAIL]
+[xUnit.net 00:00:00.33]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenPasswordsAreEmptyButMatch_ShouldProcessToUserManager(password: "", confirmPassword: "") [FAIL]
+[xUnit.net 00:00:00.35]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerThrowsException_ShouldPropagateException [FAIL]
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "user@example.com", password: "SecurePass123!", confirmPassword: "SecurePass123!", displayName: "") [185 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at EscrowApp.Features.Auth.Register.RegisterCommandHandler.Handle(RegisterCommand request, CancellationToken cancellationToken) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp\Features\Auth\Register\RegisterCommandHandler.cs:line 31
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(String email, String password, String confirmPassword, String displayName) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 112
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "user@example.com", password: "", confirmPassword: "", displayName: "John Doe") [4 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at EscrowApp.Features.Auth.Register.RegisterCommandHandler.Handle(RegisterCommand request, CancellationToken cancellationToken) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp\Features\Auth\Register\RegisterCommandHandler.cs:line 31
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(String email, String password, String confirmPassword, String displayName) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 112
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "", password: "SecurePass123!", confirmPassword: "SecurePass123!", displayName: "John Doe") [1 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at EscrowApp.Features.Auth.Register.RegisterCommandHandler.Handle(RegisterCommand request, CancellationToken cancellationToken) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp\Features\Auth\Register\RegisterCommandHandler.cs:line 31
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(String email, String password, String confirmPassword, String displayName) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 112
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerFails_ShouldReturnFailureWithErrors [< 1 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at EscrowApp.Features.Auth.Register.RegisterCommandHandler.Handle(RegisterCommand request, CancellationToken cancellationToken) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp\Features\Auth\Register\RegisterCommandHandler.cs:line 31
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerFails_ShouldReturnFailureWithErrors() in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 201
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenPasswordsAreEmptyButMatch_ShouldProcessToUserManager(password: "", confirmPassword: "") [< 1 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at EscrowApp.Features.Auth.Register.RegisterCommandHandler.Handle(RegisterCommand request, CancellationToken cancellationToken) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp\Features\Auth\Register\RegisterCommandHandler.cs:line 31
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenPasswordsAreEmptyButMatch_ShouldProcessToUserManager(String password, String confirmPassword) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 155
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerThrowsException_ShouldPropagateException [21 ms]
+  Error Message:
+   Expected a <System.InvalidOperationException> to be thrown, but found <System.NullReferenceException>:
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at EscrowApp.Features.Auth.Register.RegisterCommandHandler.Handle(RegisterCommand request, CancellationToken cancellationToken) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp\Features\Auth\Register\RegisterCommandHandler.cs:line 31
+   at FluentAssertions.Specialized.AsyncFunctionAssertions`2.InvokeWithInterceptionAsync(Func`1 action).
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Specialized.DelegateAssertionsBase`2.<>c__DisplayClass8_0`1.<ThrowInternal>b__0(AssertionChain chain)
+   at FluentAssertions.Execution.AssertionChain.WithExpectation(String message, Action`1 chain, Object[] args)
+   at FluentAssertions.Execution.AssertionChain.WithExpectation(String message, Object arg1, Action`1 chain)
+   at FluentAssertions.Specialized.DelegateAssertionsBase`2.ThrowInternal[TException](Exception exception, String because, Object[] becauseArgs)
+   at FluentAssertions.Specialized.AsyncFunctionAssertions`2.ThrowAsync[TException](String because, Object[] becauseArgs)
+   at FluentAssertions.ExceptionAssertionsExtensions.WithMessage[TException](Task`1 task, String expectedWildcardPattern, String because, Object[] becauseArgs)
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerThrowsException_ShouldPropagateException() in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 220
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:00.37]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerSucceeds_ShouldReturnSuccessResult [FAIL]
+[xUnit.net 00:00:00.37]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenEmailAlreadyExists_ShouldReturnFailureWithDuplicateError [FAIL]
+[xUnit.net 00:00:00.37]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenValidRegistration_ShouldCreateUserAndReturnSuccess [FAIL]
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerSucceeds_ShouldReturnSuccessResult [1 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at EscrowApp.Features.Auth.Register.RegisterCommandHandler.Handle(RegisterCommand request, CancellationToken cancellationToken) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp\Features\Auth\Register\RegisterCommandHandler.cs:line 31
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerSucceeds_ShouldReturnSuccessResult() in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 88
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenEmailAlreadyExists_ShouldReturnFailureWithDuplicateError [< 1 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at EscrowApp.Features.Auth.Register.RegisterCommandHandler.Handle(RegisterCommand request, CancellationToken cancellationToken) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp\Features\Auth\Register\RegisterCommandHandler.cs:line 31
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenEmailAlreadyExists_ShouldReturnFailureWithDuplicateError() in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 240
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenValidRegistration_ShouldCreateUserAndReturnSuccess [4 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at EscrowApp.Features.Auth.Register.RegisterCommandHandler.Handle(RegisterCommand request, CancellationToken cancellationToken) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp\Features\Auth\Register\RegisterCommandHandler.cs:line 31
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenValidRegistration_ShouldCreateUserAndReturnSuccess() in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 67
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     9, Passed:     3, Skipped:     0, Total:    12, Duration: 258 ms - EscrowApp.Tests.dll (net10.0)

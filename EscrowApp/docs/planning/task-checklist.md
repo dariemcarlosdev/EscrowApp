@@ -1,6 +1,6 @@
 # Escrow Prototype — Execution Checklist
 
-> Last synced with codebase: 2026-04-16 01:21
+> Last synced with codebase: 2026-04-16 19:00
 > Scope method: **mvp-gatekeeper** revenue gate applied to every item
 
 ---
@@ -102,21 +102,32 @@
 
 ### Track B: User Access (parallel with Track A)
 
-- [ ] **#3 — User authentication (ASP.NET Identity)** — **4 of 14 slices complete (29%)**
+- [x] **#3 — User authentication (ASP.NET Identity)** ✅ DONE — 2026-04-16 — **14 of 14 slices complete (100%)**
   - [x] Install NuGet packages: `Microsoft.AspNetCore.Identity.EntityFrameworkCore` ✅ Slice 2
   - [x] Create `Models/ApplicationUser.cs` (extends IdentityUser<int>, links to Actor) ✅ Slice 1
   - [x] Add Identity configuration to `EscrowDbContext` + migration ✅ Slices 2-3
   - [x] Register Identity in `Program.cs` (AddIdentity, AddAuthentication, AddAuthorization) ✅ Slice 4
-  - [ ] Configure Blazor auth: `RevalidatingServerAuthenticationStateProvider` + `<CascadingAuthenticationState>` ⏳ Slice 5
-  - [ ] Create `Components/Pages/Login.razor` + `Login.razor.cs` (code-behind pattern) ⏳ Slice 6
-  - [ ] Create `Components/Pages/Register.razor` + `Register.razor.cs` (code-behind pattern) ⏳ Slice 7
-  - [ ] Add `[Authorize]` attribute on dashboard pages ⏳ Slice 10
-  - [ ] Implement logout button in `NavBar.razor.cs` ⏳ Slice 8
-  - [ ] Add login/register localization keys to `Resources/SharedResource.resx` ⏳ Slice 9
-  - [ ] Unit test: RegisterHandlerTests (create user, hash password, actor linkage) ⏳ Slice 11
-  - [ ] Unit test: LoginHandlerTests (valid/invalid credentials, session creation) ⏳ Slice 11
-  - [ ] Integration test: Login flow (register → login → redirect to dashboard) ⏳ Slice 12
-  - [ ] Document: `docs/cross-cutting/authentication/aspnet-identity-mvp.md` ✅ **Done**
+  - [x] Configure Blazor auth: `RevalidatingServerAuthenticationStateProvider` + `<CascadingAuthenticationState>` ✅ Slice 5
+  - [x] Create `Components/Pages/Login.razor` + `Login.razor.cs` (code-behind pattern) ✅ Slice 6
+  - [x] Create `Components/Pages/Register.razor` + `Register.razor.cs` (code-behind pattern) ✅ Slice 7
+  - [x] Add `[Authorize]` attribute on dashboard pages ✅ Slice 10
+  - [x] Implement logout button in `NavBar.razor.cs` ✅ Slice 8
+  - [x] Add login/register localization keys to `Resources/SharedResource.resx` ✅ Slice 9
+  - [x] Unit test: RegisterHandlerTests (create user, hash password, actor linkage) ✅ Slice 11
+  - [x] Unit test: LoginHandlerTests (valid/invalid credentials, session creation) ✅ Slice 11
+  - [x] Integration test: Login flow (register → login → redirect to dashboard) ✅ Slice 12
+  - [x] Document: `docs/cross-cutting/authentication/aspnet-identity-mvp.md` ✅ **Done**
+  - [x] **Assign role on first registration** ✅ DONE — 2026-04-16
+    - [x] Add role constants (`AppRoles.Client`, `AppRoles.Consultant`) → `Models/AppRoles.cs`
+    - [x] Seed `AspNetRoles` with `Client` and `Consultant` on app startup (`Program.cs`) — idempotent
+    - [x] Add role selector (`Client` / `Consultant`) to `Register.razor` form
+    - [x] `RegisterCommand` — added `Role` field (`string Role`)
+    - [x] `RegisterCommandHandler` — `AddToRoleAsync` called atomically inside existing DB transaction; invalid role rejected before any write; role failure triggers full rollback
+    - [x] `LoginCommandHandler` — already role-aware; redirects to `/dashboard/client` or `/dashboard/consultant`
+    - [x] Localization keys for role selector labels added to `SharedResource.resx` + `SharedResource.es.resx`
+    - [x] Unit test: `RegisterCommandTests` — command structure + `AppRoles.All` membership
+    - [x] Unit test: `RegisterCommandHandlerTests` — role assigned, invalid role rejected, role failure rollback
+    - [x] Integration test: `AuthFlowIntegrationTests` — register→login contract with role
 
 ### Track C: Stripe Sync (parallel after #1)
 

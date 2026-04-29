@@ -3,6 +3,10 @@
 .waitlist-input {
     max-width: 280px;
     border-radius: 50px;
+    background: var(--waitlist-bg);
+    color: var(--waitlist-text);
+    border: 1px solid var(--panel-border);
+    padding: .6rem 1rem;
 }
 
 .hero-card {
@@ -10,22 +14,22 @@
 }
 
 .status-row {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--overlay-surface);
+    border: 1px solid var(--dash-border);
 }
 
 /* Success alert styled for dark theme */
 .alert-glass {
-    background: rgba(30, 41, 59, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
     border-radius: 12px;
     font-size: 0.875rem;
 }
 
 /* Card released state glow */
 .card-released {
-    border-color: rgba(14, 165, 233, 0.4) !important;
-    box-shadow: 0 0 30px rgba(14, 165, 233, 0.15);
+    border-color: rgba(var(--accent-blue-rgb), 0.4) !important;
+    box-shadow: 0 0 30px rgba(var(--accent-blue-rgb), 0.15);
 }
 
 /* Hero card entrance animation */

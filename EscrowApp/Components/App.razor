@@ -6,6 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <ResourcePreloader />
+    <script>
+        // Immediately apply persisted theme before CSS loads to avoid flash
+        (function(){
+            try{
+                var t = localStorage.getItem('theme');
+                if(t){ document.documentElement.setAttribute('data-theme', t); }
+            }catch(e){ }
+        })();
+        // Listen for theme changes and trigger a small repaint to ensure component styles update
+        (function(){
+            try{
+                window.addEventListener('theme:changed', function(){
+                    // toggle a short-lived class to force style recalculation/repaint
+                    try{
+                        document.documentElement.classList.add('theme-updating');
+                        window.requestAnimationFrame(function(){
+                            document.documentElement.classList.remove('theme-updating');
+                        });
+                    }catch(_){}
+                });
+            }catch(_){}
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" />
@@ -22,6 +45,7 @@
     <Routes />
     <ReconnectModal />
     <script src="@Assets["lib/bootstrap/dist/js/bootstrap.bundle.min.js"]"></script>
+    <script src="/js/theme.js"></script>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
 

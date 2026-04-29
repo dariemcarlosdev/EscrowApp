@@ -1,0 +1,45 @@
+@page "/unauthorized"
+@using Microsoft.Extensions.Localization
+
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow-sm">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: var(--accent-red);"></i>
+                    </div>
+                    <h2 class="card-title text-danger text-center">@L["Unauthorized"]</h2>
+                    <p class="card-text text-center text-muted mt-3">
+                        @L["UnauthorizedMessage"]
+                    </p>
+                    <div class="d-grid gap-2 mt-4">
+                        <button class="btn btn-primary" @onclick="HandleSignIn">
+                            @L["SignIn"]
+                        </button>
+                        <button class="btn btn-outline-secondary" @onclick="HandleHome">
+                            @L["Home"]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private void HandleSignIn()
+    {
+        Navigation.NavigateTo("/auth/login", forceLoad: true);
+    }
+
+    private void HandleHome()
+    {
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+}
+
+

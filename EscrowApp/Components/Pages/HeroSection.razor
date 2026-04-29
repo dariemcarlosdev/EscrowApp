@@ -15,7 +15,7 @@
                 <form @onsubmit="HandleWaitlistSubmit" @onsubmit:preventDefault class="d-flex flex-column flex-sm-row gap-2 justify-content-center justify-content-lg-start">
                     <input type="email"
                            @bind="WaitlistEmail"
-                           class="form-control form-control-glass px-4 py-3 bg-dark waitlist-input"
+                           class="form-control form-control-glass px-4 py-3 waitlist-input"
                            placeholder="@L["EmailPlaceholder"]"
                            disabled="@IsSubmitting"
                            required />

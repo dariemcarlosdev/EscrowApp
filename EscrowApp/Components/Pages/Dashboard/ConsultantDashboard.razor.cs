@@ -8,9 +8,6 @@ namespace EscrowApp.Components.Pages.Dashboard;
 /// <summary>
 /// Consultant (payee) dashboard — shows transactions where the authenticated user
 /// is the service provider. Displays secured funds, earnings, and delivery status.
-///
-/// PREREQUISITE: User authentication must be implemented. Need user identity
-/// to filter transactions by ConsultantEmail or ConsultantActorId.
 /// </summary>
 public sealed partial class ConsultantDashboard : ComponentBase, IDisposable
 {
@@ -22,26 +19,19 @@ public sealed partial class ConsultantDashboard : ComponentBase, IDisposable
     private Task<AuthenticationState> AuthState { get; set; } = default!;
 
     private bool _isLoading = true;
+    private bool _hasEngagements = false;
+    private decimal _fundsSecured = 0m;
+    private decimal _totalEarned = 0m;
+    private int _pendingCount = 0;
+    private int _disputedCount = 0;
     private CancellationTokenSource _cts = new();
 
     protected override async Task OnInitializedAsync()
     {
-        // TODO: Implement data loading
-        // 1. Get authenticated user identity from AuthState
-        // 2. Query transactions via IMediator where ConsultantEmail matches
-        // 3. Calculate earnings summary (secured, earned, pending delivery)
-        // 4. Set _isLoading = false
-
-        await Task.Delay(0); // placeholder
+        // TODO: wire to ListTransactionsQuery filtered by authenticated consultant email
+        await Task.Delay(0);
         _isLoading = false;
     }
-
-    // TODO: Add event handlers
-    // private async Task HandleViewDetails(int transactionId) =>
-    //     Navigation.NavigateTo($"/dashboard/transaction/{transactionId}");
-    //
-    // private async Task HandleMarkDelivered(int transactionId) { ... }
-    // private async Task HandleRequestRelease(int transactionId) { ... }
 
     public void Dispose() => _cts.Cancel();
 }

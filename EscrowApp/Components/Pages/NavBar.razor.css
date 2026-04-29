@@ -5,10 +5,10 @@
 }
 
 .brand-icon {
-    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
+    filter: drop-shadow(0 0 8px rgba(var(--accent-blue-rgb), 0.4));
     transition: filter 0.3s ease;
 }
 
 .brand-icon:hover {
-    filter: drop-shadow(0 0 12px rgba(217, 70, 239, 0.6));
+    filter: drop-shadow(0 0 12px rgba(var(--accent-magenta-rgb), 0.6));
 }

@@ -1,83 +1,96 @@
 @page "/dashboard/client"
+@layout DashboardLayout
 @using Microsoft.AspNetCore.Authorization
+@using EscrowApp.Components.Layout
 @attribute [Authorize]
 @attribute [StreamRendering]
 @using Microsoft.Extensions.Localization
 
-<!-- TODO: Implement Client Dashboard UI
-     This page shows the CLIENT (payer) their active escrow transactions.
-     Key features:
-     - List of transactions where the user is the payer (ClientEmail match)
-     - Status indicators: Pending, Held, Released, Disputed, Cancelled
-     - Actions: View Details, Dispute, Cancel (if Held)
-     - Payment initiation for new escrows
--->
+@* ── Page header ──────────────────────────────────────────────────────── *@
+<div class="dash-page-header mb-4">
+    <div>
+        <h1 class="page-title">@L["PageTitle"]</h1>
+        <p class="page-subtitle">@L["PageSubtitle"]</p>
+    </div>
+    <button class="btn-primary-dash" @onclick="HandleNewEscrow">
+        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> @L["NewEscrow"]
+    </button>
+</div>
 
-<div class="container-fluid mt-4">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="fw-bold">@L["PageTitle"]</h1>
-            <p class="text-muted">@L["PageSubtitle"]</p>
+@if (_isLoading)
+{
+    <div class="dash-loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">@L["Loading"]</span>
+        </div>
+    </div>
+}
+else
+{
+    @* ── KPI cards ─────────────────────────────────────────────────────── *@
+    <div class="kpi-grid mb-4">
+        <div class="kpi-card kpi-blue">
+            <span class="kpi-label">@L["ActiveHolds"]</span>
+            <span class="kpi-value">@_heldCount</span>
+            <span class="kpi-icon"><i class="bi bi-lock" aria-hidden="true"></i></span>
+        </div>
+        <div class="kpi-card kpi-green">
+            <span class="kpi-label">@L["Released"]</span>
+            <span class="kpi-value">@_releasedCount</span>
+            <span class="kpi-icon"><i class="bi bi-check-circle" aria-hidden="true"></i></span>
+        </div>
+        <div class="kpi-card kpi-amber">
+            <span class="kpi-label">@L["Disputed"]</span>
+            <span class="kpi-value">@_disputedCount</span>
+            <span class="kpi-icon"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i></span>
+        </div>
+        <div class="kpi-card kpi-purple">
+            <span class="kpi-label">@L["TotalEscrowed"]</span>
+            <span class="kpi-value kpi-currency">$@_totalAmount.ToString("N2")</span>
+            <span class="kpi-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
         </div>
     </div>
 
-    @if (_isLoading)
-    {
-        <div class="d-flex justify-content-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">@L["Loading"]</span>
+    @* ── Transactions panel ─────────────────────────────────────────────── *@
+    <div class="dash-panel">
+        <div class="dash-panel-header">
+            <span class="panel-title">@L["TransactionsTitle"]</span>
+            <div class="panel-header-actions">
+                <span class="status-badge badge-all">All</span>
             </div>
         </div>
-    }
-    else
-    {
-        <!-- TODO: Transaction summary cards (total held, total released, active disputes) -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card border-primary">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-primary">@L["ActiveHolds"]</h5>
-                        <p class="display-6 fw-bold">--</p>
+        <div class="dash-panel-body">
+            @if (!_hasTransactions)
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-inbox" aria-hidden="true"></i>
                     </div>
+                    <p class="empty-title">No transactions yet</p>
+                    <p class="empty-sub">@L["NoTransactionsYet"]</p>
+                    <button class="btn-primary-dash mt-3" @onclick="HandleNewEscrow">
+                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> @L["NewEscrow"]
+                    </button>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-success">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-success">@L["Released"]</h5>
-                        <p class="display-6 fw-bold">--</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-warning">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-warning">@L["Disputed"]</h5>
-                        <p class="display-6 fw-bold">--</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-secondary">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-secondary">@L["TotalEscrowed"]</h5>
-                        <p class="display-6 fw-bold">$--</p>
-                    </div>
-                </div>
-            </div>
+            }
+            else
+            {
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Consultant</th>
+                            <th class="text-end">Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @* Populated when data layer is wired *@
+                    </tbody>
+                </table>
+            }
         </div>
-
-        <!-- TODO: Transaction table with filtering and pagination -->
-        <div class="card">
-            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                <span>@L["TransactionsTitle"]</span>
-                <button class="btn btn-sm btn-outline-light">@L["NewEscrow"]</button>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    @L["NoTransactionsYet"]
-                </div>
-            </div>
-        </div>
-    }
-</div>
+    </div>
+}

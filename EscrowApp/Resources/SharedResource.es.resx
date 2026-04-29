@@ -235,4 +235,88 @@
   <data name="ViewDetails" xml:space="preserve">
     <value>Ver Detalles</value>
   </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>Inicia Sesión en Tu Cuenta</value>
+  </data>
+  <data name="SignIn" xml:space="preserve">
+    <value>Iniciar Sesión</value>
+  </data>
+  <data name="SigningIn" xml:space="preserve">
+    <value>Iniciando Sesión...</value>
+  </data>
+  <data name="NoAccount" xml:space="preserve">
+    <value>¿No tienes una cuenta?</value>
+  </data>
+  <data name="RegisterTitle" xml:space="preserve">
+    <value>Crear Tu Cuenta</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Confirmar Contraseña</value>
+  </data>
+  <data name="PasswordMismatch" xml:space="preserve">
+    <value>Las contraseñas no coinciden.</value>
+  </data>
+  <data name="RoleLabel" xml:space="preserve">
+    <value>Me uno como</value>
+  </data>
+  <data name="RoleClient" xml:space="preserve">
+    <value>Cliente — Necesito que se realice un trabajo</value>
+  </data>
+  <data name="RoleConsultant" xml:space="preserve">
+    <value>Consultor — Ofrezco servicios</value>
+  </data>
+  <data name="RoleRequired" xml:space="preserve">
+    <value>Por favor selecciona el tipo de cuenta.</value>
+  </data>
+  <data name="Registering" xml:space="preserve">
+    <value>Creando Cuenta...</value>
+  </data>
+  <data name="HaveAccount" xml:space="preserve">
+    <value>¿Ya tienes una cuenta?</value>
+  </data>
+  <data name="UnauthorizedMessage" xml:space="preserve">
+    <value>Necesitas iniciar sesión para acceder a esta página. Por favor, inicia sesión con tus credenciales.</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Inicio</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Panel de Control</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Correo Electrónico</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Contraseña</value>
+  </data>
+  <data name="RememberMe" xml:space="preserve">
+    <value>Recordarme</value>
+  </data>
+  <data name="SignUp" xml:space="preserve">
+    <value>Registrarse</value>
+  </data>
+  <data name="LogIn" xml:space="preserve">
+    <value>Iniciar Sesión</value>
+  </data>
+  <data name="SignInTitle" xml:space="preserve">
+    <value>Inicia Sesión en Tu Cuenta</value>
+  </data>
+  <data name="CreateAccountTitle" xml:space="preserve">
+    <value>Crear Tu Cuenta</value>
+  </data>
+  <data name="EmailHelp" xml:space="preserve">
+    <value>Por favor, ingresa el correo asociado a tu cuenta.</value>
+  </data>
+  <data name="PasswordHelp" xml:space="preserve">
+    <value>Usa una contraseña segura. Mínimo 8 caracteres.</value>
+  </data>
+  <data name="PasswordStrength" xml:space="preserve">
+    <value>Fortaleza: {0}%</value>
+  </data>
+  <data name="ShowPassword" xml:space="preserve">
+    <value>Mostrar contraseña</value>
+  </data>
+  <data name="HidePassword" xml:space="preserve">
+    <value>Ocultar contraseña</value>
+  </data>
 </root>

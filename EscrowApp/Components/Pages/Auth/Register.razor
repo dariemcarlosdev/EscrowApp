@@ -1,31 +1,117 @@
 @page "/auth/register"
 @using Microsoft.Extensions.Localization
-
-<!-- TODO: Implement registration page
-     Collect: Email, Password, Role (Client or Consultant), Display Name
-     For MVP: ASP.NET Core Identity registration
-     For Production: Entra ID self-service signup or invite-only
--->
+@using Microsoft.AspNetCore.Components.Forms
 
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-5">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm register-card">
                 <div class="card-body p-4">
-                    <h2 class="text-center mb-4">@L["RegisterTitle"]</h2>
+                    <h2 class="text-center mb-4">@L["CreateAccountTitle"]</h2>
 
-                    <div class="alert alert-info">
-                        Registration not yet configured. See docs/05-Hybrid-Identity for setup.
+                    @if (!string.IsNullOrEmpty(ErrorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show register-error" role="alert">
+                            @ErrorMessage
+                            <button type="button" class="btn-close" @onclick="ClearError"></button>
+                        </div>
+                    }
+
+                    <EditForm Model="RegisterModel" OnValidSubmit="HandleRegister" FormName="RegisterForm">
+                        <DataAnnotationsValidator />
+
+                        <div class="mb-3 register-form-group">
+                            <label for="displayName" class="form-label">@L["Description"]</label>
+                            <InputText id="displayName" class="form-control" placeholder="Your Name"
+                                @bind-Value="RegisterModel.DisplayName" />
+                            <ValidationMessage For="() => RegisterModel.DisplayName" />
+                        </div>
+
+                        <div class="mb-3 register-form-group">
+                            <label for="email" class="form-label">@L["Email"]</label>
+                            <InputText id="email" class="form-control" placeholder="user@example.com"
+                                @bind-Value="RegisterModel.Email" />
+                            <ValidationMessage For="() => RegisterModel.Email" />
+                        </div>
+
+                        <div class="mb-3 register-form-group">
+                            <label for="password" class="form-label">@L["Password"]</label>
+                            <div class="input-group">
+                                <input id="password" type="@PasswordInputType" class="form-control" placeholder="••••••••"
+                                    value="@RegisterModel.Password" @oninput="@(e => { RegisterModel.Password = e?.Value?.ToString() ?? string.Empty; UpdatePasswordStrength(RegisterModel.Password); })" autocomplete="new-password" aria-describedby="passwordStrengthHelp" />
+                                <button type="button" class="btn btn-outline-secondary" @onclick="TogglePasswordVisibility" aria-label="@((ShowPassword) ? L["HidePassword"] : L["ShowPassword"])">
+                                    <span class="visually-hidden">@((ShowPassword) ? L["HidePassword"] : L["ShowPassword"])</span>
+                                    <i class="bi @(ShowPassword ? "bi-eye-slash" : "bi-eye")" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div class="mt-2">
+                                <div class="progress" role="progressbar" aria-valuenow="@PasswordStrength" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar" style="width:@($"{PasswordStrength}%")"></div>
+                                </div>
+                                <small id="passwordStrengthHelp" class="form-text text-muted">@L["PasswordStrength", PasswordStrength]</small>
+                            </div>
+                            <ValidationMessage For="() => RegisterModel.Password" />
+                        </div>
+
+                        <div class="mb-3 register-form-group">
+                            <label for="confirmPassword" class="form-label">@L["ConfirmPassword"]</label>
+                            <div class="input-group">
+                                <input id="confirmPassword" type="@ConfirmPasswordInputType" class="form-control" placeholder="••••••••"
+                                    value="@RegisterModel.ConfirmPassword" @oninput="@(e => RegisterModel.ConfirmPassword = e?.Value?.ToString() ?? string.Empty)" autocomplete="new-password" />
+                                <button type="button" class="btn btn-outline-secondary" @onclick="ToggleConfirmPasswordVisibility" aria-label="@((ShowConfirmPassword) ? L["HidePassword"] : L["ShowPassword"])">
+                                    <span class="visually-hidden">@((ShowConfirmPassword) ? L["HidePassword"] : L["ShowPassword"])</span>
+                                    <i class="bi @(ShowConfirmPassword ? "bi-eye-slash" : "bi-eye")" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <ValidationMessage For="() => RegisterModel.ConfirmPassword" />
+                        </div>
+
+                        <div class="mb-4 register-form-group">
+                            <label class="form-label">@L["RoleLabel"]</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check flex-fill border rounded p-3 role-option @(RegisterModel.Role == "Client" ? "border-primary bg-primary bg-opacity-10" : "")" @onclick='() => RegisterModel.Role = "Client"' style="cursor:pointer;">
+                                    <input class="form-check-input" type="radio" name="role"
+                                           id="roleClient" value="Client"
+                                           checked="@(RegisterModel.Role == "Client")"
+                                           @onchange='() => RegisterModel.Role = "Client"' />
+                                    <label class="form-check-label w-100" for="roleClient">
+                                        @L["RoleClient"]
+                                    </label>
+                                </div>
+                                <div class="form-check flex-fill border rounded p-3 role-option @(RegisterModel.Role == "Consultant" ? "border-primary bg-primary bg-opacity-10" : "")" @onclick='() => RegisterModel.Role = "Consultant"' style="cursor:pointer;">
+                                    <input class="form-check-input" type="radio" name="role"
+                                           id="roleConsultant" value="Consultant"
+                                           checked="@(RegisterModel.Role == "Consultant")"
+                                           @onchange='() => RegisterModel.Role = "Consultant"' />
+                                    <label class="form-check-label w-100" for="roleConsultant">
+                                        @L["RoleConsultant"]
+                                    </label>
+                                </div>
+                            </div>
+                            @if (ShowRoleError)
+                            {
+                                <div class="text-danger small mt-1">@L["RoleRequired"]</div>
+                            }
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-dash w-100 register-btn" disabled="@IsLoading">
+                            @if (IsLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>@L["Registering"]</span>
+                            }
+                            else
+                            {
+                                <span>@L["Register"]</span>
+                            }
+                        </button>
+                    </EditForm>
+
+                    <div class="register-footer">
+                        <p class="text-muted">
+                            @L["HaveAccount"] <a href="/auth/login">@L["SignIn"]</a>
+                        </p>
                     </div>
-
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-primary" disabled>@L["CreateAccount"]</button>
-                    </div>
-
-                    <hr />
-                    <p class="text-center text-muted">
-                        @L["HasAccount"] <a href="/auth/login">@L["SignIn"]</a>
-                    </p>
                 </div>
             </div>
         </div>

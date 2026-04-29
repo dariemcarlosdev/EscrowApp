@@ -1,0 +1,152 @@
+Test run for C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\bin\Debug\net10.0\EscrowApp.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.98]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerFails_ShouldRollbackActorAndReturnFailure [FAIL]
+[xUnit.net 00:00:01.00]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "user@example.com", password: "SecurePass123!", confirmPassword: "SecurePass123!", displayName: "") [FAIL]
+[xUnit.net 00:00:01.05]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "user@example.com", password: "", confirmPassword: "", displayName: "John Doe") [FAIL]
+[xUnit.net 00:00:01.06]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "", password: "SecurePass123!", confirmPassword: "SecurePass123!", displayName: "John Doe") [FAIL]
+[xUnit.net 00:00:01.08]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenValidRegistration_ShouldCreateActorAndUserAndReturnSuccess [FAIL]
+[xUnit.net 00:00:01.11]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerSucceeds_ShouldCreateBridgeAndReturnSuccess [FAIL]
+[xUnit.net 00:00:01.12]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerThrowsException_ShouldRollbackAndReturnFailureResult [FAIL]
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerFails_ShouldRollbackActorAndReturnFailure [166 ms]
+  Error Message:
+   Expected result.ErrorMessage "Registration failed: An error occurred while saving the entity changes. See the inner exception for details." to contain "Username 'user@example.com' is already taken.".
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Primitives.StringAssertions`1.Contain(String expected, String because, Object[] becauseArgs)
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerFails_ShouldRollbackActorAndReturnFailure() in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 245
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "user@example.com", password: "SecurePass123!", confirmPassword: "SecurePass123!", displayName: "") [3 ms]
+  Error Message:
+   Expected result.ErrorMessage "Registration failed: An error occurred while saving the entity changes. See the inner exception for details." to contain "Username is required".
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Primitives.StringAssertions`1.Contain(String expected, String because, Object[] becauseArgs)
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(String email, String password, String confirmPassword, String displayName) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 156
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "user@example.com", password: "", confirmPassword: "", displayName: "John Doe") [2 ms]
+  Error Message:
+   Expected result.ErrorMessage "Registration failed: An error occurred while saving the entity changes. See the inner exception for details." to contain "Username is required".
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Primitives.StringAssertions`1.Contain(String expected, String because, Object[] becauseArgs)
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(String email, String password, String confirmPassword, String displayName) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 156
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(email: "", password: "SecurePass123!", confirmPassword: "SecurePass123!", displayName: "John Doe") [1 ms]
+  Error Message:
+   Expected result.ErrorMessage "Registration failed: An error occurred while saving the entity changes. See the inner exception for details." to contain "Username is required".
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Primitives.StringAssertions`1.Contain(String expected, String because, Object[] becauseArgs)
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenRequiredFieldsEmpty_ShouldStillProcessToUserManager(String email, String password, String confirmPassword, String displayName) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 156
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenValidRegistration_ShouldCreateActorAndUserAndReturnSuccess [3 ms]
+  Error Message:
+   Expected result.Success to be True, but found False.
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Primitives.BooleanAssertions`1.BeTrue(String because, Object[] becauseArgs)
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenValidRegistration_ShouldCreateActorAndUserAndReturnSuccess() in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 92
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerSucceeds_ShouldCreateBridgeAndReturnSuccess [19 ms]
+  Error Message:
+   Expected property result.Success to be True, but found False.
+Expected property result.ErrorMessage to be <null>, but found "Registration failed: An error occurred while saving the entity changes. See the inner exception for details.".
+
+With configuration:
+- Prefer the declared type of the members
+- Compare enums by value
+- Compare tuples by their properties
+- Compare anonymous types by their properties
+- Compare records by their members
+- Include non-browsable members
+- Match member by name (or throw)
+- Be strict about the order of items in byte arrays
+- Without automatic conversion.
+
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.CollectingAssertionStrategy.ThrowIfAny(IDictionary`2 context)
+   at FluentAssertions.Execution.AssertionScope.Dispose()
+   at FluentAssertions.Equivalency.EquivalencyValidator.AssertEquality(Comparands comparands, EquivalencyValidationContext context)
+   at FluentAssertions.Equivalency.EquivalencyValidator.AssertEquality(Comparands comparands, EquivalencyValidationContext context)
+   at FluentAssertions.Primitives.ObjectAssertions`2.BeEquivalentTo[TExpectation](TExpectation expectation, Func`2 config, String because, Object[] becauseArgs)
+   at FluentAssertions.Primitives.ObjectAssertions`2.BeEquivalentTo[TExpectation](TExpectation expectation, String because, Object[] becauseArgs)
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerSucceeds_ShouldCreateBridgeAndReturnSuccess() in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 122
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerThrowsException_ShouldRollbackAndReturnFailureResult [1 ms]
+  Error Message:
+   Expected result.ErrorMessage "Registration failed: An error occurred while saving the entity changes. See the inner exception for details." to contain "Database connection failed".
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Primitives.StringAssertions`1.Contain(String expected, String because, Object[] becauseArgs)
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenUserManagerThrowsException_ShouldRollbackAndReturnFailureResult() in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 268
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:01.13]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenEmailAlreadyExists_ShouldReturnFailureWithDuplicateErrorAndRollback [FAIL]
+[xUnit.net 00:00:01.14]     EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenPasswordsAreEmptyButMatch_ShouldProcessToUserManager(password: "", confirmPassword: "") [FAIL]
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenEmailAlreadyExists_ShouldReturnFailureWithDuplicateErrorAndRollback [2 ms]
+  Error Message:
+   Expected result.ErrorMessage to be the same string, but they differ at index 0:
+   Γåô (actual)
+  "Registration failed: AnΓÇª"
+  "Email is alreadyΓÇª"
+   Γåæ (expected).
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message)
+   at FluentAssertions.Primitives.StringEqualityStrategy.AssertForEquality(AssertionChain assertionChain, String subject, String expected)
+   at FluentAssertions.Primitives.StringValidator.Validate(String subject, String expected)
+   at FluentAssertions.Primitives.StringAssertions`1.Be(String expected, String because, Object[] becauseArgs)
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenEmailAlreadyExists_ShouldReturnFailureWithDuplicateErrorAndRollback() in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 295
+--- End of stack trace from previous location ---
+  Failed EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenPasswordsAreEmptyButMatch_ShouldProcessToUserManager(password: "", confirmPassword: "") [1 ms]
+  Error Message:
+   Expected result.ErrorMessage "Registration failed: An error occurred while saving the entity changes. See the inner exception for details." to contain "Password is required".
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Primitives.StringAssertions`1.Contain(String expected, String because, Object[] becauseArgs)
+   at EscrowApp.Tests.Features.Auth.Register.RegisterCommandHandlerTests.Handle_WhenPasswordsAreEmptyButMatch_ShouldProcessToUserManager(String password, String confirmPassword) in C:\Users\335286\.gemini\antigravity\scratch\EscrowPrototype\EscrowApp\EscrowApp.Tests\Features\Auth\Register\RegisterCommandHandlerTests.cs:line 199
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     9, Passed:     3, Skipped:     0, Total:    12, Duration: 1 s - EscrowApp.Tests.dll (net10.0)

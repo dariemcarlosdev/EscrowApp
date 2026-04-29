@@ -10,6 +10,8 @@ using EscrowApp.Infrastructure.Middleware;
 using EscrowApp.Services.Strategies;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +19,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.ResponseCompression;
 using Stripe;
 using System.Globalization;
+using Microsoft.AspNetCore.Components.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,8 +43,34 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
     })
     .AddEntityFrameworkStores<EscrowDbContext>();
 
+// === Cookie Configuration ===
+// Explicitly mark Identity and Antiforgery cookies as Secure + SameSite=Strict
+// to prevent cross-scheme cookie warnings caused by VS BrowserLink injecting
+// HTTP requests from an HTTPS page.
+builder.Services.ConfigureApplicationCookie(opts =>
+{
+    opts.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    opts.Cookie.SameSite = SameSiteMode.Strict;
+    opts.Cookie.HttpOnly = true;
+    opts.LoginPath = "/auth/login";
+    opts.AccessDeniedPath = "/auth/access-denied";
+});
+
+builder.Services.AddAntiforgery(opts =>
+{
+    opts.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    opts.Cookie.SameSite = SameSiteMode.Strict;
+});
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// === Blazor Server Authentication ===
+// RevalidatingIdentityAuthenticationStateProvider extends RevalidatingServerAuthenticationStateProvider
+// — the correct Blazor Server base class. It manages its own background revalidation timer,
+// creates properly scoped DI contexts for each tick, and validates the user's Identity security stamp.
+builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider>();
+
 
 // === Localization ===
 builder.Services.AddLocalization(opts => opts.ResourcesPath = "Resources");
@@ -185,9 +214,21 @@ app.Use(async (context, next) =>
     context.Response.Headers.Append("X-Frame-Options", "DENY");
     context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
     context.Response.Headers.Append("X-Permitted-Cross-Domain-Policies", "none");
+
+    // In development allow hot-reload, Blazor WebSocket, and BrowserLink (VS injects
+    // BrowserLink via its debugger pipeline — no config can prevent it, so we allow it).
+    var connectSrc = app.Environment.IsDevelopment()
+        ? "connect-src 'self' ws://localhost:* wss://localhost:* http://localhost:*;"
+        : "connect-src 'self' wss:;";
+
     context.Response.Headers.Append(
         "Content-Security-Policy",
-        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;");
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline'; " +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
+        "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
+        "img-src 'self' data:; " +
+        connectSrc);
     await next();
 });
 
@@ -231,7 +272,7 @@ app.MapGet("/culture/set", (string culture, string redirectUri, HttpContext ctx)
         {
             Expires = DateTimeOffset.UtcNow.AddYears(1),
             IsEssential = true,
-            SameSite = SameSiteMode.Lax,
+            SameSite = SameSiteMode.Strict,
             Secure = true,
             HttpOnly = true
         });
@@ -239,7 +280,32 @@ app.MapGet("/culture/set", (string culture, string redirectUri, HttpContext ctx)
     return Results.LocalRedirect(redirectUri);
 });
 
+// === Logout Endpoint ===
+// SignOutAsync() must run over a real HTTP response to delete the auth cookie.
+// Calling it inside a Blazor Server circuit (SignalR) has no effect because
+// there is no writable HTTP response — the cookie header is never sent.
+app.MapPost("/auth/logout", async (SignInManager<ApplicationUser> signInManager) =>
+{
+    await signInManager.SignOutAsync();
+    return Results.LocalRedirect("/");
+}).RequireAuthorization().DisableAntiforgery();
+
 app.MapRazorComponents<EscrowApp.Components.App>()
     .AddInteractiveServerRenderMode();
+
+// === Role Seeding ===
+// Ensures AppRoles.Client and AppRoles.Consultant exist in AspNetRoles before
+// any user registration. Idempotent — safe to run on every startup.
+using (var seedScope = app.Services.CreateScope())
+{
+    var roleManager = seedScope.ServiceProvider
+        .GetRequiredService<RoleManager<IdentityRole<int>>>();
+
+    foreach (var role in AppRoles.All)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole<int>(role));
+    }
+}
 
 app.Run();
