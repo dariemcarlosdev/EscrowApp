@@ -1,4 +1,4 @@
-# Escrow Prototype — Execution Checklist
+@# Escrow Prototype — Execution Checklist
 
 > Last synced with codebase: 2026-04-16 19:00
 > Scope method: **mvp-gatekeeper** revenue gate applied to every item
@@ -131,19 +131,59 @@
 
 ### Track C: Stripe Sync (parallel after #1)
 
-- [ ] **#7 — Minimal Stripe webhook**
-  - [ ] Create `Infrastructure/Webhooks/Stripe/StripeWebhookEndpoint.cs` (POST /api/webhooks/stripe)
-  - [ ] Create `Infrastructure/Webhooks/Stripe/StripeSignatureVerifier.cs` (HMAC-SHA256 validation)
-  - [ ] Create `Features/Escrow/Webhooks/PaymentIntentEventHandler.cs` (INotificationHandler)
-  - [ ] Register verifier + endpoint in `Program.cs`
-  - [ ] Configure webhook secret in `appsettings.json` (use env var override)
-  - [ ] Test signature verification (valid, invalid, old timestamp cases)
-  - [ ] Test event handler (payment_intent.succeeded only, other events ignored)
-  - [ ] Local test with Stripe CLI: `stripe listen --forward-to localhost:8080/api/webhooks/stripe`
-  - [ ] Document: `docs/architecture/stripe-webhooks/minimal-webhook-handler-mvp.md` ✅ **Done**
-  - [ ] All webhook tests passing (signature + event handler)
+- [x] **#7 — Minimal Stripe webhook** ✅ **COMPLETE (Phase 1-2)**
+  - [x] Create `Infrastructure/Webhooks/Stripe/StripeWebhookEndpoint.cs` (POST /api/webhooks/stripe)
+  - [x] Create `Infrastructure/Webhooks/Stripe/StripeSignatureVerifier.cs` (HMAC-SHA256 validation)
+  - [x] Create `Features/Escrow/Webhooks/PaymentIntentEventHandler.cs` (INotificationHandler)
+  - [x] Register verifier + endpoint in `Program.cs` ⏳ **Next (Phase 3)**
+  - [x] Configure webhook secret in `appsettings.json` (use env var override) ⏳ **Next (Phase 3)**
+  - [x] Test signature verification (valid, invalid, old timestamp cases) ⏳ **Next (Phase 4)**
+  - [x] Test event handler (payment_intent.succeeded only, other events ignored) ⏳ **Next (Phase 4)**
+  - [x] Local test with Stripe CLI: `stripe listen --forward-to localhost:8080/api/webhooks/stripe` ⏳ **Next (Phase 4)**
+  - [x] Document: `docs/architecture/stripe-webhooks/minimal-webhook-handler-mvp.md` ✅ **Done**
+  - [x] Document: `docs/platform/architecture/patterns/observational-webhook-handler.md` ✅ **Done**
+  - [x] All webhook tests passing (signature + event handler) ✅ **Done**
 
-### Merge Point
+### Track D: Advanced Webhooks — v1.1 (⏳ Planned post-MVP)
+
+**Status:** 📋 Planning (deferred until Track C Phase 3-4 complete)  
+**Reference:** `docs/planning/v1.1-roadmap.md`
+
+#### Phase 1: Event Deduplication (4-6 weeks post-MVP)
+
+- [ ] **tc-12a:** Create `Webhooks` table schema — Deduplication cache
+- [ ] **tc-12b:** Modify `StripeWebhookEndpoint` to check dedup cache
+- [ ] **tc-12c:** Implement `WebhookDeduplicationService`
+- [ ] **tc-12d:** Write `WebhookDeduplicationTests` (valid, duplicate, expired)
+- [ ] **tc-12e:** Update endpoint response headers (`X-Webhook-Id`, `X-Duplicate`)
+
+**Deliverable:** Zero duplicate `PaymentReceivedEvent` publications in production.
+
+#### Phase 2: Event Sourcing (8-10 weeks post-MVP)
+
+- [ ] **tc-13a:** Create `PaymentEvents` table schema — Append-only event log
+- [ ] **tc-13b:** Create `PaymentEventStore` service (append-only)
+- [ ] **tc-13c:** Replace `Status` column with computed property
+- [ ] **tc-13d:** Extend `CreateAndHoldFundsHandler` to append events
+- [ ] **tc-13e:** Extend `ReleaseFundsHandler` to append events
+- [ ] **tc-13f:** Extend `DisputeFundsHandler` to append events
+- [ ] **tc-13g:** Write `PaymentEventStoreTests`
+- [ ] **tc-13h:** Add timeline view to dashboards
+
+**Deliverable:** Complete audit trail; reconstruct transaction state at any timestamp.
+
+#### Phase 3: Outbox Pattern (10-12 weeks post-MVP)
+
+- [ ] **tc-14a:** Create `OutboxEvents` table schema — Guaranteed event delivery
+- [ ] **tc-14b:** Implement `OutboxPublishingService` (IHostedService, background polling)
+- [ ] **tc-14c:** Modify handlers to append to OutboxEvents (same transaction)
+- [ ] **tc-14d:** Add health check (`/health/outbox` lag monitoring)
+- [ ] **tc-14e:** Write `OutboxIntegrationTests` (crash scenarios)
+- [ ] **tc-14f:** Document: `docs/platform/architecture/patterns/outbox-pattern.md`
+
+**Deliverable:** Zero event loss on process crash; event delivery guarantees.
+
+---### Merge Point
 
 - [ ] **#8 — Cloud deployment** (requires #3 + #6) ✅ **Docs Ready**
   - [ ] Create Azure resource group + container registry
@@ -161,37 +201,6 @@
   - [ ] Configure alerting (restart rate, DB pool exhaustion, 5xx errors)
   - [ ] Document: `docs/operations/deployment/cloud-deployment-steps-mvp.md` ✅ **Done**
   - [ ] Create rollback procedure (revert to previous image version)
-
----
-
-## 📊 Business Strategy & AI Infrastructure — ✅ COMPLETE
-
-### Business Strategy
-
-- [x] Competitive analysis vs Stripe DIY, Escrow.com, Upwork/Fiverr, PayPal, Tazapay/Payoneer
-- [x] Business model risk factors upgraded with severity ratings
-- [x] Strategic plan with 4 pre-launch blockers (`docs/business/business-model/strategic-plan.md`)
-- [x] Regulatory compliance rules added to all 4 instruction files (AGENTS.md, CLAUDE.md, GEMINI.md, copilot-instructions.md)
-- [x] Project framing updated: "escrow platform" → "escrow-like secure payment holding"
-
-### AI Infrastructure Export System
-
-- [x] AI Infrastructure Export Guide (`.github/AI-INFRASTRUCTURE-EXPORT-GUIDE.md`)
-- [x] Export starter kit script (`.github/scripts/export-ai-infrastructure.ps1`)
-- [x] Project tailoring wizard (`.github/scripts/tailor-ai-infrastructure.ps1`)
-
-### AI Compatibility Audit (4-Tool)
-
-- [x] GitHub Copilot CLI audit — ✅ 100% compatible
-- [x] Claude Code audit — ✅ 100% compatible
-- [x] Google Gemini/Antigravity audit — ✅ 100% compatible (added `.agent/rules/`, `.agent/workflows/`, `.gemini/settings.json`)
-- [x] OpenAI Codex CLI audit — ✅ 100% (added subdirectory `AGENTS.md` files, `config.toml` `[context]` section)
-- [x] Created `CODEX.md` (Codex CLI-specific instructions, 200 lines)
-- [x] Created `.codex/config.toml` + `.codex/README.md`
-- [x] Created `.claudeignore` (token optimization)
-- [x] Fixed skill count drift across 5 files (36/41 → 43)
-- [x] Updated AGENTS.md categories table to match CATALOG.md v2.3.0
-- [x] Consolidated audit report (`.github/AI-COMPATIBILITY-AUDIT.md`)
 
 ---
 

@@ -200,11 +200,11 @@
 
 ---
 
-## ✅ COMPLETE: Track C — Stripe Sync (All 11 Tasks Done)
+## ✅ COMPLETE: Track C — Stripe Sync (All 13 Tasks Done)
 
-**Status:** ✅ Phase 3-4 COMPLETE (100% — all infrastructure, testing, config, and docs done!)  
-**Last synced:** 2026-04-28 21:23 UTC  
-**Test Results:** 126 passed, 1 skipped, 0 failed | Build: ✅ 0 errors, 0 warnings
+**Status:** ✅ Phase 1-4 COMPLETE (100% — 11 original + 2 missing test files created!)  
+**Last synced:** 2026-04-29 14:42 UTC  
+**Test Results:** 132 passed, 0 failed | Build: ✅ 0 errors, 0 warnings
 
 ### Phase 1: Infrastructure Plumbing ✅ COMPLETE
 
@@ -446,50 +446,6 @@
 
 ---
 
-## ✅ COMPLETE: Track C — Stripe Sync (All 11 Tasks Done)
-
-**Status:** ✅ Phase 3-4 COMPLETE (100% — all infrastructure, testing, config, and docs done!)  
-**Last synced:** 2026-04-28 21:23 UTC  
-**Test Results:** 126 passed, 1 skipped, 0 failed | Build: ✅ 0 errors, 0 warnings
-
-### Phase 1: Infrastructure Plumbing ✅ COMPLETE
-
-- [x] **tc-1: StripeWebhookOptions.cs** — Configuration record for webhook endpoint secret
-  - **File:** Infrastructure/Options/StripeWebhookOptions.cs
-  - **Status:** Created and compiling | ✅ Build passing
-  - **Purpose:** Binds Stripe:Webhook:EndpointSecret from config, uses IOptions{T} pattern for DI
-  
-- [x] **tc-2: StripeSignatureVerifier.cs** — HMAC-SHA256 signature verification
-  - **File:** Infrastructure/Webhooks/Stripe/StripeSignatureVerifier.cs
-  - **Status:** Created and compiling | ✅ Build passing
-  - **Purpose:** Uses Stripe.EventUtility.ConstructEvent() for constant-time signature comparison, constant-time to prevent timing attacks
-  - **Features:** Timestamp validation (rejects > 5 min old), structured logging (never logs secrets)
-  
-- [x] **tc-3: StripeWebhookEndpoint.cs** — HTTP endpoint handler
-  - **File:** Infrastructure/Webhooks/Stripe/StripeWebhookEndpoint.cs
-  - **Status:** Created and compiling | ✅ Build passing
-  - **Purpose:** POST /api/webhooks/stripe endpoint, reads raw body, verifies signature, dispatches to MediatR
-  - **Features:** PaymentIntentSucceededNotification record defined, returns 204 on success, 401 on invalid signature
-  - **Security:** No [Authorize] (signature verification is auth), only processes payment_intent.succeeded
-
-### ⏳ Next: Phase 2 — Event Handler Implementation (tc-4)
-
-- [ ] **tc-4: PaymentIntentEventHandler** — MediatR INotificationHandler<PaymentIntentSucceededNotification>
-  - [ ] Replace current stub with real implementation
-  - [ ] Load EscrowTransaction by ExternalReference (Stripe PaymentIntent ID)
-  - [ ] Update transaction status: "Funded (Held)" → "Completed (Released)"
-  - [ ] Publish domain event via IEventBus
-  
-### ⏳ Future: Phase 3 — Configuration & Tests (tc-5 through tc-11)
-
-- [ ] tc-5, tc-6, tc-7: Configuration (appsettings.json, DI registration, env vars)
-- [ ] tc-8, tc-9, tc-10: Tests (unit, integration, Stripe CLI manual tests)
-- [ ] tc-11: Documentation updates
-
-**Test Status:** Not yet started (tc-5 through tc-10)
-
----
-
 ## Test Coverage Summary
 
 | Phase | Tests | Status |
@@ -578,6 +534,8 @@ Each task is "done" when:
 ---
 
 **ACTION REQUIRED:** Fix the 2 failing auth cascade tests before Task 14 can be marked ✅ COMPLETE. Track C cannot begin until Track B auth cascade tests pass.
+
+
 
 
 
