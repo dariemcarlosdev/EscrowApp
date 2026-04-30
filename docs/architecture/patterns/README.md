@@ -25,11 +25,11 @@ Advanced patterns for production reliability and audit compliance:
 
 | Phase | Patterns | Timeline | Documentation |
 |-------|----------|----------|-----------------|
-| **v1.1** | Event Deduplication, Event Sourcing, Outbox | 4-6 weeks post-MVP | `docs/planning/v1.1-roadmap.md` |
+| **v1.1** | Event Deduplication, Event Sourcing, Outbox | 4-6 weeks post-MVP | `docs/planning/post-mvp/v1.1-roadmap.md` |
 | **v1.2** | Saga Pattern, Dead Letter Queue | 8-10 weeks post-MVP | — |
 | **v1.3+** | Event Enrichment, Circuit Breaker | Post-v1.2 | — |
 
-📋 **Task Tracking:** See `docs/planning/v1.1-roadmap.md` for detailed pattern descriptions, implementation sequence, and SQL task breakdown (tc-12 through tc-17).
+📋 **Task Tracking:** See `docs/planning/post-mvp/v1.1-roadmap.md` for detailed pattern descriptions, implementation sequence, and SQL task breakdown (tc-12 through tc-17).
 
 **Key Patterns:**
 - **tc-12 Event Deduplication** — Prevent duplicate webhook events from Stripe retries
@@ -130,7 +130,7 @@ When adding a new pattern to the codebase:
 1. Create a new `.md` file in this folder (e.g., `new-pattern.md`)
 2. Add an entry to the **Quick Index** table above
 3. Include: Intent, Problem, Solution, Code Example, Trade-offs
-4. Update `docs-index.md` to reference the patterns folder
+4. Update `docs/README.md` and `docs/architecture/README.md` to reference the patterns folder
 5. Link from relevant feature/architecture docs
 
 ---
@@ -139,4 +139,4 @@ When adding a new pattern to the codebase:
 
 - [`docs/platform/architecture/overview/architecture-overview.md`](../overview/architecture-overview.md) — High-level architecture
 - [`docs/platform/architecture/event-bus/event-bus.md`](../event-bus/event-bus.md) — Domain event publishing
-- [`docs/modules/system/testing/testing-strategy.md`](../../system/testing/testing-strategy.md) — Testing patterns
+- [`docs/modules/system/testing/testing-strategy.md`](../../modules/system/testing/testing-strategy.md) — Testing patterns

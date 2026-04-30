@@ -351,7 +351,7 @@ The Observational Webhook Handler is the **foundation** for more sophisticated w
 - Extends to **Event Sourcing** (append-only log, audit trail)
 - Adds **Outbox Pattern** (guaranteed delivery)
 
-**See:** `docs/planning/v1.1-roadmap.md` for detailed implementation sequence.
+**See:** `docs/planning/post-mvp/v1.1-roadmap.md` for detailed implementation sequence.
 
 ### v1.2+ — Advanced Workflows
 
@@ -389,4 +389,4 @@ The Observational Webhook Handler is the **foundation** for more sophisticated w
 - [`stripe-webhooks.md`](../stripe-webhooks/stripe-webhooks.md) — Architecture overview
 - [`minimal-webhook-handler-mvp.md`](../stripe-webhooks/minimal-webhook-handler-mvp.md) — Stripe implementation spec
 - [`event-bus.md`](../event-bus/event-bus.md) — Domain event publishing
-- [`testing-strategy.md`](../../system/testing/testing-strategy.md) — Test patterns
+- [`testing-strategy.md`](../../modules/system/testing/testing-strategy.md) — Test patterns

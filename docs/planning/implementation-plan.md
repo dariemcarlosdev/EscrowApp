@@ -275,7 +275,9 @@ EscrowApp/
     ├── planning/
     │   ├── implementation-plan.md (this file)
     │   ├── task-checklist.md ✅
-    │   └── MVP-SHIP-CHECKLIST.md ✅
+    │   ├── release-readiness/
+    │   │   └── MVP-SHIP-CHECKLIST.md ✅
+    │   └── post-mvp/
     ├── cross-cutting/
     │   ├── hybrid-identity.md ✅
     │   └── authentication.md ✅
@@ -321,7 +323,7 @@ EscrowApp/
 - ✅ `hybrid-identity.md` — Complete (Actor ↔ ApplicationUser bridge)
 - ✅ `authentication.md` — Complete (Login/Logout/Register flows)
 - ✅ `task-checklist.md` — Synchronized (122/122 tests tracked)
-- ✅ `MVP-SHIP-CHECKLIST.md` — Complete (shipping decision gate)
+- ✅ `planning/release-readiness/MVP-SHIP-CHECKLIST.md` — Complete (shipping decision gate)
 - ✅ `implementation-plan.md` — This file (refactored this session)
 - ⚠️ `security-audit.md` — Needs update on webhook signature findings
 

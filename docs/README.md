@@ -1,73 +1,62 @@
-# Documentation Index
+# EscrowApp Documentation
 
-> **NexTruzt.io EscrowApp** — Comprehensive documentation organized by module and concern for fast navigation.
+> Canonical entry point for project documentation. Use this index first, then drill into the section README that matches the business or platform concern you are working on.
 
-## Quick Navigation
+## Start Here
 
-### 🔐 Authentication Module
-All user authentication and identity management:
-- [User Login](modules/authentication/user-login/user-login.md) — Sign in with email/password
-- [User Registration](modules/authentication/user-registration/user-registration.md) — Create new accounts  
-- [ASP.NET Identity Setup](modules/authentication/aspnet-identity-mvp/aspnet-identity-mvp.md) — Identity configuration and MVP approach
-- [Hybrid Identity](modules/authentication/hybrid-identity/hybrid-identity.md) — Web2/Web3 identity bridging
+### Business modules
+- [Modules overview](modules/README.md) - Module-first navigation and placement rules
+- [Authentication](modules/authentication/README.md) - Login, registration, identity, and auth architecture
+- [Secure payment holding](modules/escrow-payments/README.md) - Hold, release, dispute, cancellation, and fee docs
+- [User interface](modules/user-interface/README.md) - Dashboards, landing page, and transaction views
+- [System](modules/system/README.md) - Validation, localization, testing, and AI roadmap
 
-### 💰 Escrow Payments Module  
-All payment escrow operations and workflows:
-- [Hold Funds](modules/escrow-payments/hold-funds/hold-funds.md) — Authorize payment holds via Stripe
-- [Release Funds](modules/escrow-payments/release-funds/release-funds.md) — Capture held payments
-- [Dispute Funds](modules/escrow-payments/dispute-funds/dispute-funds.md) — Handle payment disputes
-- [Cancel Funds](modules/escrow-payments/cancel-funds/cancel-funds.md) — Void payment holds cooperatively
-- [Platform Fee](modules/escrow-payments/platform-fee/platform-fee.md) — Fee calculation and collection
+### Platform references
+- [Architecture](architecture/README.md) - System design, patterns, webhooks, and API integration
+- [Operations](operations/README.md) - Deployment and production setup
+- [Business](business/README.md) - Business model and compliance planning
 
-### 🖥️ User Interface Module
-All UI components, dashboards, and user experiences:
-- [Client Dashboard](modules/user-interface/client-dashboard/client-dashboard.md) — Client transaction management
-- [Consultant Dashboard](modules/user-interface/consultant-dashboard/consultant-dashboard.md) — Consultant earnings tracking
-- [Transaction Detail](modules/user-interface/transaction-detail/transaction-detail.md) — Transaction detail views
-- [Landing Page](modules/user-interface/landing-page/landing-page.md) — Marketing page components
+### Governance and tracking
+- [Audits](audits/README.md) - Security review and compliance status
+- [Planning](planning/README.md) - Implementation plan, task checklist, and roadmaps
+- [Features inventory](features-inventory.md) - Feature implementation status
+- [MVP ship checklist](planning/release-readiness/MVP-SHIP-CHECKLIST.md) - Release readiness snapshot
 
-### ⚙️ System Module
-Cross-cutting system concerns and frameworks:
-- [Input Validation](modules/system/input-validation/input-validation.md) — Validation framework and patterns
-- [Validation Rules](modules/system/validation-rules/validation-rules.md) — Business validation rules
-- [Localization](modules/system/localization/localization.md) — Internationalization (i18n) setup
-- [Testing Strategy](modules/system/testing/testing-strategy.md) — Test patterns and frameworks
-- [AI Features](modules/system/ai-features/ai-features.md) — AI integration patterns
-
-### 🏗️ Platform
-Core platform architecture, operations, and business:
-- [Architecture Overview](platform/architecture/overview/overview.md) — System design and patterns
-- [Payment Strategies](platform/architecture/payment-strategies/payment-strategies.md) — Strategy pattern implementation
-- [Event Bus](platform/architecture/event-bus/event-bus.md) — Domain events and messaging
-- [API Integration](platform/architecture/api-integration/api-integration.md) — REST API design
-- [Stripe Webhooks](platform/architecture/stripe-webhooks/stripe-webhooks.md) — Webhook handling
-- [Deployment](platform/operations/deployment/deployment.md) — Production deployment guide
-- [Business Model](platform/business/business-model/strategic-plan.md) — Revenue model and compliance
-
-### 📋 Management
-Project planning, auditing, and compliance:
-- [Features Inventory](features-inventory.md) — Complete feature implementation status
-- [Implementation Plan](planning/implementation-plan.md) — 30-day development roadmap  
-- [Task Checklist](planning/task-checklist.md) — Granular execution tracking
-- [Security Audit](audits/security-audit/security-audit.md) — OWASP Top 10 compliance
-- [Compliance Audit](audits/compliance-audit/compliance-audit.md) — Fintech regulatory review
+### Support and legacy references
+- [Quick fixes](quick-fixes/README.md) - Indexed troubleshooting notes by area
+- [Marketing](marketing/README.md) - Repository descriptions and external-facing metadata
+- [Legacy cross-cutting docs](cross-cutting/README.md) - Older deep-dive docs kept for reference
+- [Legacy index redirect](docs-index.md) - Deprecated entry point retained for old bookmarks
 
 ---
 
-## Documentation Organization Benefits
+## Documentation structure
 
-**Before (Scattered):**
-- Auth docs split across `features/user-login/`, `features/user-registration/`, `cross-cutting/authentication/`, `cross-cutting/hybrid-identity/`
-- Developers spend minutes hunting for related information across multiple directories
+```text
+docs/
+|-- modules/        Business and product modules
+|-- architecture/   Platform design and technical patterns
+|-- operations/     Deployment and runtime guidance
+|-- business/       Business model and compliance planning
+|-- audits/         Security and compliance review artifacts
+|-- planning/       Execution tracking and roadmaps
+|-- quick-fixes/    Troubleshooting records
+|-- marketing/      External-facing repo copy
+`-- cross-cutting/  Legacy references from the pre-module layout
+```
 
-**After (Module-Based):**
-- All auth information in `modules/authentication/` 
-- All payment information in `modules/escrow-payments/`
-- Context discovery reduced from minutes to seconds
+## Placement rules
 
-**Pattern:** Group by business concern first, then by feature type. Eliminates documentation archaeology.
+1. Put new feature docs under `modules/<module>/<feature>/`.
+2. Put cross-cutting technical guidance under `modules/system/` when it applies across multiple modules.
+3. Keep platform-wide architecture, deployment, and business context in the top-level `architecture/`, `operations/`, and `business/` folders.
+4. Do not add new primary docs under `cross-cutting/`; treat that folder as legacy reference material.
+5. Update the nearest section README whenever you add a new document.
 
----
+## Why this structure
 
-**Last Updated:** 2026-04-16  
-**Organization:** Module-based documentation for accelerated context discovery
+- **Module-first discovery** keeps related product knowledge together.
+- **Section README files** make every major folder browsable on its own.
+- **Legacy guidance** preserves older documents without letting them compete with the current structure.
+
+**Last updated:** 2026-04-29

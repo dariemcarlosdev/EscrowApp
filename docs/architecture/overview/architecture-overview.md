@@ -132,7 +132,7 @@ Webhooks are split: transport/verification in Infrastructure, business logic in 
 
 Test project at `EscrowApp.Tests/` — xUnit + FluentAssertions + Moq.
 All test files currently contain **skeleton placeholders** — real test implementations are pending (MVP Task #5).
-See [Testing Strategy](cross-cutting/testing/testing-strategy.md) for full strategy.
+See [Testing Strategy](../../modules/system/testing/testing-strategy.md) for full strategy.
 
 ## Security Hardening
 
@@ -172,19 +172,19 @@ The following security measures were added in the 2026-04-11 audit:
 | Architecture | `architecture/event-bus` | Domain events + IEventBus |
 | Architecture | `architecture/api-integration` | REST API + Swagger |
 | Architecture | `architecture/stripe-webhooks` | Stripe webhook handling |
-| Features | `features/hold-funds` | Hold Funds (Stripe manual capture) |
-| Features | `features/release-funds` | Release Funds (capture) |
-| Features | `features/dispute-funds` | Dispute Funds (cancel + refund) |
-| Features | `features/cancel-funds` | Cancel Funds (void hold) |
-| Features | `features/landing-page` | Landing page components |
-| Features | `features/client-dashboard` | Client dashboard |
-| Features | `features/consultant-dashboard` | Consultant dashboard |
-| Features | `features/transaction-detail` | Transaction detail view |
-| Cross-cutting | `cross-cutting/hybrid-identity` | Actor model + identity mapping |
-| Cross-cutting | `cross-cutting/localization` | i18n/l10n setup |
-| Cross-cutting | `cross-cutting/testing` | Test strategy |
-| Audits | `audits/security-audit` | OWASP audit findings |
-| Audits | `audits/compliance-audit` | Compliance audit log |
+| Modules | `modules/escrow-payments/hold-funds` | Hold Funds (Stripe manual capture) |
+| Modules | `modules/escrow-payments/release-funds` | Release Funds (capture) |
+| Modules | `modules/escrow-payments/dispute-funds` | Dispute Funds (cancel + refund) |
+| Modules | `modules/escrow-payments/cancel-funds` | Cancel Funds (void hold) |
+| Modules | `modules/user-interface/landing-page` | Landing page components |
+| Modules | `modules/user-interface/client-dashboard` | Client dashboard |
+| Modules | `modules/user-interface/consultant-dashboard` | Consultant dashboard |
+| Modules | `modules/user-interface/transaction-detail` | Transaction detail view |
+| Modules | `modules/authentication/hybrid-identity` | Actor model + identity mapping |
+| Modules | `modules/system/localization` | i18n/l10n setup |
+| Modules | `modules/system/testing` | Test strategy |
+| Audits | `audits/security-audit.md` | OWASP audit findings |
+| Business | `business/business-model/strategic-plan.md` | Compliance planning and action register |
 | Operations | `operations/deployment` | Deployment strategy |
 | Business | `business/business-model` | Revenue model + pricing |
 | Planning | `planning/implementation-plan` | Implementation plan |

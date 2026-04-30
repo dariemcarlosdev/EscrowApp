@@ -85,5 +85,5 @@ A user who starts with email authentication can later link a MetaMask wallet. Bo
 
 ## Related Documentation
 
-- [Architecture Overview](../../architecture/overview/architecture-overview.md) — system design and layer boundaries
-- [Payment Strategies](../../architecture/payment-strategies/payment-strategies.md) — how identity maps to payment providers
+- [Architecture Overview](../../../architecture/overview/architecture-overview.md) — system design and layer boundaries
+- [Payment Strategies](../../../architecture/payment-strategies/payment-strategies.md) — how identity maps to payment providers

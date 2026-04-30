@@ -161,7 +161,7 @@ dotnet test --no-build -c Release --verbosity normal
 
 ## Current Status
 
-All test files contain **skeleton structure with TODO placeholders**. Tests use `Assert.True(true, "Placeholder")` to pass the build while implementations are pending. This is tracked as **MVP Task #5** in the [task checklist](../../../docs/planning/task-checklist.md).
+All test files contain **skeleton structure with TODO placeholders**. Tests use `Assert.True(true, "Placeholder")` to pass the build while implementations are pending. This is tracked as **MVP Task #5** in the [task checklist](../../../planning/task-checklist.md).
 
 **Test count:** 16 placeholder tests across 5 test files — all pass but test nothing real.
 

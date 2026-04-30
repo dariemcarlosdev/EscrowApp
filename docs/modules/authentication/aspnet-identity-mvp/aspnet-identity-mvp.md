@@ -259,7 +259,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuth
 ## Related Documentation
 
 - [Hybrid Identity](../hybrid-identity/hybrid-identity.md) — Actor model and Web2/Web3 bridge
-- [Operations → Deployment](../../operations/deployment/deployment.md) — Environment variables for production auth keys
-- [OWASP Security Audit](../../audits/security-audit/owasp-audit.md) — Authentication failure mitigations
-- [Task Checklist](../../planning/task-checklist.md) — Track B: User Authentication (6/14 complete)
-- [Implementation Plan](../../planning/implementation-plan.md) — Phased roadmap
+- [Operations → Deployment](../../../operations/deployment/deployment.md) — Environment variables for production auth keys
+- [OWASP Security Audit](../../../audits/security-audit.md) — Authentication failure mitigations
+- [Task Checklist](../../../planning/task-checklist.md) — Track B: User Authentication (6/14 complete)
+- [Implementation Plan](../../../planning/implementation-plan.md) — Phased roadmap

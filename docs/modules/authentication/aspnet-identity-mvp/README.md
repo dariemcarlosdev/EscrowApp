@@ -20,5 +20,5 @@
 ## Related Documents
 
 - [Hybrid Identity](../hybrid-identity/hybrid-identity.md) — Actor model and Web2/Web3 bridge
-- [Deployment](../../operations/deployment/deployment.md) — Production auth configuration
-- [OWASP Security](../../audits/security-audit/owasp-audit.md) — Security audit findings
+- [Deployment](../../../operations/deployment/deployment.md) — Production auth configuration
+- [OWASP Security](../../../audits/security-audit.md) — Security audit findings

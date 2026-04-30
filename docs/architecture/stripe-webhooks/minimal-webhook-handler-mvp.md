@@ -427,5 +427,5 @@ stripe logs tail
 ## Related Documentation
 
 - [Architecture → Stripe Webhooks](../../architecture/stripe-webhooks/stripe-webhooks.md) — Full webhook architecture
-- [Features → Release Funds](../../features/release-funds/release-funds.md) — Synchronous release flow
-- [Deployment → Cloud](../deployment/deployment.md) — Production webhook configuration
+- [Features → Release Funds](../../modules/escrow-payments/release-funds/release-funds.md) — Synchronous release flow
+- [Deployment → Cloud](../../operations/deployment/deployment.md) — Production webhook configuration

@@ -2,7 +2,7 @@
 
 > Status: **Planned** (pending — blocked by core MVP completion)
 > Last synced with codebase: 2026-04-10
-> Cross-references: [AI Strategy ADR](../ai-strategy/ai-strategy.md) · [AI Features Roadmap](../../features/ai-features/ai-features-roadmap.md) · [Event Bus](../event-bus/event-bus.md) · [Payment Strategies](../payment-strategies/payment-strategies.md)
+> Cross-references: [AI Strategy ADR](../ai-strategy/ai-strategy.md) · [AI Features Roadmap](../../modules/system/ai-features/ai-features-roadmap.md) · [Event Bus](../event-bus/event-bus.md) · [Payment Strategies](../payment-strategies/payment-strategies.md)
 
 ---
 
@@ -352,7 +352,7 @@ All AI agentic patterns must comply with the existing OWASP security posture:
 
 ## Regulatory Compliance
 
-> ⚠️ AI agents must comply with all regulatory rules from [AGENTS.md](../../../../AGENTS.md#regulatory-compliance--critical).
+> ⚠️ AI agents must comply with all regulatory rules from [AGENTS.md](../../../AGENTS.md#regulatory-compliance--critical).
 
 - AI-generated user-facing text must be scanned for the word "escrow" before rendering
 - AI agents must not claim NexTruzt.io is a licensed escrow agent or money transmitter
@@ -366,7 +366,7 @@ All AI agentic patterns must comply with the existing OWASP security posture:
 | Doc | Relationship |
 |-----|-------------|
 | [AI Strategy ADR](../ai-strategy/ai-strategy.md) | Layer placement and interface contracts for AI services |
-| [AI Features Roadmap](../../features/ai-features/ai-features-roadmap.md) | What AI features to build (this doc covers **how** — agentic patterns) |
+| [AI Features Roadmap](../../modules/system/ai-features/ai-features-roadmap.md) | What AI features to build (this doc covers **how** — agentic patterns) |
 | [Event Bus](../event-bus/event-bus.md) | Current `InMemoryEventBus` — prerequisite for ReAct and Multi-Agent |
 | [Payment Strategies](../payment-strategies/payment-strategies.md) | ISP interfaces used as AI tool contracts |
 | [API Integration](../api-integration/api-integration.md) | REST API endpoints exposed as AI tools |

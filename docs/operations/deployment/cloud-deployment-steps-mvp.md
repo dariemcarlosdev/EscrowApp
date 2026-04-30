@@ -387,6 +387,6 @@ az containerapp logs show \
 ## Related Documentation
 
 - [Operations → Deployment](deployment.md) — Docker + local dev setup
-- [Operations → Health Checks](../../../operations/deployment/deployment.md) — Monitoring endpoints
-- [Cross-Cutting → Authentication](../../cross-cutting/authentication/aspnet-identity-mvp.md) — Auth configuration
-- [Architecture → Stripe Webhooks](../stripe-webhooks/minimal-webhook-handler-mvp.md) — Webhook setup
+- [Operations → Health Checks](deployment.md) — Monitoring endpoints
+- [Authentication module](../../modules/authentication/aspnet-identity-mvp/aspnet-identity-mvp.md) — Auth configuration
+- [Architecture → Stripe Webhooks](../../architecture/stripe-webhooks/minimal-webhook-handler-mvp.md) — Webhook setup

@@ -550,8 +550,8 @@ UPDATE Program.cs: DisableHostedService(OutboxPublishingService);
 
 ## References
 
-- 📄 **Pattern Analysis:** `docs/planning/post-mvp-patterns-analysis.md`
-- 📋 **Roadmap:** `docs/planning/v1.1-roadmap.md`
+- 📄 **Pattern Analysis:** `docs/planning/post-mvp/post-mvp-patterns-analysis.md`
+- 📋 **Roadmap:** `docs/planning/post-mvp/v1.1-roadmap.md`
 - 📊 **Checklist:** `docs/planning/task-checklist.md` (Track D section)
 - 🎯 **MVP Pattern:** `docs/platform/architecture/patterns/observational-webhook-handler.md`
 

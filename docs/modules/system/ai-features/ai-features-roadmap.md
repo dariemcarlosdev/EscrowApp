@@ -3,7 +3,7 @@
 > Phased AI feature plan validated by multi-model analysis and critique.
 > Status: **Planned** (not implemented)
 > Last synced with codebase: 2026-04-10
-> Cross-references: [AI Architecture Strategy](../../architecture/ai-strategy/ai-strategy.md) · [Implementation Plan](../../planning/implementation-plan.md) · [Business Model](../../business/business-model/business-model.md)
+> Cross-references: [AI Architecture Strategy](../../../architecture/ai-strategy/ai-strategy.md) · [Implementation Plan](../../../planning/implementation-plan.md) · [Business Model](../../../business/business-model/business-model.md)
 
 ---
 
@@ -23,7 +23,7 @@ This roadmap was produced by **3 independent AI analyses** (different LLMs) + **
 ## Prerequisite Gate
 
 > 🔴 **No AI feature may be implemented until the 8 core MVP tasks are complete.**
-> See [Implementation Plan — MVP Task Queue](../../planning/implementation-plan.md).
+> See [Implementation Plan — MVP Task Queue](../../../planning/implementation-plan.md).
 
 **Gate criteria:** Real money flows end-to-end (create → hold → release with Stripe test card + platform fee collected).
 
@@ -45,7 +45,7 @@ This roadmap was produced by **3 independent AI analyses** (different LLMs) + **
 
 **Cross-agent consensus:** 3 of 4 agents agreed this is the safest first AI feature. Rubber-duck approved as "only acceptable AI experiment."
 
-**Implementation:** See [AI Architecture Strategy](../../architecture/ai-strategy/ai-strategy.md) for layer placement, interface design, and security constraints.
+**Implementation:** See [AI Architecture Strategy](../../../architecture/ai-strategy/ai-strategy.md) for layer placement, interface design, and security constraints.
 
 **New files when implemented:**
 

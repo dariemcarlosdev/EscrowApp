@@ -527,8 +527,8 @@ Each doc follows the same template as `observational-webhook-handler.md`:
 ## See Also
 
 - [`v1.1-roadmap.md`](./v1.1-roadmap.md) — Detailed implementation plan with acceptance criteria
-- [`observational-webhook-handler.md`](../platform/architecture/patterns/observational-webhook-handler.md) — MVP pattern (foundation)
-- [`task-checklist.md`](./task-checklist.md) — Track D section for execution tracking
+- [`observational-webhook-handler.md`](../../architecture/patterns/observational-webhook-handler.md) — MVP pattern (foundation)
+- [`task-checklist.md`](../task-checklist.md) — Track D section for execution tracking
 
 ---
 

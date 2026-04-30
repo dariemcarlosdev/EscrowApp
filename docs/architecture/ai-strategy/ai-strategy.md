@@ -3,13 +3,13 @@
 > NexTruzt.io AI integration architecture.
 > Status: **Planned** (not implemented)
 > Last synced with codebase: 2026-04-10
-> Cross-references: [AI Features Roadmap](../../features/ai-features/ai-features-roadmap.md) · [Architecture Overview](../overview/architecture-overview.md) · [Payment Strategies](../payment-strategies/payment-strategies.md)
+> Cross-references: [AI Features Roadmap](../../modules/system/ai-features/ai-features-roadmap.md) · [Architecture Overview](../overview/architecture-overview.md) · [Payment Strategies](../payment-strategies/payment-strategies.md)
 
 ---
 
 ## Decision Context
 
-NexTruzt.io requires AI features to differentiate from Escrow.com, Upwork, and Stripe DIY. This ADR documents **how** AI integrates with the existing Clean Architecture + CQRS stack — not **what** AI features to build (see [AI Features Roadmap](../../features/ai-features/ai-features-roadmap.md)).
+NexTruzt.io requires AI features to differentiate from Escrow.com, Upwork, and Stripe DIY. This ADR documents **how** AI integrates with the existing Clean Architecture + CQRS stack — not **what** AI features to build (see [AI Features Roadmap](../../modules/system/ai-features/ai-features-roadmap.md)).
 
 ## Decision
 
