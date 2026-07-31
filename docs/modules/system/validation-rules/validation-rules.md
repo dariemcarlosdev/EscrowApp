@@ -6,6 +6,71 @@
 
 All MediatR commands validate input **before** handler execution via `ValidationBehavior<TRequest, TResponse>`. Validation failures return HTTP 400 Bad Request with RFC 7807 ProblemDetails format.
 
+## User Stories
+
+Stories for the canonical validation-rule reference — every command's required fields, ranges, and fintech-specific constraints.
+
+### Story 1 — Single source of truth for validation rules
+
+**As a** Developer, **I want** one canonical document listing every command's validation rules with rationale, **so that** front-end forms, integration tests, and API consumers all agree on the same constraints.
+
+**Acceptance Criteria:**
+
+- [ ] I add a section to validation-rules.md describing each field, rule, and rationale
+- [ ] the doc's "Last synced with codebase" date is updated
+
+```gherkin
+Feature: Validation reference doc
+  Scenario: New command added
+    Given I add a new MediatR command with a validator
+    When I update the codebase
+    Then I add a section to validation-rules.md describing each field, rule, and rationale
+    And the doc's "Last synced with codebase" date is updated
+```
+
+### Story 2 — Self-dealing is impossible
+
+**As a** Compliance Officer, **I want** the validator on `CreateAndHoldFundsCommand` to reject any submission where the client and consultant are the same email, **so that** users cannot route funds to themselves and trigger fraud or money-laundering signals.
+
+**Acceptance Criteria:**
+
+- [ ] a 400 ProblemDetails is returned
+- [ ] the error message references "Client and consultant cannot be the same person."
+
+```gherkin
+Feature: No self-dealing
+  Scenario: Same email on both sides is rejected
+    Given a CreateAndHoldFundsCommand with ClientEmail = ConsultantEmail = "x@example.com"
+    When the validator runs
+    Then a 400 ProblemDetails is returned
+    And the error message references "Client and consultant cannot be the same person."
+```
+
+### Story 3 — Bounded amounts protect against fraud
+
+**As a** Platform Admin, **I want** transaction amounts to be strictly positive and bounded above (≤ $500K in MVP), **so that** zero-value or extreme-value transactions cannot be used as fraud or denial-of-service vectors.
+
+**Acceptance Criteria:**
+
+- [ ] the error "Escrow amount must be greater than zero." is returned
+- [ ] no Stripe call is made
+- [ ] the response is 400 with the cap-exceeded error
+
+```gherkin
+Feature: Amount bounds
+  Scenario: Zero amount is rejected
+    Given a CreateAndHoldFundsCommand with Amount = 0
+    When the validator runs
+    Then the error "Escrow amount must be greater than zero." is returned
+    And no Stripe call is made
+
+  Scenario: Above-cap amount is rejected
+    Given Amount = 600000
+    When the validator runs
+    Then the response is 400 with the cap-exceeded error
+```
+
+
 ---
 
 ## Command-by-Command Rules

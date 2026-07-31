@@ -2,7 +2,9 @@
 # Model-specific agent configs
 .agent/
 .claude/
+.claudeignore
 .codex/
+.copilot/
 .gemini/
 
 # Universal AI infrastructure
@@ -12,6 +14,8 @@ CLAUDE.md
 CODEX.md
 GEMINI.md
 mempalace.yaml
+entities.json
+skills-lock.json
 
 # Copilot / AI extensions, skills, hooks, scripts
 .github/skills/
@@ -31,28 +35,59 @@ mempalace.yaml
 # --- Secrets & Credentials ---
 .env
 .env.*
+secrets.json
+appsettings.*.local.json
+appsettings.Local.json
 
 # --- Build Outputs ---
-bin/
-obj/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Pp]ublish/
 *.exe
 *.dll
 *.pdb
+*.nupkg
+*.snupkg
 
 # --- IDE ---
 .vs/
 .vscode/
+.idea/
 *.suo
 *.user
+*.userprefs
+*.swp
+*~
+*.bak
 
 # --- Logs ---
 *.log
+logs/
 
-# --- Test Coverage ---
+# --- Test Output & Coverage ---
+[Tt]est[Rr]esults/
 coverage/
 coverage.opencover.xml
 coverage.cobertura.xml
+*.coverage
+*.coveragexml
+*.received.*
+*.received.txt
+
+# --- Scratch / session artifacts (ad-hoc captured output) ---
+test-*.txt
+final-test.txt
+SESSION-SUMMARY.md
+TRACK-B-*.txt
+TRACK-B-*.md
+
+# --- Frontend / package managers (defensive — none in use today) ---
+node_modules/
+.pnp
+.pnp.js
 
 # --- OS ---
 .DS_Store
 Thumbs.db
+desktop.ini

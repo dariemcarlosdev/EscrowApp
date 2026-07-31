@@ -6,6 +6,73 @@
 
 The hybrid identity system decouples user identity from any single authentication provider. It supports traditional Web2 authentication (email, OAuth) alongside Web3 wallet-based identity, enabling a future bridge to blockchain-based escrow.
 
+## User Stories
+
+These stories describe the Actor / IdentityMapping abstraction that decouples user identity from a single authentication provider. They are mostly platform-internal — engineering, admin, and compliance personas — because the hybrid identity is invisible to end users.
+
+### Story 1 — Provider-agnostic user identity
+
+**As a** Developer, **I want** every authenticated user to map to a single provider-agnostic `Actor`, **so that** business logic in handlers and reports does not depend on whether the user authenticated via email, OAuth, or a Web3 wallet.
+
+**Acceptance Criteria:**
+
+- [ ] exactly one Actor row exists for the user
+- [ ] exactly one IdentityMapping row exists with Provider="Email" and ExternalId="alice@example.com"
+- [ ] a second IdentityMapping is created with Provider="MetaMask" and ExternalId equal to the wallet address
+- [ ] both mappings reference the same ActorId
+
+```gherkin
+Feature: Actor as the canonical identity
+  Scenario: Email user maps to a single Actor
+    Given a user registers with email "alice@example.com"
+    When the registration handler completes
+    Then exactly one Actor row exists for the user
+    And exactly one IdentityMapping row exists with Provider="Email" and ExternalId="alice@example.com"
+
+  Scenario: Same Actor with multiple providers
+    Given an Actor exists with one IdentityMapping for Provider="Email"
+    When the user later links a MetaMask wallet
+    Then a second IdentityMapping is created with Provider="MetaMask" and ExternalId equal to the wallet address
+    And both mappings reference the same ActorId
+```
+
+### Story 2 — Web2-to-Web3 bridge readiness
+
+**As a** Platform Admin, **I want** users to remain identifiable when they later add a wallet address, **so that** their transaction history is preserved across the bridge from Web2 to Web3 settlement.
+
+**Acceptance Criteria:**
+
+- [ ] Actor.WalletAddress is set to the verified address
+- [ ] all 3 historical transactions remain attributed to the same Actor
+
+```gherkin
+Feature: Wallet linking preserves history
+  Scenario: Wallet is linked after several transactions
+    Given an Actor with 3 completed transactions and WalletAddress = NULL
+    When the user successfully links a MetaMask wallet
+    Then Actor.WalletAddress is set to the verified address
+    And all 3 historical transactions remain attributed to the same Actor
+```
+
+### Story 3 — Multi-provider login does not duplicate identity
+
+**As a** Compliance Officer, **I want** sign-ins from any linked provider to resolve to a single internal Actor, **so that** KYC, audit trails, and counterparty checks reference a single unique person rather than duplicate accounts.
+
+**Acceptance Criteria:**
+
+- [ ] the resolved Actor is the same one returned for the Email mapping
+- [ ] no new Actor row is created
+
+```gherkin
+Feature: One person, one Actor
+  Scenario: Sign-in via secondary provider
+    Given an Actor with IdentityMappings for "Email" and "Google" pointing to the same person
+    When the user signs in via Google
+    Then the resolved Actor is the same one returned for the Email mapping
+    And no new Actor row is created
+```
+
+
 ## Domain Model
 
 ### Actor

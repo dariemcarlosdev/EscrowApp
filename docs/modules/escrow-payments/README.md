@@ -13,5 +13,6 @@
 ## Related references
 
 - [Payment strategy architecture](../../architecture/payment-strategies/payment-strategies.md)
+- [API integration](../../architecture/api-integration/api-integration.md) - Public MVP REST contract for partner backends
 - [Stripe webhooks](../../architecture/stripe-webhooks/stripe-webhooks.md)
 - [Business model](../../business/business-model/business-model.md)

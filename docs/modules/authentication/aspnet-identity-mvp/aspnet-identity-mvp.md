@@ -10,6 +10,118 @@ The EscrowApp MVP uses **ASP.NET Core Identity** for user authentication. This p
 
 > **Post-MVP Upgrade Path:** Migrate to Entra ID for enterprise authentication with MFA, SAML, and organizational SSO. Identity can coexist with Entra ID via claims enrichment.
 
+## User Stories
+
+User stories below capture the MVP authentication scope delivered by ASP.NET Core Identity. Compliance-sensitive: user-facing copy uses *secure payment holding* — never *escrow* — for any UI strings referenced in these stories.
+
+### Story 1 — Self-service account creation
+
+**As a** Client or Consultant, **I want** to create an account with my email and a strong password, **so that** I can access the platform and participate in secure payment holding workflows.
+
+**Acceptance Criteria:**
+
+- [ ] a new ApplicationUser is persisted via UserManager
+- [ ] the password is stored as a hash (never plaintext)
+- [ ] I am signed in and redirected to my dashboard
+- [ ] registration fails with "Username is already taken"
+- [ ] no duplicate ApplicationUser row is created
+
+```gherkin
+Feature: Email/password registration
+  Scenario: New visitor registers successfully
+    Given I am an unauthenticated visitor on the registration page
+    And I provide a unique, valid email and a password meeting policy
+    When I submit the registration form
+    Then a new ApplicationUser is persisted via UserManager
+    And the password is stored as a hash (never plaintext)
+    And I am signed in and redirected to my dashboard
+
+  Scenario: Duplicate email is rejected
+    Given an account already exists for "user@example.com"
+    When I attempt to register with the same email
+    Then registration fails with "Username is already taken"
+    And no duplicate ApplicationUser row is created
+```
+
+### Story 2 — Role-based dashboard routing
+
+**As a** Platform Admin, **I want** newly registered users to be assigned to a role (Client, Consultant, or Admin), **so that** authorization policies route them to the correct dashboard and permitted operations.
+
+**Acceptance Criteria:**
+
+- [ ] the user is added to the "Client" role via UserManager.AddToRoleAsync
+- [ ] the user is redirected to /dashboard/client
+- [ ] the user is added to the "Consultant" role
+- [ ] the user is redirected to /dashboard/consultant
+
+```gherkin
+Feature: Role assignment on registration
+  Scenario: Client role assigned by default
+    Given a new user registers without a role hint
+    When the registration handler completes
+    Then the user is added to the "Client" role via UserManager.AddToRoleAsync
+    And the user is redirected to /dashboard/client
+
+  Scenario: Consultant role assigned by self-selection
+    Given a new user selects "Consultant" during onboarding
+    When registration completes
+    Then the user is added to the "Consultant" role
+    And the user is redirected to /dashboard/consultant
+```
+
+### Story 3 — Secure password storage and lockout
+
+**As a** Compliance Officer, **I want** passwords to be hashed with the platform default Identity hasher and brute-force attempts to trigger account lockout, **so that** we satisfy baseline credential-security expectations for a fintech platform.
+
+**Acceptance Criteria:**
+
+- [ ] the AspNetUsers.PasswordHash column contains a hashed value
+- [ ] no column contains the plaintext password
+- [ ] SignInResult.IsLockedOut is true
+- [ ] the account is unavailable until LockoutEnd elapses
+
+```gherkin
+Feature: Credential hardening
+  Scenario: Password is never persisted in plaintext
+    Given a user submits a registration with password "P@ssw0rd!"
+    When the user row is persisted
+    Then the AspNetUsers.PasswordHash column contains a hashed value
+    And no column contains the plaintext password
+
+  Scenario: Account lockout after repeated failures
+    Given a user fails sign-in 5 consecutive times
+    When the 6th failed attempt is made
+    Then SignInResult.IsLockedOut is true
+    And the account is unavailable until LockoutEnd elapses
+```
+
+### Story 4 — Coexistence with Actor and IdentityMapping
+
+**As a** Developer, **I want** the `ApplicationUser` to optionally reference an `Actor` via `ActorId`, **so that** future Web2-to-Web3 identity bridging can attach wallet-based identities without a schema migration.
+
+**Acceptance Criteria:**
+
+- [ ] ActorId is NULL
+- [ ] the user can still log in and view their dashboard
+- [ ] a corresponding Actor row is created
+- [ ] ApplicationUser.ActorId is updated to reference the new Actor
+
+```gherkin
+Feature: Hybrid identity bridge
+  Scenario: User registers without an Actor
+    Given a user registers via email/password
+    When the ApplicationUser is persisted
+    Then ActorId is NULL
+    And the user can still log in and view their dashboard
+
+  Scenario: User links to an Actor when onboarding for payments
+    Given an existing ApplicationUser with ActorId = NULL
+    When the user completes payment onboarding
+    Then a corresponding Actor row is created
+    And ApplicationUser.ActorId is updated to reference the new Actor
+```
+
+
 ## Design Decisions
 
 | Question | Decision | Rationale |

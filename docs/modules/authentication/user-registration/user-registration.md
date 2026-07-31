@@ -13,6 +13,69 @@ The User Registration feature allows new users to create accounts on the NexTruz
 
 This is implemented as a **MediatR CQRS vertical slice** with a Blazor Server component providing the UI.
 
+## User Stories
+
+Stories for the email/password registration flow that creates an ApplicationUser via UserManager. The flow currently does not require email confirmation in MVP.
+
+### Story 1 — Self-service registration
+
+**As a** Client or Consultant, **I want** to register with my email, a strong password, and a display name, **so that** I can begin participating in secure payment holding without manual onboarding.
+
+**Acceptance Criteria:**
+
+- [ ] a new ApplicationUser is created with my email as UserName
+- [ ] RegisterResult.Success is true
+- [ ] I am redirected to the post-registration landing page
+
+```gherkin
+Feature: New account creation
+  Scenario: Valid registration succeeds
+    Given I am an unauthenticated visitor
+    When I submit an email, matching password and confirmation, and display name
+    Then a new ApplicationUser is created with my email as UserName
+    And RegisterResult.Success is true
+    And I am redirected to the post-registration landing page
+```
+
+### Story 2 — Password confirmation enforced
+
+**As a** Client, **I want** the form to reject mismatched password and confirmation values before any account is created, **so that** I do not lock myself out by typing the wrong password twice.
+
+**Acceptance Criteria:**
+
+- [ ] RegisterResult.Success is false
+- [ ] ErrorMessage is "Passwords do not match."
+- [ ] no ApplicationUser is created
+
+```gherkin
+Feature: Password match check
+  Scenario: Passwords do not match
+    Given I enter "P@ssw0rd!" in Password and "p@ssw0rd!" in ConfirmPassword
+    When I submit the form
+    Then RegisterResult.Success is false
+    And ErrorMessage is "Passwords do not match."
+    And no ApplicationUser is created
+```
+
+### Story 3 — Email uniqueness
+
+**As a** Platform Admin, **I want** registration to fail if the email is already in use, **so that** every Actor maps 1:1 to an email-provider IdentityMapping and counterparty notifications cannot collide.
+
+**Acceptance Criteria:**
+
+- [ ] UserManager.CreateAsync returns a DuplicateUserName error
+- [ ] RegisterResult.ErrorMessage surfaces "Username 'bob@example.com' is already taken."
+
+```gherkin
+Feature: Unique email per account
+  Scenario: Email already registered
+    Given an ApplicationUser exists with email "bob@example.com"
+    When a second registration is submitted for "bob@example.com"
+    Then UserManager.CreateAsync returns a DuplicateUserName error
+    And RegisterResult.ErrorMessage surfaces "Username 'bob@example.com' is already taken."
+```
+
+
 ## MediatR Command
 
 ```csharp

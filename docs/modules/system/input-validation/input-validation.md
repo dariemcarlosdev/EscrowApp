@@ -11,6 +11,73 @@ All MediatR commands must be validated before handler execution. Validation is i
 - Idempotency key enforcement across all payment operations
 - No handler executes with invalid data — fail fast at the boundary
 
+## User Stories
+
+Stories for the FluentValidation pipeline behavior that gates every MediatR command before its handler executes.
+
+### Story 1 — Fail fast on invalid input
+
+**As a** Developer, **I want** every MediatR command to be validated before its handler runs, **so that** business logic never executes against malformed data and validation errors are returned consistently as RFC 7807 ProblemDetails with HTTP 400.
+
+**Acceptance Criteria:**
+
+- [ ] ValidationBehavior collects FluentValidation failures
+- [ ] the behavior throws ValidationException
+- [ ] the handler is not invoked
+- [ ] the API returns 400 with a ProblemDetails payload listing the field errors
+
+```gherkin
+Feature: ValidationBehavior gates handlers
+  Scenario: Invalid command short-circuits the pipeline
+    Given a HoldFundsCommand with empty PaymentMethodId
+    When IMediator.Send is called
+    Then ValidationBehavior collects FluentValidation failures
+    And the behavior throws ValidationException
+    And the handler is not invoked
+    And the API returns 400 with a ProblemDetails payload listing the field errors
+```
+
+### Story 2 — Idempotency key is enforced platform-wide
+
+**As a** Platform Admin, **I want** every payment-touching command to require a non-empty `IdempotencyKey` of bounded length, **so that** Stripe retries are always safe and never produce duplicate authorizations.
+
+**Acceptance Criteria:**
+
+- [ ] a "IdempotencyKey is required" error is returned
+- [ ] the handler is not invoked
+- [ ] a "IdempotencyKey must be at most 255 characters" error is returned
+
+```gherkin
+Feature: Idempotency key required
+  Scenario: Missing key is rejected
+    Given a HoldFundsCommand with IdempotencyKey = ""
+    When validation runs
+    Then a "IdempotencyKey is required" error is returned
+    And the handler is not invoked
+
+  Scenario: Excessively long key is rejected
+    Given an IdempotencyKey of 300 characters
+    When validation runs
+    Then a "IdempotencyKey must be at most 255 characters" error is returned
+```
+
+### Story 3 — Localized validation messages
+
+**As a** Client, **I want** validation messages I see in the UI to match my selected language (en or es), **so that** I can correct mistakes without language-switching.
+
+**Acceptance Criteria:**
+
+- [ ] the response contains the Spanish-localized "Amount must be greater than zero" message
+
+```gherkin
+Feature: Localized validation
+  Scenario: Spanish-speaking user sees Spanish errors
+    Given my culture cookie is "es"
+    When I submit a CreateAndHoldFundsCommand with Amount = 0
+    Then the response contains the Spanish-localized "Amount must be greater than zero" message
+```
+
+
 ---
 
 ## Architecture: Pipeline Behavior

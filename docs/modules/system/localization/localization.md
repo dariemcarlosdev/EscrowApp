@@ -15,6 +15,67 @@ files, plus a `SharedResource` for cross-cutting strings (navigation, buttons,
 validation messages, status labels). Culture is persisted via a cookie and switchable
 at runtime through the NavBar language toggle.
 
+## User Stories
+
+Stories for the i18n/l10n stack — IStringLocalizer<T>, per-component .resx files, and cookie-based culture switching.
+
+### Story 1 — Visitor switches language at runtime
+
+**As a** Client or Consultant, **I want** to switch the UI between English and Spanish from the navigation bar, **so that** I can read the platform in my preferred language without re-registering.
+
+**Acceptance Criteria:**
+
+- [ ] the request to /culture/set?culture=es&redirectUri=/ is issued
+- [ ] the .AspNetCore.Culture cookie is set with c=es|uic=es
+- [ ] the page reloads with all localized strings rendered in Spanish
+
+```gherkin
+Feature: Runtime culture toggle
+  Scenario: Switch from English to Spanish
+    Given I am on the landing page in English
+    When I click the "Español" toggle in the NavBar
+    Then the request to /culture/set?culture=es&redirectUri=/ is issued
+    And the .AspNetCore.Culture cookie is set with c=es|uic=es
+    And the page reloads with all localized strings rendered in Spanish
+```
+
+### Story 2 — Persistent culture across sessions
+
+**As a** Client, **I want** my language choice to persist across browser sessions, **so that** I do not have to re-select my language every visit.
+
+**Acceptance Criteria:**
+
+- [ ] the page renders in Spanish on first load
+- [ ] no language-toggle interaction is required
+
+```gherkin
+Feature: Culture cookie persistence
+  Scenario: Returning visitor
+    Given I previously set culture = "es" and the cookie has not expired
+    When I return to the site days later
+    Then the page renders in Spanish on first load
+    And no language-toggle interaction is required
+```
+
+### Story 3 — Per-component resource resolution
+
+**As a** Developer, **I want** each Blazor component to resolve its strings from its own `.resx` (with a shared `SharedResource` for cross-cutting strings), **so that** localization changes do not cascade across unrelated components and key collisions are avoided.
+
+**Acceptance Criteria:**
+
+- [ ] the string is resolved from Resources/Components/Pages/HeroSection.resx
+- [ ] not from any other component's resource file
+
+```gherkin
+Feature: Per-component resources
+  Scenario: HeroSection key resolves from HeroSection.resx
+    Given culture is "en"
+    When HeroSection.razor renders @L["Headline"]
+    Then the string is resolved from Resources/Components/Pages/HeroSection.resx
+    And not from any other component's resource file
+```
+
+
 ## Architecture
 
 ```

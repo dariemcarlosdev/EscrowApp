@@ -1,542 +1,247 @@
-# Task Checklist — NexTruzt.io EscrowApp Implementation
+# Escrow Prototype — Execution Checklist
 
-**Last synced with codebase:** 2026-04-29 14:42 UTC  
-**Overall Progress:** ✅ Track B (14/14) COMPLETE + ✅ Track C (13/13) COMPLETE  
-**Test Status:** 132/132 tests passing | Build: ✅ 0 warnings, 0 errors  
-**Numbering System:** Task-based (1-14) + Track C webhook (tc-1 through tc-11)  
-**🎉 MILESTONE:** Track C Stripe Webhook Implementation 100% COMPLETE
-
-> 📖 **Numbering Reference:** See `task-slice-mapping.md` for Task ↔ Slice cross-reference
+> $12026-05-01 08:26 EDT (User Stories added to 16 module docs + AI features roadmap Overview)
+> Scope method: **mvp-gatekeeper** revenue gate applied to every item
 
 ---
 
-## ✅ Completed Tasks
+## Foundation — ✅ COMPLETE
 
-### Phase 1: Core Identity Infrastructure (Complete)
+### Phase 1: Landing Page ✅
 
-- [x] **Task 1: ApplicationUser Model** — Created ApplicationUser.cs with ActorId FK, password hash, email, lockout support
-  - **Slice:** Slice 1 (feat: create ApplicationUser model)
-  - **Tests Added:** 5 unit tests in ApplicationUserTests.cs
-  - **Status:** Passing | Build: ✅
-  
-- [x] **Task 2: Identity DbContext + NuGet** — Modified EscrowDbContext to inherit from IdentityDbContext<ApplicationUser>
-  - **Slice:** Slice 2 (feat: configure IdentityDbContext)
-  - **Changes:** EscrowApp.csproj + EscrowApp.Tests.csproj added Microsoft.AspNetCore.Identity.EntityFrameworkCore (v10.0.5)
-  - **Tests Added:** 5 integration tests in EscrowDbContextIdentityTests.cs
-  - **Status:** Passing | Build: ✅
-  
-- [x] **Task 3: EF Core Migration** — Created migration for AspNetUsers, AspNetRoles, AspNetUserRoles, AspNetUserClaims tables
-  - **Slice:** Slice 3 (feat: create EF migration for Identity tables)
-  - **Migration:** 20260416011350_AddIdentityToEscrowDb.cs
-  - **Tests Added:** 5 integration tests in MigrationTests.cs (schema validation)
-  - **Status:** Passing | Build: ✅
-  
-- [x] **Task 4: DI Registration** — Registered Identity services in Program.cs
-  - **Slice:** Slice 4 (feat: register Identity services in DI)
-  - **Changes:** AddIdentity<ApplicationUser, IdentityRole<int>>(), password policy, AddEntityFrameworkStores, AddHttpContextAccessor
-  - **Tests Added:** 5 DI registration tests in IdentityDiRegistrationTests.cs
-  - **Status:** Passing | Build: ✅
+- [x] Initialize project directory and repository
+- [x] Corporate visual design — Bootstrap 5 fintech theme with glassmorphism
+- [x] Hero Section component (`Components/Shared/HeroSection.*`)
+- [x] "How It Works" section (`Components/Shared/HowItWorks.*`)
+- [x] FAQ accordion (`Components/Shared/FaqSection.*`)
+- [x] Social proof / trust section (`Components/Shared/SocialProof.*`)
+- [x] NavBar + Footer with localization (`Components/Shared/NavBar.*`, `Footer.*`)
+- [x] Home page orchestrator (`Components/Pages/Home.*`)
 
----
+### Phase 2: Escrow Engine — Scaffolding ✅
 
-## 📋 Pending Tasks
+- [x] .NET 10 Blazor Server solution with Clean Architecture layers
+- [x] Domain models: `EscrowTransaction`, `Actor`, `IdentityMapping`
+- [x] EF Core + PostgreSQL (`EscrowDbContext`, Npgsql)
+- [x] Repository pattern (`IEscrowTransactionRepository` + implementation)
+- [x] 3 EF migrations: InitialCreate → HybridIdentity → DisputeFundsSlice
+- [x] Strategy pattern: `IFundHoldable`, `IFundReleasable`, `IFundCancellable` (ISP)
+- [x] `StripePaymentStrategy` — full implementation (hold, release, cancel)
+- [x] `IPaymentStrategyFactory` — OCP-compliant provider resolution
+- [x] Idempotency keys on all payment operations
+- [x] Manual capture flow (authorize → hold → capture on release)
+- [x] `CreateAndHoldFunds` handler — create + hold atomically
+- [x] `HoldFunds` handler — hold on existing transaction
+- [x] `ReleaseFunds` handler — capture held PaymentIntent
+- [x] `DisputeFunds` handler — cancel hold + flag as disputed
+- [x] `GetTransaction` / `ListTransactions` — read queries
+- [x] `DomainEvent` base + `PaymentReceivedEvent` + `DisputeRaisedEvent`
+- [x] `InMemoryEventBus` — MVP implementation
+- [x] `EscrowController` — 6 REST endpoints
+- [x] API key auth (`ApiKeyAuthenticationHandler`)
+- [x] `ApiExceptionMiddleware` — RFC 7807 ProblemDetails
+- [x] Swagger/OpenAPI with API key security (dev only)
+- [x] Policy-based authorization (`ApiAccess`)
+- [x] `Program.cs` — all services registered
 
-### Phase 2: Blazor Authentication (In Progress)
+### Phase 3: Web UI — Scaffolding ✅
 
-- [x] **Task 5: Login Page** — Create login form with email/password binding, SignInManager validation, redirect to dashboard
-  - **Slice:** Slice 5 (feat: create Login page)
-  - **Files Created:**
-    - [x] Components/Pages/Auth/Login.razor
-    - [x] Components/Pages/Auth/Login.razor.cs
-    - [x] Components/Pages/Auth/Login.razor.css
-    - [x] Features/Auth/Login/LoginCommand.cs
-    - [x] Features/Auth/Login/LoginCommandHandler.cs
-  - **Tests Created:**
-    - [x] EscrowApp.Tests/Features/Auth/Login/LoginCommandTests.cs (4 tests)
-  - **Acceptance Criteria:**
-    - [x] Form validates email + password
-    - [x] SignInManager.PasswordSignInAsync() called with credentials
-    - [x] Success: redirect to /dashboard; error: display error message
-    - [x] Component renders with Bootstrap form styling
-    - [x] Localization keys added to SharedResource.resx
-  - **Status:** ✅ COMPLETE | Tests: 4/4 passing | Build: ✅
-
-- [x] **Task 6: Register Page** — Create registration form, UserManager.CreateAsync(), Actor bridge mapping
-  - **Slice:** Slice 6 (feat: create Register page)
-  - **Files Created:**
-    - [x] Features/Auth/Register/RegisterCommand.cs
-    - [x] Features/Auth/Register/RegisterCommandHandler.cs
-    - [x] Components/Pages/Auth/Register.razor
-    - [x] Components/Pages/Auth/Register.razor.cs
-    - [x] Components/Pages/Auth/Register.razor.css
-  - **Tests Created:**
-    - [x] EscrowApp.Tests/Features/Auth/Register/RegisterCommandHandlerTests.cs (7 tests)
-  - **Acceptance Criteria:**
-    - [x] Form validates email, display name, password, confirm password
-    - [x] UserManager.CreateAsync() creates ApplicationUser
-    - [x] Actor created and linked via ActorId FK (hybrid identity bridge)
-    - [x] Database transaction ensures atomicity (both succeed or both fail)
-    - [x] Success: redirect to /login; error: display validation errors
-    - [x] Component renders with Bootstrap form styling
-    - [x] Localization keys added to SharedResource.resx (en-US, es-MX)
-  - **Status:** ✅ COMPLETE | Tests: 7/7 passing | Build: ✅
-
-- [x] **Task 7: Logout Functionality** — Add logout button to NavBar, SignInManager.SignOutAsync()
-  - **Slice:** Slice 7 (feat: implement logout)
-  - **Files Modified:**
-    - [x] Components/Pages/NavBar.razor (added logout button in dropdown)
-    - [x] Components/Pages/NavBar.razor.cs (added logout handler, inject SignInManager<ApplicationUser>)
-  - **Acceptance Criteria:**
-    - [x] Logout button visible only when authenticated (via AuthorizeView)
-    - [x] SignOutAsync() called on logout
-    - [x] Session cleared; redirect to / with force reload
-    - [x] Component renders correctly with dropdown menu
-    - [x] Localized "Logout" string (en-US: "Log Out", es-MX: "Cerrar Sesión")
-  - **Status:** ✅ COMPLETE | Build: ✅
-
-
-- [x] **Task 8: Dashboard Auth Guard** — Add [Authorize] to dashboard pages, implement RevalidatingServerAuthenticationStateProvider
-   - **Slice:** Slice 8 (feat: protect dashboard with authorization)
-   - **Files Created:**
-     - [x] Infrastructure/Auth/RevalidatingIdentityAuthenticationStateProvider.cs
-     - [x] Components/Pages/Unauthorized.razor
-   - **Files Modified:**
-     - [x] Components/Routes.razor (wrapped with CascadingAuthenticationState, changed RouteView → AuthorizeRouteView)
-     - [x] Resources/SharedResource.resx (added Unauthorized, UnauthorizedMessage, Home keys)
-     - [x] Resources/SharedResource.es.resx (added Spanish translations)
-   - **Tests Created:**
-     - [x] EscrowApp.Tests/Features/Auth/AuthenticationCascadeTests.cs (21 tests across 4 test classes)
-   - **Acceptance Criteria:**
-     - [x] Unauthenticated users redirected to /unauthorized
-     - [x] CascadingAuthenticationState wraps Router
-     - [x] AuthorizeRouteView configured with Unauthorized="typeof(Pages.Unauthorized)"
-     - [x] Dashboard components already protected with [Authorize]
-     - [x] Localization keys for error page (en-US, es-MX)
-     - [x] AuthenticationStateProvider registered and working
-     - [x] All tests passing (93/93)
-   - **Status:** ✅ COMPLETE | Tests: 21/21 passing | Build: ✅
-
-- [x] **Task 9: Auth UI Localization** — Add auth strings to .resx files (en-US, es-MX), implement culture switching
-  - **Slice:** Slice 9 (feat: localize authentication UI)
-  - **Files Modified:**
-    - [x] Resources/SharedResource.resx (added 15+ auth keys: LoginTitle, SignIn, Register, Logout, etc.)
-    - [x] Resources/SharedResource.es.resx (added Spanish translations for all auth keys)
-  - **Files Using Localization:**
-    - [x] Components/Pages/Auth/Login.razor (uses @L["Key"] for all UI strings)
-    - [x] Components/Pages/Auth/Register.razor (uses @L["Key"] for all UI strings)
-    - [x] Components/Pages/NavBar.razor (uses @L["Logout"], @L["Dashboard"])
-  - **Acceptance Criteria:**
-    - [x] All auth UI strings use IStringLocalizer<SharedResource>
-    - [x] Spanish translations complete for auth pages (es-MX)
-    - [x] Culture switching works (en-US ↔ es-MX)
-    - [x] No hardcoded text in .razor files
-  - **Status:** ✅ COMPLETE | Build: ✅
-
-### Phase 3: Testing & Documentation
-
-- [x] **Task 10: Login Integration Tests** — Test SignInManager, password validation, error handling
-  - **Slice:** Slice 10 (test: add login flow integration tests)
-  - **Tests Created:**
-    - [x] EscrowApp.Tests/Features/Auth/Login/LoginCommandTests.cs (4 unit tests for validation)
-  - **Acceptance Criteria:**
-    - [x] Test: LoginCommand validation and creation
-    - [x] Test: password and email validation
-    - [x] Test: command factory methods  
-    - [x] All tests passing (4/4)
-  - **Status:** ✅ COMPLETE | Tests: 4/4 passing | Build: ✅
-
-- [x] **Task 11: Register Integration Tests** — Test UserManager, Actor bridge, validation
-  - **Slice:** Slice 11 (test: add register flow integration tests)
-  - **Tests Created:**
-    - [x] EscrowApp.Tests/Features/Auth/Register/RegisterCommandHandlerTests.cs (12 comprehensive integration tests)
-  - **Acceptance Criteria:**
-    - [x] Test: successful user creation with valid data (using SQLite in-memory DB)
-    - [x] Test: rejection of duplicate email
-    - [x] Test: password validation (min length, complexity)
-    - [x] Test: Actor created and linked via ActorId FK (hybrid identity bridge)
-    - [x] Test: database transaction rollback when UserManager fails
-    - [x] All tests passing (12/12)
-  - **Status:** ✅ COMPLETE | Tests: 12/12 passing | Build: ✅
-
-- [x] **Task 12: Blazor Component Auth Tests** — Test AuthorizeRouteView, unauthorized access, state persistence
-  - **Slice:** Slice 12 (test: add Blazor component auth tests)
-  - **Tests Created:**
-    - [x] EscrowApp.Tests/Features/Auth/AuthenticationCascadeTests.cs (21 tests across 4 test classes)
-  - **Acceptance Criteria:**
-    - [x] Test: AuthorizeRouteView redirects unauthenticated users
-    - [x] Test: authenticated users see protected content
-    - [x] Test: auth state persists across component re-renders
-    - [x] Test: CascadingAuthenticationState integration with Router
-    - [x] All tests passing (21/21)
-  - **Status:** ✅ COMPLETE | Tests: 21/21 passing | Build: ✅
-
-- [x] **Task 13: Documentation Sync** — Create docs for identity architecture, auth flow, localization
-  - **Slice:** Slice 13 (docs: sync authentication documentation)
-  - **Docs Created:**
-    - [x] docs/cross-cutting/hybrid-identity.md (Actor ↔ ApplicationUser mapping, Web2/Web3 bridge)
-    - [x] docs/cross-cutting/authentication.md (ASP.NET Identity setup, password policy, SignInManager)
-  - **Docs Updated:**
-    - [x] docs/planning/implementation-plan.md (Track B completion, phase status)
-    - [x] docs/planning/task-checklist.md (mark tasks 6-9 complete, update progress)
-  - **Acceptance Criteria:**
-    - [x] All docs created and include architecture diagrams
-    - [x] Code examples included for registration flow, login handler, logout
-    - [x] Security considerations documented (OWASP, PII, regulatory compliance)
-    - [x] Localization key reference tables added (en-US, es-MX)
-    - [x] All regulatory compliance notes included ("secure payment holding" terminology)
-  - **Status:** ✅ COMPLETE
-
-- [x] **Task 14: Planning Docs Update** — Sync task-checklist and implementation-plan with completed work
-  - **Slice:** Slice 14 (chore: update planning documentation)
-  - **Files Modified:**
-    - [x] docs/planning/task-checklist.md (marked tasks 5-13 complete, updated task 14)
-    - [x] docs/planning/implementation-plan.md (updated phase status, Track B 100% complete)
-  - **Acceptance Criteria:**
-    - [x] All completed tasks marked [x]
-    - [x] Progress % updated to reflect Track B completion (71% overall)
-    - [x] Track B status marked as ✅ COMPLETE
-    - [x] Documentation properly synced
-  - **Status:** ✅ COMPLETE
+- [x] Client Dashboard (`/dashboard/client`)
+- [x] Consultant Dashboard (`/dashboard/consultant`)
+- [x] Transaction Detail (`/transaction/{id}`)
+- [x] Login page (`/auth/login`) — UI shell
+- [x] Register page (`/auth/register`) — UI shell
+- [x] Error + NotFound pages
+- [x] `IStringLocalizer<SharedResource>` wired + .resx files (en-US, es-MX)
+- [x] Culture switch endpoint (`/culture/set`)
+- [x] Dockerfile + docker-compose.yml
+- [x] CI/CD pipeline (`.github/workflows/ci.yml`)
 
 ---
 
-## ✅ COMPLETE: Track C — Stripe Sync (All 13 Tasks Done)
+## 🚀 MVP Release — Ship-to-Charge
 
-**Status:** ✅ Phase 1-4 COMPLETE (100% — 11 original + 2 missing test files created!)  
-**Last synced:** 2026-04-29 14:42 UTC  
-**Test Results:** 132 passed, 0 failed | Build: ✅ 0 errors, 0 warnings
+> **Revenue gate:** Every item below directly enables or protects Day-1 revenue.
 
-### Phase 1: Infrastructure Plumbing ✅ COMPLETE
+### Track A: Money Pipe (sequential)
 
-- [x] **tc-1: StripeWebhookOptions.cs** — Configuration record for webhook endpoint secret
-  - **File:** Infrastructure/Options/StripeWebhookOptions.cs
-  - **Status:** Created and compiling | ✅ Build passing
-  - **Purpose:** Binds Stripe:Webhook:EndpointSecret from config, uses IOptions{T} pattern for DI
-  
-- [x] **tc-2: StripeSignatureVerifier.cs** — HMAC-SHA256 signature verification
-  - **File:** Infrastructure/Webhooks/Stripe/StripeSignatureVerifier.cs
-  - **Status:** Created and compiling | ✅ Build passing
-  - **Purpose:** Uses Stripe.EventUtility.ConstructEvent() for constant-time signature comparison, constant-time to prevent timing attacks
-  - **Features:** Timestamp validation (rejects > 5 min old), structured logging (never logs secrets)
-  
-- [x] **tc-3: StripeWebhookEndpoint.cs** — HTTP endpoint handler
-  - **File:** Infrastructure/Webhooks/Stripe/StripeWebhookEndpoint.cs
-  - **Status:** Created and compiling | ✅ Build passing
-  - **Purpose:** POST /api/webhooks/stripe endpoint, reads raw body, verifies signature, dispatches to MediatR
-  - **Features:** PaymentIntentSucceededNotification record defined, returns 204 on success, 401 on invalid signature
-  - **Security:** No [Authorize] (signature verification is auth), only processes payment_intent.succeeded
+- [x] **#1 — Platform fee (1.5%)** ✅ DONE — 2026-04-14
+  - [x] Add `PlatformFee` (decimal) + `PlatformFeePercentage` (decimal) fields to `EscrowTransaction`
+  - [x] Create EF Core migration (`AddPlatformFeeToEscrowTransaction`)
+  - [x] Add `Platform:FeePercentage` config to `appsettings.json` + `appsettings.Production.json` (default: `0.015`)
+  - [x] `Infrastructure/Options/PlatformOptions.cs` — typed Options record registered in `Program.cs`
+  - [x] Implement fee calculation in `CreateAndHoldFundsHandler` (`max(amount × rate, minimumFee)`)
+  - [x] Include platform fee in Stripe charge amount (`escrowAmount + platformFee`)
+  - [x] Publish `PlatformFee` + `PlatformFeePercentage` in `PaymentReceivedEvent` for audit trail
+  - [x] Extend `EscrowTransactionResponse` with `PlatformFee`, `PlatformFeePercentage`, `TotalCharged`
+- [x] **#2 — CancelFunds handler** ✅ DONE — 2026-04-14
+  - [x] Replace `NotImplementedException` with real logic
+  - [x] Cancel Stripe PaymentIntent via `IFundCancellable`
+  - [x] Update transaction status to `Cancelled`
+  - [x] Publish `FundsCancelledEvent` via `IEventBus`
+- [x] **#4 — FluentValidation on all commands** ✅ DONE — 2026-04-16
+  - [x] `CreateAndHoldFundsCommandValidator` (amount > 0, emails required, idempotency key)
+  - [x] `HoldFundsCommandValidator`
+  - [x] `ReleaseFundsCommandValidator`
+  - [x] `DisputeFundsCommandValidator` (reason required)
+  - [x] `CancelFundsCommandValidator`
+  - [x] Register validation pipeline behavior in `Program.cs`
+- [x] **#5 — Real unit tests (replace 16 stubs)** ✅ DONE — 2026-04-16
+  - [x] `HoldFundsHandlerTests` — 3 real tests with Moq + FluentAssertions
+  - [x] `ReleaseFundsHandlerTests` — 3 real tests
+  - [x] `DisputeFundsHandlerTests` — 2 real tests
+  - [x] `CancelFundsHandlerTests` — 4 real tests
+  - [x] `StripePaymentStrategyTests` — 5 real tests with mocked Stripe SDK
+  - [x] All 51 tests passing (validators + handlers + strategy)
+- [x] **#6 — Production secrets** ✅ DONE — 2026-04-16 (security audit 2026-04-11)
+  - [x] Remove hardcoded `sk_test_MockEscrowAPIKey123` from `appsettings.json`
+  - [x] Remove hardcoded DB connection string with `Password=admin123`
+  - [x] Remove hardcoded API key from `appsettings.Development.json`
+  - [x] Create `appsettings.Production.json` template with placeholder comments
+  - [x] Document required environment variables in deployment doc
 
-### Phase 2: Event Handler Implementation ✅ COMPLETE
+### Track B: User Access (parallel with Track A)
 
-- [x] **tc-4: PaymentIntentEventHandler.cs** — MediatR INotificationHandler<PaymentIntentSucceededNotification>
-   - **File:** Features/Escrow/Webhooks/PaymentIntentEventHandler.cs
-   - **Status:** ✅ COMPLETE | Build passing
-   - **Features:** Loads transaction by ExternalReference, validates state, publishes event, never throws
+- [ ] **#3 — User authentication (ASP.NET Identity)** — **4 of 14 slices complete (29%)**
+  - [x] Install NuGet packages: `Microsoft.AspNetCore.Identity.EntityFrameworkCore` ✅ Slice 2
+  - [x] Create `Models/ApplicationUser.cs` (extends IdentityUser<int>, links to Actor) ✅ Slice 1
+  - [x] Add Identity configuration to `EscrowDbContext` + migration ✅ Slices 2-3
+  - [x] Register Identity in `Program.cs` (AddIdentity, AddAuthentication, AddAuthorization) ✅ Slice 4
+  - [x] Configure Blazor auth: `RevalidatingServerAuthenticationStateProvider` + `<CascadingAuthenticationState>` /mode 
+  - [x] Create `Components/Pages/Login.razor` + `Login.razor.cs` (code-behind pattern) ⏳ Slice 6
+  - [x] Create `Components/Pages/Register.razor` + `Register.razor.cs` (code-behind pattern) ⏳ Slice 7
+  - [x] Add `[Authorize]` attribute on dashboard pages ⏳ Slice 10
+  - [x] Implement logout button in `NavBar.razor.cs` ⏳ Slice 8
+  - [x] Add login/register localization keys to `Resources/SharedResource.resx` ⏳ Slice 9
+  - [x] Unit test: RegisterHandlerTests (create user, hash password, actor linkage) ⏳ Slice 11
+  - [x] Unit test: LoginHandlerTests (valid/invalid credentials, session creation) ⏳ Slice 11
+  - [x] Integration test: Login flow (register → login → redirect to dashboard) ⏳ Slice 12
+  - [x] Document: `docs/cross-cutting/authentication/aspnet-identity-mvp.md` ✅ **Done**
 
-### Phase 3: Configuration & DI Registration ✅ COMPLETE
+### Track C: Stripe Sync (parallel after #1)
 
-- [x] **tc-6: appsettings Configuration** — Added webhook secrets to all 3 environments
-- [x] **tc-7: DI Registration** — Added to Program.cs (lines 144-153, 267-273)
+- [x] **#7 — Minimal Stripe webhook**
+  - [x] Create `Infrastructure/Webhooks/Stripe/StripeWebhookEndpoint.cs` (POST /api/webhooks/stripe)
+  - [x] Add Development-only `GET /api/webhooks/stripe` diagnostic response for manual browser checks
+  - [x] Create `Infrastructure/Webhooks/Stripe/StripeSignatureVerifier.cs` (HMAC-SHA256 validation)
+  - [x] Create `Features/Escrow/Webhooks/PaymentIntentEventHandler.cs` (INotificationHandler)
+  - [x] Register verifier + endpoint in `Program.cs`
+  - [x] Configure webhook secret in `appsettings.json` (use env var override)
+  - [x] Test signature verification (valid, invalid, old timestamp cases)
+  - [x] Test event handler (payment_intent.succeeded only, other events ignored)
+  - [ ] Local test with Stripe CLI: `stripe listen --forward-to http://localhost:5093/api/webhooks/stripe`
+  - [x] Add manual test guide: `docs/Test/local-stripe-cli-webhook-test.md`
+  - [x] Document: `docs/architecture/stripe-webhooks/minimal-webhook-handler-mvp.md` ✅ **Done**
+  - [x] All webhook tests passing (signature + event handler)
+  cl
+### Merge Point
 
-### Phase 4: Testing ✅ COMPLETE
-
-- [x] **tc-5: Event Handler Unit Tests** — 6 test cases covering transaction lookup, state validation, amount checks, provider validation, and error handling
-- [x] **tc-8: Signature Verifier Tests** — StripeSignatureVerifierTests.cs (4 test cases)
-- [x] **tc-9: Integration Tests** — WebhookIntegrationTests.cs (5 test cases covering routing, HTTP methods, and signature validation)
-- [x] **Test Infrastructure** — Added Microsoft.AspNetCore.Mvc.Testing package
-
-### Phase 4 (continued): Documentation ✅ COMPLETE
-
-- [x] **tc-11: Documentation Updates** — task-checklist, implementation-plan, stripe-webhooks docs
-
-### Manual Testing (tc-10) — Ready, Not Automated
-
-- ⏳ **tc-10: Manual Stripe CLI Testing** — Optional, requires Stripe CLI environment
-
----
-
-
-## ✅ Completed Tasks
-
-### Phase 1: Core Identity Infrastructure (Complete)
-
-- [x] **Task 1: ApplicationUser Model** — Created ApplicationUser.cs with ActorId FK, password hash, email, lockout support
-  - **Slice:** Slice 1 (feat: create ApplicationUser model)
-  - **Tests Added:** 5 unit tests in ApplicationUserTests.cs
-  - **Status:** Passing | Build: ✅
-  
-- [x] **Task 2: Identity DbContext + NuGet** — Modified EscrowDbContext to inherit from IdentityDbContext<ApplicationUser>
-  - **Slice:** Slice 2 (feat: configure IdentityDbContext)
-  - **Changes:** EscrowApp.csproj + EscrowApp.Tests.csproj added Microsoft.AspNetCore.Identity.EntityFrameworkCore (v10.0.5)
-  - **Tests Added:** 5 integration tests in EscrowDbContextIdentityTests.cs
-  - **Status:** Passing | Build: ✅
-  
-- [x] **Task 3: EF Core Migration** — Created migration for AspNetUsers, AspNetRoles, AspNetUserRoles, AspNetUserClaims tables
-  - **Slice:** Slice 3 (feat: create EF migration for Identity tables)
-  - **Migration:** 20260416011350_AddIdentityToEscrowDb.cs
-  - **Tests Added:** 5 integration tests in MigrationTests.cs (schema validation)
-  - **Status:** Passing | Build: ✅
-  
-- [x] **Task 4: DI Registration** — Registered Identity services in Program.cs
-  - **Slice:** Slice 4 (feat: register Identity services in DI)
-  - **Changes:** AddIdentity<ApplicationUser, IdentityRole<int>>(), password policy, AddEntityFrameworkStores, AddHttpContextAccessor
-  - **Tests Added:** 5 DI registration tests in IdentityDiRegistrationTests.cs
-  - **Status:** Passing | Build: ✅
-
----
-
-## 📋 Pending Tasks
-
-### Phase 2: Blazor Authentication (In Progress)
-
-- [x] **Task 5: Login Page** — Create login form with email/password binding, SignInManager validation, redirect to dashboard
-  - **Slice:** Slice 5 (feat: create Login page)
-  - **Files Created:**
-    - [x] Components/Pages/Auth/Login.razor
-    - [x] Components/Pages/Auth/Login.razor.cs
-    - [x] Components/Pages/Auth/Login.razor.css
-    - [x] Features/Auth/Login/LoginCommand.cs
-    - [x] Features/Auth/Login/LoginCommandHandler.cs
-  - **Tests Created:**
-    - [x] EscrowApp.Tests/Features/Auth/Login/LoginCommandTests.cs (4 tests)
-  - **Acceptance Criteria:**
-    - [x] Form validates email + password
-    - [x] SignInManager.PasswordSignInAsync() called with credentials
-    - [x] Success: redirect to /dashboard; error: display error message
-    - [x] Component renders with Bootstrap form styling
-    - [x] Localization keys added to SharedResource.resx
-  - **Status:** ✅ COMPLETE | Tests: 4/4 passing | Build: ✅
-
-- [x] **Task 6: Register Page** — Create registration form, UserManager.CreateAsync(), Actor bridge mapping
-  - **Slice:** Slice 6 (feat: create Register page)
-  - **Files Created:**
-    - [x] Features/Auth/Register/RegisterCommand.cs
-    - [x] Features/Auth/Register/RegisterCommandHandler.cs
-    - [x] Components/Pages/Auth/Register.razor
-    - [x] Components/Pages/Auth/Register.razor.cs
-    - [x] Components/Pages/Auth/Register.razor.css
-  - **Tests Created:**
-    - [x] EscrowApp.Tests/Features/Auth/Register/RegisterCommandHandlerTests.cs (7 tests)
-  - **Acceptance Criteria:**
-    - [x] Form validates email, display name, password, confirm password
-    - [x] UserManager.CreateAsync() creates ApplicationUser
-    - [x] Actor created and linked via ActorId FK (hybrid identity bridge)
-    - [x] Database transaction ensures atomicity (both succeed or both fail)
-    - [x] Success: redirect to /login; error: display validation errors
-    - [x] Component renders with Bootstrap form styling
-    - [x] Localization keys added to SharedResource.resx (en-US, es-MX)
-  - **Status:** ✅ COMPLETE | Tests: 7/7 passing | Build: ✅
-
-- [x] **Task 7: Logout Functionality** — Add logout button to NavBar, SignInManager.SignOutAsync()
-  - **Slice:** Slice 7 (feat: implement logout)
-  - **Files Modified:**
-    - [x] Components/Pages/NavBar.razor (added logout button in dropdown)
-    - [x] Components/Pages/NavBar.razor.cs (added logout handler, inject SignInManager<ApplicationUser>)
-  - **Acceptance Criteria:**
-    - [x] Logout button visible only when authenticated (via AuthorizeView)
-    - [x] SignOutAsync() called on logout
-    - [x] Session cleared; redirect to / with force reload
-    - [x] Component renders correctly with dropdown menu
-    - [x] Localized "Logout" string (en-US: "Log Out", es-MX: "Cerrar Sesión")
-  - **Status:** ✅ COMPLETE | Build: ✅
-
-
-- [x] **Task 8: Dashboard Auth Guard** — Add [Authorize] to dashboard pages, implement RevalidatingServerAuthenticationStateProvider
-   - **Slice:** Slice 8 (feat: protect dashboard with authorization)
-   - **Files Created:**
-     - [x] Infrastructure/Auth/RevalidatingIdentityAuthenticationStateProvider.cs
-     - [x] Components/Pages/Unauthorized.razor
-   - **Files Modified:**
-     - [x] Components/Routes.razor (wrapped with CascadingAuthenticationState, changed RouteView → AuthorizeRouteView)
-     - [x] Resources/SharedResource.resx (added Unauthorized, UnauthorizedMessage, Home keys)
-     - [x] Resources/SharedResource.es.resx (added Spanish translations)
-   - **Tests Created:**
-     - [x] EscrowApp.Tests/Features/Auth/AuthenticationCascadeTests.cs (21 tests across 4 test classes)
-   - **Acceptance Criteria:**
-     - [x] Unauthenticated users redirected to /unauthorized
-     - [x] CascadingAuthenticationState wraps Router
-     - [x] AuthorizeRouteView configured with Unauthorized="typeof(Pages.Unauthorized)"
-     - [x] Dashboard components already protected with [Authorize]
-     - [x] Localization keys for error page (en-US, es-MX)
-     - [x] AuthenticationStateProvider registered and working
-     - [x] All tests passing (93/93)
-   - **Status:** ✅ COMPLETE | Tests: 21/21 passing | Build: ✅
-
-- [x] **Task 9: Auth UI Localization** — Add auth strings to .resx files (en-US, es-MX), implement culture switching
-  - **Slice:** Slice 9 (feat: localize authentication UI)
-  - **Files Modified:**
-    - [x] Resources/SharedResource.resx (added 15+ auth keys: LoginTitle, SignIn, Register, Logout, etc.)
-    - [x] Resources/SharedResource.es.resx (added Spanish translations for all auth keys)
-  - **Files Using Localization:**
-    - [x] Components/Pages/Auth/Login.razor (uses @L["Key"] for all UI strings)
-    - [x] Components/Pages/Auth/Register.razor (uses @L["Key"] for all UI strings)
-    - [x] Components/Pages/NavBar.razor (uses @L["Logout"], @L["Dashboard"])
-  - **Acceptance Criteria:**
-    - [x] All auth UI strings use IStringLocalizer<SharedResource>
-    - [x] Spanish translations complete for auth pages (es-MX)
-    - [x] Culture switching works (en-US ↔ es-MX)
-    - [x] No hardcoded text in .razor files
-  - **Status:** ✅ COMPLETE | Build: ✅
-
-### Phase 3: Testing & Documentation
-
-- [x] **Task 10: Login Integration Tests** — Test SignInManager, password validation, error handling
-  - **Slice:** Slice 10 (test: add login flow integration tests)
-  - **Tests Created:**
-    - [x] EscrowApp.Tests/Features/Auth/Login/LoginCommandTests.cs (4 unit tests for validation)
-  - **Acceptance Criteria:**
-    - [x] Test: LoginCommand validation and creation
-    - [x] Test: password and email validation
-    - [x] Test: command factory methods  
-    - [x] All tests passing (4/4)
-  - **Status:** ✅ COMPLETE | Tests: 4/4 passing | Build: ✅
-
-- [x] **Task 11: Register Integration Tests** — Test UserManager, Actor bridge, validation
-  - **Slice:** Slice 11 (test: add register flow integration tests)
-  - **Tests Created:**
-    - [x] EscrowApp.Tests/Features/Auth/Register/RegisterCommandHandlerTests.cs (12 comprehensive integration tests)
-  - **Acceptance Criteria:**
-    - [x] Test: successful user creation with valid data (using SQLite in-memory DB)
-    - [x] Test: rejection of duplicate email
-    - [x] Test: password validation (min length, complexity)
-    - [x] Test: Actor created and linked via ActorId FK (hybrid identity bridge)
-    - [x] Test: database transaction rollback when UserManager fails
-    - [x] All tests passing (12/12)
-  - **Status:** ✅ COMPLETE | Tests: 12/12 passing | Build: ✅
-
-- [x] **Task 12: Blazor Component Auth Tests** — Test AuthorizeRouteView, unauthorized access, state persistence
-  - **Slice:** Slice 12 (test: add Blazor component auth tests)
-  - **Tests Created:**
-    - [x] EscrowApp.Tests/Features/Auth/AuthenticationCascadeTests.cs (21 tests across 4 test classes)
-  - **Acceptance Criteria:**
-    - [x] Test: AuthorizeRouteView redirects unauthenticated users
-    - [x] Test: authenticated users see protected content
-    - [x] Test: auth state persists across component re-renders
-    - [x] Test: CascadingAuthenticationState integration with Router
-    - [x] All tests passing (21/21)
-  - **Status:** ✅ COMPLETE | Tests: 21/21 passing | Build: ✅
-
-- [x] **Task 13: Documentation Sync** — Create docs for identity architecture, auth flow, localization
-  - **Slice:** Slice 13 (docs: sync authentication documentation)
-  - **Docs Created:**
-    - [x] docs/cross-cutting/hybrid-identity.md (Actor ↔ ApplicationUser mapping, Web2/Web3 bridge)
-    - [x] docs/cross-cutting/authentication.md (ASP.NET Identity setup, password policy, SignInManager)
-  - **Docs Updated:**
-    - [x] docs/planning/implementation-plan.md (Track B completion, phase status)
-    - [x] docs/planning/task-checklist.md (mark tasks 6-9 complete, update progress)
-  - **Acceptance Criteria:**
-    - [x] All docs created and include architecture diagrams
-    - [x] Code examples included for registration flow, login handler, logout
-    - [x] Security considerations documented (OWASP, PII, regulatory compliance)
-    - [x] Localization key reference tables added (en-US, es-MX)
-    - [x] All regulatory compliance notes included ("secure payment holding" terminology)
-  - **Status:** ✅ COMPLETE
-
-- [x] **Task 14: Planning Docs Update** — Sync task-checklist and implementation-plan with completed work
-  - **Slice:** Slice 14 (chore: update planning documentation)
-  - **Files Modified:**
-    - [x] docs/planning/task-checklist.md (marked tasks 5-13 complete, updated task 14)
-    - [x] docs/planning/implementation-plan.md (updated phase status, Track B 100% complete)
-  - **Acceptance Criteria:**
-    - [x] All completed tasks marked [x]
-    - [x] Progress % updated to reflect Track B completion (71% overall)
-    - [x] Track B status marked as ✅ COMPLETE
-    - [x] Documentation properly synced
-  - **Status:** ✅ COMPLETE
+- [ ] **#8 — Cloud deployment** (requires #3 + #6) ✅ **Docs Ready**
+  - [ ] Create Azure resource group + container registry
+  - [ ] Build & push Docker image to Azure Container Registry (ACR)
+  - [ ] Create PostgreSQL Flexible Server (managed database)
+  - [ ] Create Azure Key Vault (secret storage)
+  - [ ] Create managed identity (no hardcoded secrets)
+  - [ ] Create Container Apps environment + deploy app
+  - [ ] Apply database migrations (dotnet ef database update)
+  - [ ] Configure Stripe webhooks endpoint in Stripe dashboard
+  - [ ] Health check endpoint: GET /health → 200 OK
+  - [ ] Smoke test: Register → Login → Create transaction
+  - [ ] Smoke test: Webhook signature verification
+  - [ ] Setup Application Insights monitoring
+  - [ ] Configure alerting (restart rate, DB pool exhaustion, 5xx errors)
+  - [ ] Document: `docs/operations/deployment/cloud-deployment-steps-mvp.md` ✅ **Done**
+  - [ ] Create rollback procedure (revert to previous image version)
 
 ---
 
-## Test Coverage Summary
+## 📊 Business Strategy & AI Infrastructure — ✅ COMPLETE
 
-| Phase | Tests | Status |
-|---|---|---|
-| Phase 1: Identity Infrastructure | 71 tests | ✅ All passing |
-| Phase 2: Blazor Auth (Slices 5-9) | 25 tests | ✅ All complete: Slice 5 (4/4), Slice 6 (7/7), Slice 8 (21/21) |
-| Phase 3: Integration Tests (Slices 10-12) | ~25 tests | 📋 Future enhancement (not blocking) |
-| **Total (Current)** | **93 tests** | ✅ All passing (93/93 = 100%)|
+### Business Strategy
+
+- [x] Competitive analysis vs Stripe DIY, Escrow.com, Upwork/Fiverr, PayPal, Tazapay/Payoneer
+- [x] Business model risk factors upgraded with severity ratings
+- [x] Strategic plan with 4 pre-launch blockers (`docs/business/business-model/strategic-plan.md`)
+- [x] Regulatory compliance rules added to all 4 instruction files (AGENTS.md, CLAUDE.md, GEMINI.md, copilot-instructions.md)
+- [x] Project framing updated: "escrow platform" → "escrow-like secure payment holding"
+
 
 ---
 
-## Commits Checklist
+## 📋 Post-MVP Backlog — Structured Deferred Work
 
-| # | Commit | Message | Status |
-|---|---|---|---|
-| 1 | c51c9d3 | feat(auth): create ApplicationUser model | ✅ |
-| 2 | c30f648 | feat(auth): configure IdentityDbContext and add NuGet dependencies | ✅ |
-| 3 | 55af45d | feat(auth): create EF migration for Identity tables | ✅ |
-| 4 | 7eea429 | feat(auth): register Identity services in DI container | ✅ |
-| 5 | — | feat(auth): create Login page and handler | ✅ Complete (Task 5) |
-| 6 | — | feat(auth): create Register page and handler | ✅ Complete (Task 6) |
-| 7 | — | feat(auth): implement logout functionality | ✅ Complete (Task 7) |
-| 8 | — | feat(auth): protect dashboard with authorization | ✅ Complete (Task 8) |
-| 9 | — | feat(auth): localize authentication UI | ✅ Complete (Task 9) |
-| 10 | — | test(auth): add login flow integration tests | 📋 Pending |
-| 11 | — | test(auth): add register flow integration tests | 📋 Pending |
-| 12 | — | test(auth): add Blazor component auth tests | 📋 Pending |
-| 13 | — | docs(auth): sync authentication documentation | ✅ Complete (Task 13) |
-| 14 | — | chore: update planning documentation | 📋 Pending |
+> Canonical detail lives in [post-mvp/post-mvp-reference.md](post-mvp/post-mvp-reference.md), [v1.1-roadmap.md](post-mvp/v1.1-roadmap.md), [post-mvp-patterns-analysis.md](post-mvp/post-mvp-patterns-analysis.md), and [post-mvp-implementation-guide.md](post-mvp/post-mvp-implementation-guide.md).
+> Checklist rule: `task-checklist.md` owns completion status; the `post-mvp/` docs own design depth, sequencing, and acceptance criteria.
 
----
+### Track D: Advanced Webhook Reliability (v1.1)
 
-## Dependencies (Blocking Order)
+- [ ] **tc-12 - Event Deduplication**
+  - [ ] tc-12a - Create `Webhooks` table schema + migration
+  - [ ] tc-12b - Update `StripeWebhookEndpoint` to short-circuit duplicate Stripe events
+  - [ ] tc-12c - Implement `WebhookDeduplicationService`
+  - [ ] tc-12d - Add automated coverage for valid, duplicate, expired, and malformed webhook events
+  - [ ] tc-12e - Return `X-Webhook-Id` and `X-Duplicate` response headers for ops visibility
+  - [ ] tc-12f - Create `docs\architecture\patterns\event-deduplication.md`
 
-```
-[Task 1-4: Foundation] ✅ Complete
-           ↓
-[Task 5: Login] ✅ → [Task 6: Register] ✅ → [Task 7: Logout] ✅
-           ↓
-        [Task 8: Dashboard Auth] ✅
-           ↓
-        [Task 9: Localization] ✅
-           ↓
-[Task 10-12: Tests] (future enhancement — not blocking Track C)
-           ↓
-[Task 13: Docs] ✅ (Track B documentation complete)
-           ↓
-[Task 14: Planning Update] ✅ (this update)
-```
+- [ ] **tc-13 - Event Sourcing + Transaction Timeline**
+  - [ ] tc-13a - Create `PaymentEvents` table schema + migration
+  - [ ] tc-13b - Add append-only `PaymentEventStore`
+  - [ ] tc-13c - Compute transaction status from the latest event while preserving backward compatibility
+  - [ ] tc-13d - Update `CreateAndHoldFundsHandler` to append payment events
+  - [ ] tc-13e - Update `ReleaseFundsHandler` to append payment events
+  - [ ] tc-13f - Update `DisputeFundsHandler` to append payment events
+  - [ ] tc-13g - Add tests for append flow, audit trail retrieval, computed status, and crash recovery
+  - [ ] tc-13h - Add `TransactionTimeline` dashboard UI
+  - [ ] tc-13i - Create `docs\architecture\patterns\event-sourcing.md`
 
----
+- [ ] **tc-14 - Outbox Pattern + Delivery Guarantees**
+  - [ ] tc-14a - Create `OutboxEvents` table schema + migration
+  - [ ] tc-14b - Add `OutboxPublishingService` background worker
+  - [ ] tc-14c - Update payment handlers to persist outbox rows in the same transaction as domain changes
+  - [ ] tc-14d - Add `/health/outbox` lag endpoint
+  - [ ] tc-14e - Add integration coverage for crash, restart, and exactly-once delivery
+  - [ ] tc-14f - Create `docs\architecture\patterns\outbox-pattern.md` and update `docs\architecture\event-bus\event-bus.md`
 
-## Definition of Done
+### Track E: Workflow Recovery & Operations (v1.2)
 
-Each task is "done" when:
+- [ ] **tc-15 - Saga Pattern**
+  - [ ] Model long-running dispute and refund workflows with compensation logic
+  - [ ] Persist saga state, retries, and timeout transitions
+  - [ ] Add tracing and metrics for saga state changes
+  - [ ] Create `docs\architecture\patterns\saga-pattern.md`
 
-✅ **Code:** Implementation complete and compiles cleanly  
-✅ **Tests:** New tests written (TDD red-green-refactor), all passing  
-✅ **Documentation:** Code comments (where clarification needed), docstrings for public APIs  
-✅ **Security:** OWASP-compliant, no secrets exposed, input validated  
-✅ **Commit:** Conventional message, atomic, linked to task  
-✅ **Planning:** Task checked off in this file, progress % updated  
+- [ ] **tc-16 - Dead Letter Queue**
+  - [ ] Create durable storage for unprocessable webhook and domain events
+  - [ ] Add replay / investigation workflow for pending, investigated, fixed, and discarded items
+  - [ ] Create `docs\architecture\patterns\dead-letter-queue.md`
 
----
+### Track F: Optimization & Provider Resilience (v1.3+)
 
-## Notes
+- [ ] **tc-17 - Event Enrichment**
+  - [ ] Publish enriched payment events with client, consultant, and service context
+  - [ ] Reduce dashboard N+1 lookups by broadening downstream event payload contracts
+  - [ ] Create `docs\architecture\patterns\event-enrichment.md`
 
-- **Track B (User Access) Status: ✅ COMPLETE** — All authentication features implemented and documented
-- **Hybrid Identity Bridge:** ApplicationUser.ActorId FK ensures mapping to Actor model. Critical for future Web3 integration.
-- **Password Policy:** 8+ chars, uppercase, digit, special char — NIST guidance aligned.
-- **Localization:** All user-facing auth strings support en-US and es-MX.
-- **Authorization (Track C):** Next track will focus on policy-based authorization and dashboard UI.
-- **Regulatory:** NexTruzt.io must never claim escrow/money transmission status. Auth setup preserves audit trails.
-- **Track B Documentation:** hybrid-identity.md and authentication.md fully document the implementation.
+- [ ] **tc-18 - Circuit Breaker**
+  - [ ] Add provider failure protection / fail-fast behavior for external payment APIs
+  - [ ] Expose provider health monitoring and degraded-mode signals
+  - [ ] Create `docs\architecture\patterns\circuit-breaker.md`
 
-## Known Issues & Blockers
+### Additional deferred backlog (not yet decomposed in `planning\post-mvp\`)
 
-| Issue | Severity | Blocker | Notes |
-|---|---|---|---|
-| **Auth Cascade Tests Failing** | High | ✅ YES (Task 14) | 2/122 tests failing in AuthenticationCascadeTests |
-| — | — | — | **FAILED:** `RevalidatingProvider_HasInvalidateAuthStateMethod` — InvalidateAuthState method missing |
-| — | — | — | **FAILED:** `AuthenticationStateProvider_InheritsFromBaseProvider` — Wrong base class detected |
-| — | — | — | **FIX REQUIRED:** Update `RevalidatingIdentityAuthenticationStateProvider` to inherit from `AuthenticationStateProvider` (not `RevalidatingServerAuthenticationStateProvider`) and implement `InvalidateAuthState()` |
-| Fluent Assertions License | Low | ❌ NO | Warning displayed during test runs — cosmetic only |
+> Each item keeps its original upgrade trigger until it gets its own detailed planning document.
 
----
-
-**ACTION REQUIRED:** Fix the 2 failing auth cascade tests before Task 14 can be marked ✅ COMPLETE. Track C cannot begin until Track B auth cascade tests pass.
-
-
-
-
-
-
+- [ ] Email notifications on state transitions — _trigger: user retention < 60%_
+- [ ] Polly resilience (retry, circuit breaker, bulkhead) — _trigger: tx volume > 100/day_
+- [ ] Comprehensive test coverage (>90% on payment flows) — _trigger: next feature sprint_
+- [ ] Web3/Ethereum bridge (wallet verification, smart contracts) — _trigger: 3+ user requests_
+- [ ] PayPal payment strategy — _trigger: 5+ user requests for PayPal_
+- [ ] Admin dashboard for escrow oversight — _trigger: admin ops > 10/week_
+- [ ] .resx localization audit (completeness check) — _trigger: user reports missing translation_
+- [ ] Real-time notifications (SignalR) — _trigger: 100+ concurrent users_
+- [ ] Formal audit trail / transaction history log — _trigger: regulatory compliance required_
+- [ ] Performance monitoring (health checks, telemetry) — _trigger: production traffic stable_
+- [ ] UI polish (toasts, spinners, loading states) — _trigger: user feedback requests it_
+- [ ] Multi-currency support — _trigger: international user demand proven_
+- [ ] Express Payout ($5 or 1% fee) — _trigger: 50+ transactions/month_
+- [ ] Dispute arbitration service ($25/case) — _trigger: 10+ disputes/month_

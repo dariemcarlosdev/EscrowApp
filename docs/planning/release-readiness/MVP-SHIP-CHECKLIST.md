@@ -284,8 +284,8 @@
 - **Security Audit:** `docs/audits/security-audit.md` (Grade A-, 2 webhook gaps)
 - **Architecture:** `docs/cross-cutting/hybrid-identity.md`, `docs/cross-cutting/authentication.md`
 - **Test Suite:** `EscrowApp.Tests/Features/Auth/` (122 tests total)
-- **OWASP Guidance:** `.github/skills/security/owasp-audit/SKILL.md`
-- **Fintech Compliance:** `.github/AGENTS.md` → Regulatory Compliance section
+- **OWASP Guidance:** `.copilot/skills/owasp-audit/SKILL.md`
+- **Fintech Compliance:** `AGENTS.md` → Regulatory Compliance section
 
 ---
 

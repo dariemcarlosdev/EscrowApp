@@ -96,6 +96,7 @@ Stripe servers
   
 - [x] StripeWebhookEndpoint.cs (tc-3)
   - [x] Minimal API endpoint at POST /api/webhooks/stripe
+  - [x] Development-only GET diagnostic at /api/webhooks/stripe for manual browser checks
   - [x] AllowAnonymous() — Stripe doesn't send API keys
   - [x] Read raw request body (Stripe SDK requirement)
   - [x] Inject StripeSignatureVerifier + IOptions<StripeWebhookOptions>
@@ -150,7 +151,8 @@ Stripe servers
   - [ ] Old timestamp is rejected
   
 - [ ] Local testing with Stripe CLI
-  - [ ] `stripe listen --forward-to localhost:8080/api/webhooks/stripe`
+  - [ ] `stripe listen --forward-to http://localhost:5093/api/webhooks/stripe`
+  - [x] Browser/manual probe uses `GET /api/webhooks/stripe` only to confirm the route exists locally
   - [ ] Trigger test event: `stripe trigger payment_intent.succeeded`
 ```
 
@@ -381,7 +383,12 @@ public async Task WebhookEndpoint_InvalidSignature_Returns400()
 # https://stripe.com/docs/stripe-cli
 
 # Start listening for events
-stripe listen --forward-to localhost:8080/api/webhooks/stripe
+stripe listen --forward-to http://localhost:5093/api/webhooks/stripe
+
+# Optional manual browser check (development only)
+# Open http://localhost:5093/api/webhooks/stripe
+# or https://localhost:7037/api/webhooks/stripe
+# to see the diagnostic GET response
 
 # In another terminal, trigger a test event
 stripe trigger payment_intent.succeeded

@@ -91,10 +91,15 @@ Every webhook request MUST be verified before processing:
 ### Registration in Program.cs
 
 ```csharp
-// Map the webhook endpoint (add to Program.cs)
+// Development-only diagnostic route for browser/manual checks
+app.MapGet("/api/webhooks/stripe", StripeWebhookEndpoint.HandleStatus);
+
+// Map the webhook callback endpoint
 app.MapPost("/api/webhooks/stripe", StripeWebhookEndpoint.HandleAsync)
    .AllowAnonymous(); // Auth via signature verification, not API key
 ```
+
+The development `GET` route is only a diagnostic probe. Stripe deliveries must still use `POST`.
 
 ## Phase 1: Infrastructure Implementation ✅ COMPLETE
 
@@ -249,6 +254,7 @@ app.MapPost("/api/webhooks/stripe", StripeWebhookEndpoint.HandleAsync)
 ```
 
 **Response Codes:**
+- `200 OK` → Development-only diagnostic response for manual `GET` checks
 - `204 NoContent` → Webhook verified and processed successfully
 - `400 Bad Request` → Missing body or header
 - `401 Unauthorized` → Invalid signature
@@ -266,7 +272,9 @@ app.MapPost("/api/webhooks/stripe", StripeWebhookEndpoint.HandleAsync)
 
 - **Unit test** `PaymentIntentEventHandler` with mocked repository — verify state transitions
 - **Integration test** `StripeWebhookEndpoint` with test webhook secret and known-good signatures
-- Use Stripe CLI for local development: `stripe listen --forward-to localhost:8080/api/webhooks/stripe`
+- Use Stripe CLI for local development: `stripe listen --forward-to http://localhost:5093/api/webhooks/stripe`
+- Local launch defaults currently expose `http://localhost:5093` and `https://localhost:7037`; prefer the HTTP endpoint for manual CLI verification unless local HTTPS trust is already configured.
+- For a quick browser check during local development, `GET /api/webhooks/stripe` returns a diagnostic payload; successful Stripe deliveries still require `POST`.
 
 ## Future Enhancements
 

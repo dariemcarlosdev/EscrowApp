@@ -5,6 +5,90 @@
 > Last synced with codebase: 2026-04-10
 > Cross-references: [AI Architecture Strategy](../../../architecture/ai-strategy/ai-strategy.md) · [Implementation Plan](../../../planning/implementation-plan.md) · [Business Model](../../../business/business-model/business-model.md)
 
+## Overview
+
+This document is the phased product plan for AI-assisted features on NexTruzt.io. It enumerates which AI features are eligible for each phase, the prerequisite gate that must be cleared before any AI feature ships (the core money pipe must work end-to-end with real Stripe test cards), and the cross-agent rationale for prioritization. AI features are layered behind the same Strategy pattern as payment providers and **must never make autonomous decisions on regulated payment flows** — they assist users, never gatekeep money movement.
+
+## User Stories
+
+Stories framing the AI roadmap. AI features are *assistive*: they explain, suggest, and reduce friction — they never authorize, hold, release, or dispute funds. Compliance-sensitive: any AI-generated string surfaced to users must respect the *no escrow in user-facing copy* rule.
+
+### Story 1 — Smart description assist (Phase 1)
+
+**As a** Client, **I want** AI suggestions for the service description when I create a transaction, **so that** I can produce a clear scope without staring at a blank field.
+
+**Acceptance Criteria:**
+
+- [ ] the IAiTextGenerationService returns a candidate description
+- [ ] the candidate is editable by me before submission
+- [ ] the form still validates ServiceDescription length and required content
+
+```gherkin
+Feature: Description generation assist
+  Scenario: User accepts a generated description
+    Given I am on the create-transaction form
+    And the AI assist is enabled
+    When I provide a short brief and click "Suggest description"
+    Then the IAiTextGenerationService returns a candidate description
+    And the candidate is editable by me before submission
+    And the form still validates ServiceDescription length and required content
+```
+
+### Story 2 — AI never authorizes payments
+
+**As a** Compliance Officer, **I want** AI features to be strictly assistive and never call payment strategies, **so that** AI cannot move money or change a transaction's state autonomously.
+
+**Acceptance Criteria:**
+
+- [ ] no AI service references IFundHoldable, IFundReleasable, or IFundCancellable
+- [ ] no AI handler publishes PaymentReceivedEvent or DisputeRaisedEvent
+
+```gherkin
+Feature: AI is assistive only
+  Scenario: AI service has no payment dependencies
+    Given the AI feature module
+    When code analysis inspects its dependencies
+    Then no AI service references IFundHoldable, IFundReleasable, or IFundCancellable
+    And no AI handler publishes PaymentReceivedEvent or DisputeRaisedEvent
+```
+
+### Story 3 — AI is gated behind the core money pipe
+
+**As a** Platform Admin, **I want** no AI feature to be released until the 8 core MVP tasks are complete and real money can flow end-to-end with a Stripe test card, **so that** AI never becomes a distraction from revenue-blocking work.
+
+**Acceptance Criteria:**
+
+- [ ] it is marked "blocked by MVP gate" in review
+- [ ] no production deploy is approved
+
+```gherkin
+Feature: AI prerequisite gate
+  Scenario: AI rollout blocked until core MVP is green
+    Given any of the 8 core MVP tasks is not "done" in the implementation plan
+    When an AI feature PR is opened
+    Then it is marked "blocked by MVP gate" in review
+    And no production deploy is approved
+```
+
+### Story 4 — AI feature is opt-in and easy to disable
+
+**As a** Developer, **I want** every AI feature behind a feature flag in configuration, **so that** I can disable it instantly if it produces unsafe output or exceeds the cost budget.
+
+**Acceptance Criteria:**
+
+- [ ] the "Suggest description" affordance is not rendered
+- [ ] no calls to IAiTextGenerationService are made
+
+```gherkin
+Feature: AI feature flag kill-switch
+  Scenario: Flag disabled in configuration
+    Given AiFeatures:DescriptionAssist:Enabled is set to false
+    When a user opens the create-transaction form
+    Then the "Suggest description" affordance is not rendered
+    And no calls to IAiTextGenerationService are made
+```
+
+
 ---
 
 ## Research Methodology

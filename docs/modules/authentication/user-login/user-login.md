@@ -13,6 +13,97 @@ The User Login feature enables existing users to authenticate with their email a
 
 This is implemented as a **MediatR CQRS vertical slice** with a Blazor Server component providing the UI.
 
+## User Stories
+
+User stories for the email/password sign-in flow built on SignInManager. Compliance-sensitive: error messages must avoid leaking which factor (email vs password) was incorrect.
+
+### Story 1 — Returning user signs in
+
+**As a** Client or Consultant, **I want** to sign in with my email and password, **so that** I can access my dashboard and act on transactions where I am a participant.
+
+**Acceptance Criteria:**
+
+- [ ] SignInManager.PasswordSignInAsync returns Succeeded=true
+- [ ] an authentication cookie is issued
+- [ ] I am redirected to my role-appropriate dashboard
+
+```gherkin
+Feature: Sign-in with valid credentials
+  Scenario: Successful sign-in
+    Given I have a confirmed account with email "alice@example.com"
+    When I submit valid credentials on the login page
+    Then SignInManager.PasswordSignInAsync returns Succeeded=true
+    And an authentication cookie is issued
+    And I am redirected to my role-appropriate dashboard
+```
+
+### Story 2 — Lockout after repeated failures
+
+**As a** Platform Admin, **I want** brute-force sign-in attempts to trigger account lockout, **so that** credential-stuffing attacks against the platform fail loudly and leave an audit trail.
+
+**Acceptance Criteria:**
+
+- [ ] the next attempt returns SignInResult.IsLockedOut = true
+- [ ] the user-facing message is "Account is locked due to too many failed login attempts. Try again later."
+- [ ] the underlying reason is recorded in structured logs (without leaking PII)
+
+```gherkin
+Feature: Lockout protection
+  Scenario: Lockout after configured failed attempts
+    Given the lockout threshold is 5 failed attempts
+    When a user fails sign-in 5 times in a row
+    Then the next attempt returns SignInResult.IsLockedOut = true
+    And the user-facing message is "Account is locked due to too many failed login attempts. Try again later."
+    And the underlying reason is recorded in structured logs (without leaking PII)
+```
+
+### Story 3 — Remember-me persistence
+
+**As a** Client, **I want** the option to stay signed in on my own device, **so that** I do not have to re-enter my password each visit while still being able to sign out anywhere.
+
+**Acceptance Criteria:**
+
+- [ ] a persistent authentication cookie is issued
+- [ ] closing and reopening the browser keeps me signed in until cookie expiry
+- [ ] a session cookie is issued
+- [ ] closing the browser ends the session
+
+```gherkin
+Feature: Persistent sign-in
+  Scenario: Remember-me selected
+    Given I check "Remember me" during sign-in
+    When sign-in succeeds
+    Then a persistent authentication cookie is issued
+    And closing and reopening the browser keeps me signed in until cookie expiry
+
+  Scenario: Remember-me not selected
+    Given I do not check "Remember me"
+    When sign-in succeeds
+    Then a session cookie is issued
+    And closing the browser ends the session
+```
+
+### Story 4 — Generic error to prevent enumeration
+
+**As a** Compliance Officer, **I want** invalid sign-ins to return a generic message regardless of whether the email exists, **so that** attackers cannot enumerate valid accounts via differential responses.
+
+**Acceptance Criteria:**
+
+- [ ] the response is "Invalid email or password."
+- [ ] the response is also "Invalid email or password."
+
+```gherkin
+Feature: Non-enumerable login errors
+  Scenario: Unknown email
+    When sign-in is attempted with an email that does not exist
+    Then the response is "Invalid email or password."
+
+  Scenario: Wrong password for known email
+    When sign-in is attempted with a valid email and wrong password
+    Then the response is also "Invalid email or password."
+```
+
+
 ## MediatR Command
 
 ```csharp
