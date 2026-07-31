@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
     <UserSecretsId>6ba399cf-5b73-49fc-b7bb-692e4743ea56</UserSecretsId>
+    <!-- WDAC (corporate code-integrity policy) blocks the unsigned apphost .exe. Launch via signed dotnet.exe host instead. See docs/quick-fixes BUG: WDAC-blocks-apphost. -->
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>

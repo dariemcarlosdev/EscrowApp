@@ -2,15 +2,32 @@
 
 .waitlist-input {
     max-width: 280px;
-    border-radius: 50px;
+    border-radius: var(--radius-md);
     background: var(--waitlist-bg);
     color: var(--waitlist-text);
     border: 1px solid var(--panel-border);
     padding: .6rem 1rem;
 }
 
+/* Two-tone editorial headline: ink primary + a single deliberate teal keyword
+   (retires the blue→magenta gradient-text tell — see frontend-aesthetics rule). */
+.hero-headline {
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+}
+
+.hero-accent {
+    color: var(--accent-teal);
+}
+
 .hero-card {
     max-width: 450px;
+}
+
+/* Simulation CTA: deliberate radius, not pill (chips keep the pill, buttons don't). */
+.hero-release-btn {
+    border-radius: var(--radius-md);
+    font-weight: 600;
 }
 
 .status-row {
@@ -26,10 +43,10 @@
     font-size: 0.875rem;
 }
 
-/* Card released state glow */
+/* Card released state — success accent via border + restrained elevation (no neon glow). */
 .card-released {
-    border-color: rgba(var(--accent-blue-rgb), 0.4) !important;
-    box-shadow: 0 0 30px rgba(var(--accent-blue-rgb), 0.15);
+    border-color: rgba(var(--accent-green-rgb), 0.45) !important;
+    box-shadow: var(--shadow-md);
 }
 
 /* Hero card entrance animation */

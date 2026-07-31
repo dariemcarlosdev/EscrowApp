@@ -20,3 +20,17 @@
 ## Security and infrastructure
 
 - [QF-10 CSP blocks CDN fonts and BrowserLink](10_CSP_Blocks_CDN_Fonts_Styles_BrowserLink_INFRASTRUCTURE_SECURITY.md)
+- [QF-11 Stripe webhook 307 redirect & 422 ILogger DI failure](11_Stripe_Webhook_307_Redirect_422_ILogger_DI_INFRASTRUCTURE_WEBHOOKS.md)
+- [QF-13 Blazor antiforgery rejects API controllers](13_Blazor_Antiforgery_Rejects_API_Controllers_INFRASTRUCTURE_SECURITY.md)
+- [QF-18 WDAC blocks unsigned apphost .exe — UseAppHost=false](18_WDAC_Blocks_Apphost_Exe_UseAppHost_False_INFRASTRUCTURE_SETUP.md)
+
+## REST API & Swagger
+
+- [QF-12 ApiAccess policy missing scheme pin](12_ApiAccess_Policy_Missing_Scheme_Pin_INFRASTRUCTURE_AUTH.md)
+- [QF-14 Empty ApiKey config — use user-secrets](14_ApiKey_Config_Empty_UseUserSecrets_INFRASTRUCTURE_AUTH.md)
+- [QF-15 Swagger global Authorize button for API key](15_Swagger_Global_Authorize_Button_For_ApiKey_PRESENTATION_DOCS.md)
+
+## Payments and data
+
+- [QF-16 EF Core schema drift on ExternalReference NOT NULL](16_EFCore_Schema_Drift_ExternalReference_NotNull_INFRASTRUCTURE_DATA.md)
+- [QF-17 Stripe placeholder secret key — use user-secrets](17_Stripe_Placeholder_SecretKey_UserSecrets_INFRASTRUCTURE_PAYMENTS.md)

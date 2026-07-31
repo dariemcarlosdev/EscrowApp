@@ -1,7 +1,7 @@
 window.themeManager = {
   get: function() {
     try {
-      var v = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      var v = localStorage.getItem('theme') || 'light';
       console && console.log && console.log('[themeManager] get ->', v);
       return v;
     } catch (e) { console && console.log && console.log('[themeManager] get error', e); return 'light'; }
@@ -46,7 +46,7 @@ window.themeManager = {
 
 (function init() {
   try {
-    var t = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var t = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', t);
     console && console.log && console.log('[themeManager] init ->', t);
     // expose ready flag
@@ -89,7 +89,7 @@ window.themeManager.attachToggle = attachThemeToggle;
 
     window.addEventListener('spa:navigation', function () {
       try {
-        var t = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        var t = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', t);
         // update toggle button aria/icon if present
         var btn = document.getElementById('theme-toggle-btn');

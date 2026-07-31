@@ -13,6 +13,7 @@
 
 ### Platform references
 - [Architecture](architecture/README.md) - System design, patterns, webhooks, and API integration
+- [Front-end design](FrontEnd/FrontEnd_Design_Framework.md) - UI/UX standard: tokens, color, type, motion, and the no-AI-vibe rule
 - [Operations](operations/README.md) - Deployment and production setup
 - [Business](business/README.md) - Business model and compliance planning
 
@@ -23,6 +24,7 @@
 - [MVP ship checklist](planning/release-readiness/MVP-SHIP-CHECKLIST.md) - Release readiness snapshot
 
 ### Support and legacy references
+- [Test runbooks](Test/README.md) - Manual local test guides, including Stripe CLI webhook verification
 - [Quick fixes](quick-fixes/README.md) - Indexed troubleshooting notes by area
 - [Marketing](marketing/README.md) - Repository descriptions and external-facing metadata
 - [Legacy cross-cutting docs](cross-cutting/README.md) - Older deep-dive docs kept for reference
@@ -36,10 +38,12 @@
 docs/
 |-- modules/        Business and product modules
 |-- architecture/   Platform design and technical patterns
+|-- FrontEnd/       UI/UX design framework and redesign plan
 |-- operations/     Deployment and runtime guidance
 |-- business/       Business model and compliance planning
 |-- audits/         Security and compliance review artifacts
 |-- planning/       Execution tracking and roadmaps
+|-- Test/           Manual test guides and local verification runbooks
 |-- quick-fixes/    Troubleshooting records
 |-- marketing/      External-facing repo copy
 `-- cross-cutting/  Legacy references from the pre-module layout
@@ -59,4 +63,4 @@ docs/
 - **Section README files** make every major folder browsable on its own.
 - **Legacy guidance** preserves older documents without letting them compete with the current structure.
 
-**Last updated:** 2026-04-29
+**Last updated:** 2026-04-30

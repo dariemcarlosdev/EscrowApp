@@ -3,9 +3,9 @@
 <div class="container min-vh-100 d-flex flex-column justify-content-center pt-5">
     <div class="row align-items-center mb-5 mt-5">
         <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
-            <h1 class="display-3 fw-bold mb-3">
+            <h1 class="display-3 fw-bold mb-3 hero-headline">
                 @L["HeroTitle1"] <br />
-                <span class="text-gradient">@L["HeroTitle2"]</span>
+                <span class="hero-accent">@L["HeroTitle2"]</span>
             </h1>
             <p class="lead text-secondary mb-4">
                 @L["HeroSubtitle"]
@@ -80,16 +80,16 @@
                     }
                 </div>
 
-                <button class="btn @(FundsReleased ? "btn-outline-secondary disabled" : "btn-outline-success") w-100 rounded-pill py-2"
+                <button class="btn @(FundsReleased ? "btn-outline-secondary disabled" : "btn-outline-success") w-100 py-2 hero-release-btn"
                         @onclick="SimulateRelease"
                         disabled="@FundsReleased">
                     @if (FundsReleased)
                     {
-                        <span>✅ @L["TransactionComplete"]</span>
+                        <span><i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i> @L["TransactionComplete"]</span>
                     }
                     else
                     {
-                        <span>✅ @L["ReleaseFunds"]</span>
+                        <span><i class="bi bi-check-circle me-1" aria-hidden="true"></i> @L["ReleaseFunds"]</span>
                     }
                 </button>
             </div>

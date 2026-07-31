@@ -34,6 +34,28 @@
     /* waitlist control tokens (dark default) */
     --waitlist-bg: rgba(255,255,255,0.06);
     --waitlist-text: var(--text-primary);
+
+    /* ── Typographic voice (Modern Institutional) ── */
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+
+    /* ── Deliberate radius scale (NOT pill-everything) ── */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-pill: 999px;   /* chips/tags only */
+
+    /* ── Trust secondary (teal) + premium micro-accent (gold) ── */
+    --accent-teal: #14b8a6;
+    --accent-teal-rgb: 20,184,166;
+    --accent-gold: #f59e0b;
+    --accent-gold-rgb: 245,158,11;
+
+    /* ── Elevation scale (single, restrained shadows — no neon glow) ── */
+    --shadow-sm: 0 1px 2px rgba(2,6,23,.24);
+    --shadow-md: 0 6px 20px rgba(2,6,23,.28);
+
+    /* Deprecated: --accent-magenta kept only so legacy refs don't break; do not use in new work */
 }
 
 /* LIGHT THEME OVERRIDES */
@@ -71,14 +93,28 @@
     /* light theme: make waitlist input a white filled control with subtle border */
     --waitlist-bg: #ffffff;
     --waitlist-text: var(--text-primary);
+
+    /* premium light-trust accents + softer elevation (fonts/radius inherit from :root) */
+    --accent-teal: #0f766e;
+    --accent-teal-rgb: 15,118,110;
+    --accent-gold: #A16207;
+    --accent-gold-rgb: 161,98,7;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.06);
+    --shadow-md: 0 8px 24px rgba(15,23,42,.08);
 }
 
 body {
     background-color: var(--bg);
     color: var(--text-primary);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-body);
     margin: 0;
     overflow-x: hidden;
+}
+
+/* Typographic voice: display face on headings, tightened tracking */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
 }
 
 /* Background blob animations */
@@ -94,14 +130,14 @@ body {
     left: -10%;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, rgba(37,99,235,0.05) 0%, rgba(0,0,0,0) 70%);
 }
 .blob-2 {
     bottom: -10%;
     right: -10%;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(217,70,239,0.06) 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, rgba(var(--accent-teal-rgb),0.04) 0%, rgba(0,0,0,0) 70%);
     animation-delay: -10s;
 }
 
@@ -112,21 +148,23 @@ body {
 }
 
 /* Glassmorphism Classes */
+/* Default card = solid surface with a considered border + single soft shadow.
+   Kept the .glass-panel name for compatibility; blur is now a faint accent, not the effect. */
 .glass-panel {
     background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 2rem;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .glass-panel:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(var(--accent-blue-rgb), 0.28);
 }
 
 /* Typography */
@@ -137,8 +175,9 @@ body {
 .text-white { color: var(--text-primary) !important; }
 .text-muted-legacy { color: var(--text-muted) !important; }
 
+/* Brand wordmark accent only — NOT for section headings (see frontend-aesthetics rule) */
 .text-gradient {
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-magenta));
+    background: linear-gradient(120deg, var(--accent-blue), var(--accent-teal));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -146,7 +185,7 @@ body {
 
 /* Step titles and waitlist control */
 .how-step-title { color: var(--text-primary) !important; }
-.waitlist-input { background: var(--waitlist-bg); color: var(--waitlist-text); border: 1px solid var(--panel-border); padding: .6rem 1rem; border-radius: 50px; box-shadow: inset 0 2px 8px rgba(11,18,32,0.04); height: 48px; }
+.waitlist-input { background: var(--waitlist-bg); color: var(--waitlist-text); border: 1px solid var(--panel-border); padding: .6rem 1rem; border-radius: var(--radius-md); box-shadow: inset 0 2px 8px rgba(11,18,32,0.04); height: 48px; }
 .waitlist-input::placeholder { color: var(--muted-on-surface); opacity: 0.9; }
 .waitlist-input:focus { outline: none; box-shadow: 0 0 0 0.15rem rgba(var(--accent-blue-rgb), 0.12); border-color: var(--accent-blue); }
 
@@ -161,21 +200,25 @@ body {
 .glass-panel h3, .glass-panel h4 { color: var(--text-primary) !important; }
 
 /* Buttons */
+/* Primary CTA — solid, considered radius, display type. No gradient/pill/glow. */
 .btn-glass {
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-magenta));
-    color: var(--text-primary);
+    background: var(--accent-blue);
+    color: #ffffff;
     border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 50px;
+    padding: 0.7rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
     font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.18);
+    letter-spacing: .005em;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-glass:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(217, 70, 239, 0.22);
-    color: var(--text-primary);
+    filter: brightness(0.94);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    color: #ffffff;
 }
 
 .form-control-glass {
@@ -223,7 +266,7 @@ h1:focus {
     --dash-accent-green:  #22c55e;
     --dash-accent-amber:  #f59e0b;
     --dash-accent-red:    #ef4444;
-    --dash-accent-purple: var(--accent-magenta);
+    --dash-accent-purple: var(--accent-teal);   /* purple retired → teal (frontend-aesthetics rule) */
 }
 
 /* Light theme dash adjustments */
@@ -380,7 +423,7 @@ h1:focus {
     display: inline-flex;
     align-items: center;
     gap: .3rem;
-    background: linear-gradient(135deg, var(--dash-accent-blue), var(--dash-accent-purple));
+    background: var(--dash-accent-blue);
     color: #fff;
     border: none;
     border-radius: .5rem;
