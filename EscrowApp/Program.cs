@@ -1,3 +1,32 @@
+// -----------------------------------------------------------------------------
+// Program.cs — NexTruzt.io EscrowApp Composition Root
+// -----------------------------------------------------------------------------
+// This file is the single composition root for the application. It is organized
+// in two phases, separated by `var app = builder.Build();`:
+//
+//   PHASE 1 — Service Registration (DI container)
+//     Infrastructure → Identity → Cookies → Blazor → Localization →
+//     API Auth (API Key) → Authorization Policies → Swagger → Stripe →
+//     Data Repositories → Event Bus → Payment Strategies (Strategy Pattern) →
+//     MediatR + Validation Pipeline → Response Compression
+//
+//   PHASE 2 — HTTP Middleware Pipeline (order is significant)
+//     ApiExceptionMiddleware → Localization → HSTS (prod) → Security Headers →
+//     Swagger (dev) → Response Compression → Status Code Pages →
+//     HTTPS Redirection → Authentication → Authorization → Antiforgery →
+//     Static Assets → Endpoints (Controllers, Webhooks, Culture, Logout, Razor)
+//
+// Architectural conventions enforced here:
+//   • Clean Architecture — outer layers depend on inner contracts; this file is
+//     the only place that wires concrete implementations to abstractions.
+//   • Strategy Pattern — payment providers implement IEscrowPaymentStrategy;
+//     adding a new provider (PayPal, Ethereum) requires only a new registration.
+//   • CQRS via MediatR — handlers and behaviors are auto-discovered from this
+//     assembly; UI/API never call services or repositories directly.
+//   • Fintech guardrails — API key auth on REST endpoints, antiforgery on Blazor,
+//     manual-capture Stripe payments, idempotency keys on payment ops.
+// -----------------------------------------------------------------------------
+
 using EscrowApp.Components;
 using EscrowApp.Features.Behaviors;
 using EscrowApp.Data;
@@ -23,7 +52,15 @@ using Microsoft.AspNetCore.Components.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// =============================================================================
+// PHASE 1 — SERVICE REGISTRATION
+// =============================================================================
+
 // === Infrastructure ===
+// PostgreSQL via Npgsql. Connection string lives in appsettings.json /
+// environment variables — never hardcoded. EscrowDbContext also backs ASP.NET
+// Identity (see AddEntityFrameworkStores below), so a single DbContext owns
+// both domain tables and AspNet* identity tables.
 builder.Services.AddDbContext<EscrowDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -94,18 +131,27 @@ builder.Services.Configure<EscrowApp.Shared.Configuration.PlatformOptions>(
     builder.Configuration.GetSection(EscrowApp.Shared.Configuration.PlatformOptions.SectionName));
 
 // === API Key Authentication ===
+// Custom authentication handler that validates API keys from the X-Api-Key header.
+// Authentication schemes must be registered before Authorization policies. Policies reference schemes
 builder.Services
     .AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
     .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
         ApiKeyAuthenticationHandler.SchemeName, null);
 
+// === Authorization Policies ===
+// Define an "ApiAccess" policy that requires authenticated users (with any valid API key).
 builder.Services.AddAuthorization(opts =>
 {
     opts.AddPolicy("ApiAccess", policy =>
-        policy.RequireAuthenticatedUser());
+    {
+        // Reference the API key authentication scheme. This ensures that the policy requires API key authentication.
+        policy.AuthenticationSchemes.Add(ApiKeyAuthenticationHandler.SchemeName);
+        policy.RequireAuthenticatedUser();
+    });
 });
 
 // === Swagger / OpenAPI ===
+// API documentation with Swagger/OpenAPI. Available at /swagger in Development only.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opts =>
 {
@@ -142,6 +188,7 @@ builder.Services.AddSwaggerGen(opts =>
 });
 
 // === Stripe Configuration ===
+// Stripe .NET SDK configuration. Stripe API key lives in configuration (appsettings.json / environment variables) — never hardcoded.
 var stripeApiKey = builder.Configuration["Stripe:SecretKey"] ?? string.Empty;
 StripeConfiguration.ApiKey = stripeApiKey;
 builder.Services.AddSingleton<IStripeClient>(new StripeClient(stripeApiKey));
@@ -149,14 +196,17 @@ builder.Services.AddSingleton(sp =>
     new PaymentIntentService(sp.GetRequiredService<IStripeClient>()));
 
 // === Stripe Webhook Configuration ===
+// StripeWebhookOptions holds the webhook signing secret from configuration, used by StripeSignatureVerifier.
 builder.Services.Configure<EscrowApp.Infrastructure.Options.StripeWebhookOptions>(
     builder.Configuration.GetSection("Stripe:Webhook"));
 builder.Services.AddScoped<EscrowApp.Infrastructure.Webhooks.Stripe.StripeSignatureVerifier>();
 
 // === Data Layer ===
+// Repository pattern for data access. IEscrowTransactionRepository abstracts away EF Core and allows
 builder.Services.AddScoped<IEscrowTransactionRepository, EscrowTransactionRepository>();
 
 // === Event Bus (§0.2 UnifiedEventBus) ===
+// In-memory event bus for decoupled communication between features. Suitable for single-instance apps; replace with a distributed bus (e.g., RabbitMQ) for multi-instance.
 builder.Services.AddScoped<IEventBus, InMemoryEventBus>();
 
 // === Payment Strategies (Strategy Pattern / OCP) ===
@@ -167,8 +217,15 @@ builder.Services.AddScoped<IPaymentStrategyFactory, PaymentStrategyFactory>();
 // === MediatR — Vertical Slice Architecture (Phase 3) ===
 // Auto-discovers all IRequestHandler<,> implementations in this assembly.
 // UI calls: await Mediator.Send(new HoldFundsCommand(id, pmId));
+//
+// Pipeline behaviors run in registration order and wrap every handler:
+//   1. LoggingBehavior      — structured request/response logging (no PII)
+//   2. PerformanceBehavior  — emits warning when a handler exceeds SLA budget
+//   3. ValidationBehavior   — runs FluentValidation; throws ValidationException
+//                              on failure (translated by ApiExceptionMiddleware)
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-// Theme service: notify server components when JS theme changes
+// Theme service: notify server components when JS theme changes (light/dark).
+// Singleton because theme state is a process-wide pub/sub channel, not per-user.
 builder.Services.AddSingleton<EscrowApp.Services.ThemeService>();
 
 builder.Services.AddMediatR(cfg =>
@@ -180,6 +237,7 @@ builder.Services.AddMediatR(cfg =>
 });
 
 // === Response Compression ===
+// Compresses responses using Brotli and Gzip. Disabled for HTTPS to prevent BREACH attacks (sensitive data in compressed responses can be exploited).
 builder.Services.AddResponseCompression(opts =>
 {
     opts.EnableForHttps = false; // Disabled for HTTPS to prevent BREACH attacks
@@ -197,10 +255,20 @@ builder.Services.Configure<GzipCompressionProviderOptions>(opts =>
 
 var app = builder.Build();
 
+// =============================================================================
+// PHASE 2 — HTTP MIDDLEWARE PIPELINE
+// Order is significant: each middleware wraps the rest. Authentication MUST
+// come before Authorization; Antiforgery MUST come after Authentication;
+// Exception handling MUST be registered early so it can catch downstream throws.
+// =============================================================================
+
 // === API Exception Middleware (must be early — before routing) ===
+// Translates uncaught domain/validation exceptions into RFC 7807 ProblemDetails
+// JSON for /api/* routes. Registered first so it wraps every later middleware.
 app.UseMiddleware<ApiExceptionMiddleware>();
 
 // === Localization Middleware ===
+// Reads culture from .AspNetCore.Culture cookie (set by /culture/set endpoint) and applies it to the request pipeline.
 var supportedCultures = new[] { new CultureInfo("en"), new CultureInfo("es") };
 app.UseRequestLocalization(new RequestLocalizationOptions
 {
@@ -216,6 +284,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 // === Security Headers ===
+// Sets common security headers to mitigate XSS, clickjacking, and other web vulnerabilities.
 app.Use(async (context, next) =>
 {
     context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
@@ -266,6 +335,17 @@ app.MapStaticAssets();
 app.MapControllers();
 
 // === Stripe Webhook Endpoint ===
+// POST is the real webhook receiver (Stripe signs the body — see StripeSignatureVerifier).
+// GET is a Development-only diagnostic that returns webhook configuration status;
+// it is NOT used by Stripe CLI or production deliveries (those always POST).
+if (app.Environment.IsDevelopment())
+{
+    app.MapGet("/api/webhooks/stripe", EscrowApp.Infrastructure.Webhooks.Stripe.StripeWebhookEndpoint.HandleStatus)
+        .Produces<EscrowApp.Infrastructure.Webhooks.Stripe.StripeWebhookStatusResponse>(StatusCodes.Status200OK)
+        .WithName("StripeWebhookStatus")
+        .AllowAnonymous();
+}
+
 app.MapPost("/api/webhooks/stripe", EscrowApp.Infrastructure.Webhooks.Stripe.StripeWebhookEndpoint.HandleAsync)
    .Produces(StatusCodes.Status204NoContent)
    .Produces(StatusCodes.Status400BadRequest)
@@ -274,6 +354,9 @@ app.MapPost("/api/webhooks/stripe", EscrowApp.Infrastructure.Webhooks.Stripe.Str
    .DisableAntiforgery(); // Webhook doesn't have CSRF token
 
 // === Culture Switch Endpoint ===
+// Sets the .AspNetCore.Culture cookie and redirects back to the originating page.
+// The allowlist prevents arbitrary culture injection (defense against malformed
+// CultureInfo names). LocalRedirect prevents open-redirect to external hosts.
 var allowedCultures = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "en", "es", "en-US", "es-MX" };
 
 app.MapGet("/culture/set", (string culture, string redirectUri, HttpContext ctx) =>

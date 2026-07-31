@@ -1,12 +1,13 @@
 # Features — Vertical Slice Inventory
 
-> Last synced with codebase: 2026-04-29 14:42 UTC (Track B & C 100% Complete)
-> **Status:** ✅ All Features Live (27/27 tasks complete) | 132/132 tests passing | Build: 0 errors, 0 warnings
-> Layer: **Application** — `Features/Escrow/` + `Features/Auth/` (MediatR CQRS vertical slices)
+> Last synced with codebase: 2026-04-30 18:09 UTC (inventory alignment fixes)
+> **Status:** ✅ Core CQRS slices live (27/27 tracked implementation tasks complete) | 132/132 tests passing | Build: 0 errors, 0 warnings
+> Layer focus: **Application** — `Features/Escrow/` + `Features/Auth/` (MediatR CQRS vertical slices)
 
 This document is the ground-truth inventory of every vertical slice and pipeline behavior
-in the `Features/` folder. It maps each slice to its implementation status, command/result
-contracts, and the domain operations it owns.
+in the `Features/` folder. It also links the related UI pages and documentation modules
+that affect feature discoverability, but it does **not** attempt to inventory every
+infrastructure or external NexSynapse asset.
 
 **🎉 MILESTONE:** Track B (Authentication) + Track C (Stripe Webhooks) = 100% COMPLETE
 
@@ -25,7 +26,7 @@ docs/
 │   │   ├── aspnet-identity-mvp/ # ASP.NET Identity setup and config
 │   │   └── hybrid-identity/     # Web2/Web3 identity bridging
 │   ├── escrow-payments/         # All payment escrow features
-│   │   ├── hold-funds/          # Hold funds flow documentation
+│   │   ├── hold-funds/          # Hold funds flow documentation (includes atomic create + hold)
 │   │   ├── release-funds/       # Release funds flow documentation  
 │   │   ├── dispute-funds/       # Dispute flow documentation
 │   │   ├── cancel-funds/        # Cancel escrow flow documentation
@@ -40,10 +41,10 @@ docs/
 │       ├── validation-rules/    # Business validation rules
 │       ├── localization/        # i18n/l10n setup
 │       ├── testing/             # Test strategy and patterns
-│       ├── ai-features/         # AI integration patterns
-│       ├── portable-ai-sync/    # Bidirectional .copilot/.claude sync rule
-│       └── security-compliance/ # OWASP Top 10 compliance framework
-├── platform/                   # Platform architecture and operations
+│       └── ai-features/         # AI integration patterns
+├── architecture/                # System design, patterns, API integration, webhooks
+├── operations/                  # Deployment and runtime guides
+├── business/                    # Business model and compliance planning
 ├── audits/                      # Security and compliance audits
 └── planning/                    # Project execution tracking
 ```
@@ -52,31 +53,74 @@ docs/
 
 ---
 
+## Features by Module
+
+The matrix below groups every shipped feature/capability under the module it belongs to in
+`docs/modules/`. Use this as the single jump-off point — module column links to the module
+folder, feature column links to the per-feature doc when available.
+
+| Module | Feature / Capability | Implementation (Code) | Module Doc | Status |
+|---|---|---|---|---|
+| **Authentication** ([`modules/authentication/`](modules/authentication/README.md)) | User Login | `Features/Auth/Login/` | [`user-login/`](modules/authentication/user-login/) | ✅ Live |
+| Authentication | User Registration | `Features/Auth/Register/` | [`user-registration/`](modules/authentication/user-registration/) | ✅ Live |
+| Authentication | ASP.NET Identity (MVP setup) | `Infrastructure/Identity/` + `Data/` migrations | [`aspnet-identity-mvp/`](modules/authentication/aspnet-identity-mvp/) | ✅ Live |
+| Authentication | Hybrid Identity (Web2 ↔ Web3) | `Models/Actor`, `Models/IdentityMapping` | [`hybrid-identity/`](modules/authentication/hybrid-identity/) | ✅ Live |
+| **Escrow Payments** ([`modules/escrow-payments/`](modules/escrow-payments/README.md)) | Create & Hold Funds (atomic) | `Features/Escrow/CreateAndHoldFunds/` | [`hold-funds/`](modules/escrow-payments/hold-funds/) | ✅ Live |
+| Escrow Payments | Hold Funds | `Features/Escrow/HoldFunds/` | [`hold-funds/`](modules/escrow-payments/hold-funds/) | ✅ Live |
+| Escrow Payments | Release Funds | `Features/Escrow/ReleaseFunds/` | [`release-funds/`](modules/escrow-payments/release-funds/) | ✅ Live |
+| Escrow Payments | Dispute Funds | `Features/Escrow/DisputeFunds/` | [`dispute-funds/`](modules/escrow-payments/dispute-funds/) | ✅ Live |
+| Escrow Payments | Cancel Funds | `Features/Escrow/CancelFunds/` | [`cancel-funds/`](modules/escrow-payments/cancel-funds/) | ✅ Live |
+| Escrow Payments | Platform Fee Calculation | `Features/Escrow/CreateAndHoldFunds/` (fee logic) | [`platform-fee/`](modules/escrow-payments/platform-fee/) | ✅ Live |
+| Escrow Payments | Get Transaction (query) | `Features/Escrow/GetTransaction/` | _shared with hold/release docs_ | ✅ Live |
+| Escrow Payments | List Transactions (query) | `Features/Escrow/ListTransactions/` | _shared with dashboards_ | ✅ Live |
+| Escrow Payments | Stripe Webhooks (PaymentIntent events) | `Features/Escrow/Webhooks/` + `Infrastructure/Webhooks/Stripe/` | `architecture/stripe-webhooks/` | ✅ Live |
+| **User Interface** ([`modules/user-interface/`](modules/user-interface/README.md)) | Landing Page | `Components/Pages/Home.*`, `HeroSection.*`, `HowItWorks.*`, `FaqSection.*`, `SocialProof.*` | [`landing-page/`](modules/user-interface/landing-page/) | ✅ Live |
+| User Interface | Client Dashboard | `Components/Pages/ClientDashboard.*` | [`client-dashboard/`](modules/user-interface/client-dashboard/) | ✅ Live |
+| User Interface | Consultant Dashboard | `Components/Pages/ConsultantDashboard.*` | [`consultant-dashboard/`](modules/user-interface/consultant-dashboard/) | ✅ Live |
+| User Interface | Transaction Detail View | `Components/Pages/TransactionDetail.*` | [`transaction-detail/`](modules/user-interface/transaction-detail/) | ✅ Live |
+| **System** ([`modules/system/`](modules/system/README.md)) | Input Validation (FluentValidation pipeline) | `Features/Behaviors/ValidationBehavior.cs` + `*Validator.cs` per slice | [`input-validation/`](modules/system/input-validation/) | ✅ Live |
+| System | Business Validation Rules | Validators in each `Features/Escrow/*/` and `Features/Auth/*/` | [`validation-rules/`](modules/system/validation-rules/) | ✅ Live |
+| System | Localization (en-US, es-MX) | `Resources/SharedResource.resx` + `IStringLocalizer` consumers | [`localization/`](modules/system/localization/) | ✅ Live |
+| System | Testing Strategy | `EscrowApp.Tests/` (132/132 passing) | [`testing/`](modules/system/testing/) | ✅ Live |
+| System | AI Features / Planning | `.copilot/skills/`, `NexSynapse/` (external) | [`ai-features/`](modules/system/ai-features/) | ✅ Live |
+| System | Logging Pipeline Behavior | `Features/Behaviors/LoggingBehavior.cs` | _cross-cutting (no module doc)_ | ✅ Live |
+| System | Performance Pipeline Behavior | `Features/Behaviors/PerformanceBehavior.cs` | _cross-cutting (no module doc)_ | ✅ Live |
+
+> **Out of module scope:** REST API contracts (`Features/Escrow/Api/`), Stripe webhook
+> transport (`Infrastructure/Webhooks/Stripe/`), and platform-wide concerns are documented
+> under `docs/architecture/`, `docs/operations/`, `docs/audits/`, and `docs/business/`.
+
+---
+
 ## Layer Map
 
 ```
 Features/
 ├── Behaviors/          MediatR pipeline behaviors (cross-cutting, all requests)
-│   ├── LoggingBehavior.cs        ✅ Live
-│   ├── PerformanceBehavior.cs    ✅ Live
-│   └── ValidationBehavior.cs     ✅ Live (Track B #4)
+│   ├── LoggingBehavior.cs                 ✅ Live
+│   ├── PerformanceBehavior.cs             ✅ Live
+│   └── ValidationBehavior.cs              ✅ Live (Track B #4)
 ├── Auth/               Authentication vertical slices (Track B — 100% COMPLETE)
-│   ├── Login/                ✅ Live — User authentication via ASP.NET Identity (122 tests)
-│   └── Register/             ✅ Live — User registration via ASP.NET Identity (122 tests)
+│   ├── Login/                              ✅ Live — User authentication via ASP.NET Identity (122 tests)
+│   └── Register/                           ✅ Live — User registration via ASP.NET Identity (122 tests)
 └── Escrow/             Payment vertical slices (Track C — 100% COMPLETE)
-    ├── Api/            Shared contracts (request/response DTOs, controller)
-    ├── CreateAndHoldFunds/   ✅ Live — Revenue Blocker #1 complete
-    ├── HoldFunds/            ✅ Live (6 tests)
-    ├── ReleaseFunds/         ✅ Live (6 tests)
-    ├── DisputeFunds/         ✅ Live (6 tests)
-    ├── CancelFunds/          ✅ Live (Implemented 2026-04-14)
-    ├── GetTransaction/       ✅ Live (6 tests)
-    ├── ListTransactions/     ✅ Live (6 tests)
-    └── Webhooks/             ✅ COMPLETE (Track C tc-4 through tc-9)
-        ├── PaymentIntentEventHandler.cs     ✅ 6 unit tests
-        ├── StripeSignatureVerifier.cs       ✅ 4 signature tests
-        ├── StripeWebhookEndpoint.cs         ✅ 5 integration tests
-        └── StripeWebhookOptions.cs          ✅ Infrastructure complete
+    ├── Api/                                Shared contracts (request/response DTOs, controller)
+    ├── CreateAndHoldFunds/                 ✅ Live — Revenue Blocker #1 complete
+    ├── HoldFunds/                          ✅ Live (6 tests)
+    ├── ReleaseFunds/                       ✅ Live (6 tests)
+    ├── DisputeFunds/                       ✅ Live (6 tests)
+    ├── CancelFunds/                        ✅ Live (Implemented 2026-04-14)
+    ├── GetTransaction/                     ✅ Live (6 tests)
+    ├── ListTransactions/                   ✅ Live (6 tests)
+    └── Webhooks/
+        └── PaymentIntentEventHandler.cs    ✅ 6 unit tests
+
+Infrastructure/                            Webhook transport + configuration
+├── Webhooks/Stripe/
+│   ├── StripeSignatureVerifier.cs          ✅ 4 signature tests
+│   └── StripeWebhookEndpoint.cs            ✅ 5 integration tests
+└── Options/
+    └── StripeWebhookOptions.cs             ✅ Configuration complete
 ```
 
 ---
@@ -110,13 +154,16 @@ Registered in `Program.cs` as open generic behaviors — apply to **every** Medi
 
 | Method | Route | Handler dispatched | Auth |
 |---|---|---|---|
-| `POST` | `/api/escrow` | `CreateAndHoldFundsCommand` | `[Authorize(Policy="ApiAccess")]` |
-| `POST` | `/api/escrow/{id}/hold` | `HoldFundsCommand` | `[Authorize(Policy="ApiAccess")]` |
+| `POST` | `/api/escrow/hold` | `CreateAndHoldFundsCommand` | `[Authorize(Policy="ApiAccess")]` |
 | `POST` | `/api/escrow/{id}/release` | `ReleaseFundsCommand` | `[Authorize(Policy="ApiAccess")]` |
 | `POST` | `/api/escrow/{id}/dispute` | `DisputeFundsCommand` | `[Authorize(Policy="ApiAccess")]` |
 | `POST` | `/api/escrow/{id}/cancel` | `CancelFundsCommand` | `[Authorize(Policy="ApiAccess")]` |
 | `GET` | `/api/escrow/{id}` | `GetTransactionQuery` | `[Authorize(Policy="ApiAccess")]` |
 | `GET` | `/api/escrow` | `ListTransactionsQuery` | `[Authorize(Policy="ApiAccess")]` |
+
+> ℹ️ **Current exposure:** `HoldFundsCommand` remains implemented as a slice, but
+> `EscrowController` does not currently expose a dedicated REST endpoint for it.
+> The preferred public API entry point is `CreateAndHoldFunds` via `POST /api/escrow/hold`.
 
 ---
 
@@ -137,6 +184,7 @@ CreateAndHoldFundsCommand(
     decimal Amount,           // escrow portion only
     string ServiceDescription,
     string PaymentMethodId,
+    string IdempotencyKey,
     string ProviderName = "Stripe")
 ```
 
@@ -175,6 +223,9 @@ Differs from `CreateAndHoldFunds` — used when the transaction record already e
 > ⚠️ **Known gap:** Does not use `PlatformOptions` — holds `transaction.Amount` directly (no fee added).
 > This will need alignment with the fee model if this endpoint is used in production.
 > `CreateAndHoldFunds` is the preferred Day-1 path.
+>
+> ℹ️ **Current exposure:** The slice exists and is tested, but the current REST controller
+> does not expose a dedicated `POST /api/escrow/{id}/hold` endpoint.
 
 **Command:**
 ```csharp
@@ -208,13 +259,15 @@ HoldFundsCommand(
 
 **Command:**
 ```csharp
-ReleaseFundsCommand(int TransactionId)
+ReleaseFundsCommand(
+    int TransactionId,
+    string IdempotencyKey)
 ```
 
 **Handler flow:**
 1. Load transaction via `GetByIdAsync()` — throws if not found
 2. Guard: `Status == "Disputed"` → throws (disputed transactions cannot be released)
-3. Guard: `Status != "Held"` → throws — ⚠️ **Note:** actual held status string is `"Funded (Held)"`, not `"Held"`. This is a **pre-existing bug** — release will always fail in current state.
+3. Guard: `Status != "Funded (Held)"` → throws — canonical held status for releasable transactions
 4. Guard: `ExternalReference` or `ExternalProvider` null → throws
 5. Resolve `IFundReleasable` via `IPaymentStrategyFactory.ResolveReleaseStrategy()`
 6. Call `ReleaseFundsAsync(externalReference, idempotencyKey: "release-{id}")`
@@ -227,7 +280,7 @@ ReleaseFundsCommand(int TransactionId)
 | File | Status |
 |---|---|
 | `ReleaseFundsCommand.cs` | ✅ |
-| `ReleaseFundsHandler.cs` | ✅ (status string mismatch — see note) |
+| `ReleaseFundsHandler.cs` | ✅ |
 | `ReleaseFundsResult.cs` | ✅ |
 
 ---
@@ -241,7 +294,8 @@ ReleaseFundsCommand(int TransactionId)
 DisputeFundsCommand(
     int TransactionId,
     string Reason,
-    string RaisedBy)   // email of disputing party
+    string RaisedBy,        // email / identity label of disputing party
+    string IdempotencyKey)
 ```
 
 **Handler flow:**
@@ -311,11 +365,14 @@ Returns `EscrowTransactionResponse`. No side effects.
 
 ### `ListTransactions/` — ✅ Live
 
-**Purpose:** Read a paginated list of `EscrowTransaction` records.
+**Purpose:** Read a paginated list of `EscrowTransaction` records with optional status filtering.
 
 **Query:**
 ```csharp
-ListTransactionsQuery(int Page = 1, int PageSize = 20)
+ListTransactionsQuery(
+    int Page = 1,
+    int PageSize = 20,
+    string? Status = null)
 ```
 
 Returns `PaginatedResponse<EscrowTransactionResponse>`.
@@ -332,10 +389,10 @@ Returns `PaginatedResponse<EscrowTransactionResponse>`.
 
 | Component | File | Status | Tests |
 |-----------|------|--------|-------|
-| **Endpoint** | `StripeWebhookEndpoint.cs` | ✅ Complete | 5 integration |
-| **Signature Verifier** | `StripeSignatureVerifier.cs` | ✅ Complete | 4 unit |
-| **Event Handler** | `PaymentIntentEventHandler.cs` | ✅ Complete | 6 unit |
-| **Configuration** | `StripeWebhookOptions.cs` | ✅ Complete | — |
+| **Endpoint** | `Infrastructure/Webhooks/Stripe/StripeWebhookEndpoint.cs` | ✅ Complete | 5 integration |
+| **Signature Verifier** | `Infrastructure/Webhooks/Stripe/StripeSignatureVerifier.cs` | ✅ Complete | 4 unit |
+| **Event Handler** | `Features/Escrow/Webhooks/PaymentIntentEventHandler.cs` | ✅ Complete | 6 unit |
+| **Configuration** | `Infrastructure/Options/StripeWebhookOptions.cs` | ✅ Complete | — |
 
 **Implementation Details:**
 - POST `/api/webhooks/stripe` — HTTPS endpoint for Stripe webhook callbacks
@@ -355,7 +412,7 @@ Returns `PaginatedResponse<EscrowTransactionResponse>`.
 - `StripeWebhookOptions` injected via `IOptions<StripeWebhookOptions>`
 - Webhook endpoint registered as minimal API endpoint
 
-See `docs/platform/architecture/stripe-webhooks/` for full implementation spec.
+See `docs/architecture/stripe-webhooks/` for full implementation spec.
 
 ---
 
@@ -449,6 +506,34 @@ RegisterCommand(
 
 ---
 
+## User Interface Surface (`Components/Pages/`)
+
+These pages live outside `Features/` but are part of the shipped product surface and
+map to `docs/modules/user-interface/`.
+
+| Page / Area | Route | Status | Notes |
+|---|---|---|---|
+| Landing page | `/` | ✅ Live | Composes `NavBar`, `HeroSection`, `HowItWorks`, `SocialProof`, `FaqSection`, and `Footer`. |
+| Client dashboard | `/dashboard/client` | ✅ Live | Authenticated client workspace with KPIs and transaction views. |
+| Consultant dashboard | `/dashboard/consultant` | ✅ Live | Authenticated consultant workspace with earnings and held-funds summary. |
+| Transaction detail | `/dashboard/transaction/{TransactionId:int}` | 🟡 Partial | Route exists, but the page still contains TODO placeholders and disabled action buttons. |
+
+---
+
+## Related Documentation Modules
+
+The implementation inventory above maps to the module-first docs structure as follows:
+
+- `docs/modules/authentication/` — login, registration, ASP.NET Identity, hybrid identity
+- `docs/modules/escrow-payments/` — hold, release, dispute, cancel, and platform fee docs
+  (the atomic `CreateAndHoldFunds` flow is currently described within `hold-funds/`)
+- `docs/modules/user-interface/` — landing page and dashboard docs
+- `docs/modules/system/` — input-validation, validation-rules, localization, testing, ai-features
+- Security reviews live under `docs/audits/`; platform-wide technical references live under
+  `docs/architecture/`, `docs/operations/`, and `docs/business/`
+
+---
+
 ## Gaps Resolved (All Closed ✅)
 
 | Gap | Affected Slices | Status | Resolution |
@@ -478,63 +563,16 @@ RegisterCommand(
 - ✅ **Documentation** — Architecture, implementation, usage guides
 
 ### Overall Metrics
-- **Total Features:** 27/27 complete (100% ✅)
+- **Tracked implementation tasks:** 27/27 complete (100% ✅)
 - **Total Tests:** 132/132 passing (0 failures, 1 skipped)
 - **Build Status:** 0 errors, 0 warnings
 - **Code Quality:** OWASP-first, idempotency guaranteed, audit trails enabled
 
 ---
 
-## Infrastructure Features — AI & Security
+## Scope Boundary
 
-### Portable AI Architecture Sync — ✅ Live (Implemented 2026-04-16)
-
-**Purpose:** Enforces bidirectional portability between `.copilot` and `.claude` configurations to maintain our core portability principle. Any change to AI infrastructure in one platform automatically syncs to the other.
-
-**Rule Statement:** *When implementing rules, hooks, extensions, workflows, or instructions in `.copilot`, they MUST be translated and applied to `.claude`, and vice versa.*
-
-**Components:**
-
-| Component | File | Status |
-|-----------|------|--------|
-| **Rule Specification** | `PORTABLE-AI-SYNC-RULE.md` | ✅ Complete specification |
-| **Bash Sync Script** | `scripts/ai-config-sync.sh` | ✅ Full bidirectional sync |
-| **PowerShell Sync Script** | `scripts/ai-config-sync.ps1` | ✅ Windows-native equivalent |
-| **Pre-commit Hook** | `.git/hooks/pre-commit` | ✅ Extended existing security hook |
-| **GitHub Actions** | `.github/workflows/ai-config-sync.yml` | ✅ CI validation on PRs |
-| **Implementation Guide** | `docs/ai-sync-implementation-guide.md` | ✅ Usage and troubleshooting |
-
-**Translation Patterns:**
-
-| Source Format | Target Format | Auto-Translated |
-|---------------|---------------|-----------------|
-| `.copilot/hooks/*.sh` | `.claude/hooks/*.ps1` | ✅ Bash ↔ PowerShell |
-| `.copilot/copilot.yml` | `.claude/settings.json` | 🟡 Planned |
-| `.copilot/extensions/` | `.claude/rules/` | 🟡 Planned |
-| Skills (universal) | `.github/skills/` → bridges | ✅ Bridge pattern |
-
-**Enforcement:**
-- ✅ **Pre-commit:** Blocks commits violating sync rule
-- ✅ **CI/CD:** GitHub Actions validates all PRs
-- ✅ **Scripts:** Manual and automatic sync validation
-- ✅ **Documentation:** Complete rule specification and guides
-
-**Usage:**
-```bash
-# Validate compliance
-./scripts/ai-config-sync.sh --validate --strict
-
-# Perform sync  
-./scripts/ai-config-sync.sh --sync
-
-# PowerShell (Windows)
-.\scripts\ai-config-sync.ps1 -Sync -Validate
-```
-
-**Benefits:**
-- 🚀 **Automated Enforcement:** Pre-commit hooks prevent violations
-- 🔄 **Bidirectional Sync:** Changes automatically translate both ways
-- 📋 **Platform Agnostic:** Same workflows on Copilot CLI and Claude Code
-- ✅ **Validated:** CI ensures sync compliance on all PRs
-
----
+- This file inventories repository-local feature slices, related UI pages, and the local
+  documentation mapping needed to find them quickly.
+- External NexSynapse automation and cross-repo AI portability assets are intentionally
+  excluded from the local feature count.

@@ -14,6 +14,71 @@ The funds are authorized (reserved) but **not yet captured** — the consultant 
 access them until the hold is explicitly released. This follows Stripe's
 **manual capture** flow via `PaymentIntent` with `CaptureMethod = "manual"`.
 
+## User Stories
+
+Stories for placing a Stripe manual-capture hold on an existing transaction. **User-facing copy must use *secure payment holding* / *held funds* — never *escrow*.**
+
+### Story 1 — Client authorizes a hold
+
+**As a** Client, **I want** my payment method to be authorized (but not yet captured) when I commit funds for a service, **so that** the consultant has a credible signal of intent without me actually paying until they deliver.
+
+**Acceptance Criteria:**
+
+- [ ] the handler resolves IFundHoldable for "Stripe"
+- [ ] HoldFundsAsync is called with the transaction amount and an idempotency key
+- [ ] ExternalReference, ExternalProvider, and Status are updated
+- [ ] Status becomes "Funded (Held)"
+- [ ] PaymentReceivedEvent is published after persistence
+
+```gherkin
+Feature: Authorize a hold via Stripe manual capture
+  Scenario: Successful hold on a Pending transaction
+    Given a transaction exists in status "Pending" with a known amount
+    And the client has a valid Stripe PaymentMethod
+    When HoldFundsCommand is submitted with TransactionId, PaymentMethodId, and ProviderName="Stripe"
+    Then the handler resolves IFundHoldable for "Stripe"
+    And HoldFundsAsync is called with the transaction amount and an idempotency key
+    Then ExternalReference, ExternalProvider, and Status are updated
+    And Status becomes "Funded (Held)"
+    And PaymentReceivedEvent is published after persistence
+```
+
+### Story 2 — Idempotent retries are safe
+
+**As a** Developer, **I want** the hold operation to be idempotent on the same `IdempotencyKey`, **so that** UI retries or duplicate webhook-triggered calls never authorize twice on the client's card.
+
+**Acceptance Criteria:**
+
+- [ ] Stripe returns the same PaymentIntent (no duplicate authorization)
+- [ ] the transaction state is not regressed
+
+```gherkin
+Feature: Stripe idempotency
+  Scenario: Same idempotency key replayed
+    Given a HoldFundsCommand has succeeded with key "hold-42-v1"
+    When the same command is replayed with the same key
+    Then Stripe returns the same PaymentIntent (no duplicate authorization)
+    And the transaction state is not regressed
+```
+
+### Story 3 — Manual capture, never auto-capture
+
+**As a** Compliance Officer, **I want** every hold to use Stripe manual capture (`CaptureMethod = "manual"`), **so that** funds are reservable but not transferable to the platform until an explicit Release step backed by an audit event.
+
+**Acceptance Criteria:**
+
+- [ ] CaptureMethod is "manual"
+- [ ] the funds are in "requires_capture" until ReleaseFunds is invoked
+
+```gherkin
+Feature: Manual capture is enforced
+  Scenario: PaymentIntent capture method
+    When HoldFundsAsync creates the Stripe PaymentIntent
+    Then CaptureMethod is "manual"
+    And the funds are in "requires_capture" until ReleaseFunds is invoked
+```
+
+
 ## MediatR Command
 
 ```csharp

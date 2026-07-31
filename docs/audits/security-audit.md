@@ -274,7 +274,7 @@ The NexTruzt.io EscrowApp demonstrates mature security practices across authenti
 - **OWASP Top 10 (2021):** https://owasp.org/www-project-top-ten/
 - **PCI DSS Compliance:** https://www.pcisecuritystandards.org/
 - **GDPR Guide:** https://gdpr-info.eu/
-- **Security skill:** `.github/skills/security/owasp-audit/SKILL.md`
+- **Security skill:** `.copilot/skills/owasp-audit/SKILL.md`
 
 ---
 

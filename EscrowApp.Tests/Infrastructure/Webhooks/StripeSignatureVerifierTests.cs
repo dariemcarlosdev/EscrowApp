@@ -22,7 +22,7 @@ public sealed class StripeSignatureVerifierTests
     public void VerifyAndParse_ValidSignature_ReturnsEvent()
     {
         // This test requires a real webhook event from Stripe CLI.
-        // To execute: run `stripe listen --forward-to localhost:8080/api/webhooks/stripe`
+        // To execute: run `stripe listen --forward-to http://localhost:5093/api/webhooks/stripe`
         // and trigger a test event: `stripe trigger payment_intent.succeeded`
         // Then copy the actual signature header and event body here.
         // For now, we verify the integration through actual Stripe CLI testing (tc-10).

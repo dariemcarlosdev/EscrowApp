@@ -6,6 +6,75 @@
 
 The EscrowApp test suite lives in `EscrowApp.Tests/` as a separate project in the solution. It uses **xUnit** as the test framework, **FluentAssertions** for readable assertions, and **Moq** for mocking dependencies.
 
+## User Stories
+
+Stories for the test architecture and conventions in EscrowApp.Tests/. The strategy targets handler unit tests, validator tests, and selected integration tests for state-machine integrity.
+
+### Story 1 — Handler unit tests cover happy and bad paths
+
+**As a** Developer, **I want** every MediatR handler to have at least a happy-path unit test plus tests for each invalid state transition, **so that** state-machine bugs are caught before they reach production.
+
+**Acceptance Criteria:**
+
+- [ ] the transaction status becomes "Funded (Held)"
+- [ ] PaymentReceivedEvent is published exactly once
+- [ ] the test uses xUnit + FluentAssertions + Moq
+- [ ] it throws InvalidOperationException
+- [ ] the IFundReleasable mock is never called
+
+```gherkin
+Feature: Handler test coverage
+  Scenario: HoldFundsHandler happy path
+    Given a Pending transaction and a stubbed IFundHoldable returning a PaymentIntent ID
+    When the handler is invoked
+    Then the transaction status becomes "Funded (Held)"
+    And PaymentReceivedEvent is published exactly once
+    And the test uses xUnit + FluentAssertions + Moq
+
+  Scenario: ReleaseFundsHandler rejects disputed transactions
+    Given a transaction in status "Disputed"
+    When ReleaseFundsHandler is invoked
+    Then it throws InvalidOperationException
+    And the IFundReleasable mock is never called
+```
+
+### Story 2 — Validator tests prevent regressions
+
+**As a** Platform Admin, **I want** every FluentValidation validator to be unit-tested for each rule, **so that** validation changes never silently weaken input gating.
+
+**Acceptance Criteria:**
+
+- [ ] a failure is reported for ConsultantEmail
+- [ ] the message is "Client and consultant cannot be the same person."
+
+```gherkin
+Feature: Validator coverage
+  Scenario: CreateAndHoldFundsValidator rejects self-dealing
+    Given a CreateAndHoldFundsCommand with ClientEmail == ConsultantEmail
+    When the validator runs
+    Then a failure is reported for ConsultantEmail
+    And the message is "Client and consultant cannot be the same person."
+```
+
+### Story 3 — CI runs the test suite on every PR
+
+**As a** Developer, **I want** the test suite to run automatically on every pull request, **so that** breakages are caught before merge and main stays green.
+
+**Acceptance Criteria:**
+
+- [ ] `dotnet test` fails
+- [ ] the PR cannot be merged without explicit override
+
+```gherkin
+Feature: CI test gate
+  Scenario: Failing test blocks merge
+    Given a PR that introduces a regression in HoldFundsHandlerTests
+    When the CI workflow runs
+    Then `dotnet test` fails
+    And the PR cannot be merged without explicit override
+```
+
+
 ## Test Project Structure
 
 ```

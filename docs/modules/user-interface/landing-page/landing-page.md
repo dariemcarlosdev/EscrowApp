@@ -14,6 +14,89 @@ the code-behind pattern (`.razor` + `.razor.cs` + `.razor.css`). The design uses
 **glassmorphism** aesthetic with gradient backgrounds, frosted-glass cards, and smooth
 animations — built on Bootstrap 5 with custom scoped CSS and CSS custom properties.
 
+## User Stories
+
+Stories for the public landing page composed of 7 Blazor components. **All copy must avoid the word *escrow* in favor of *secure payment holding*, *held funds*, *platform*, or *service fee*.**
+
+### Story 1 — First-time visitor understands the value proposition
+
+**As a** Client visiting for the first time, **I want** the hero section to explain in one sentence how secure payment holding works, **so that** I can decide within 10 seconds whether to keep reading.
+
+**Acceptance Criteria:**
+
+- [ ] the HeroSection headline references "secure payment holding" or equivalent approved copy
+- [ ] no user-facing string contains the word "escrow"
+- [ ] a clear primary CTA (waitlist or sign-up) is visible without scrolling
+
+```gherkin
+Feature: Hero clarity
+  Scenario: Above-the-fold messaging
+    Given I land on "/"
+    When the page renders
+    Then the HeroSection headline references "secure payment holding" or equivalent approved copy
+    And no user-facing string contains the word "escrow"
+    And a clear primary CTA (waitlist or sign-up) is visible without scrolling
+```
+
+### Story 2 — Three-step "How it works" is scannable
+
+**As a** Consultant, **I want** the "How it works" section to show the Create → Hold → Release flow in three short steps, **so that** I can explain the platform to clients in my own words.
+
+**Acceptance Criteria:**
+
+- [ ] exactly three steps are visible
+- [ ] each step uses approved terminology (no "escrow" in user-facing strings)
+- [ ] the steps are localized (en and es)
+
+```gherkin
+Feature: How it works clarity
+  Scenario: Three steps are present
+    Given the landing page is rendered
+    When I scroll to the HowItWorks section
+    Then exactly three steps are visible
+    And each step uses approved terminology (no "escrow" in user-facing strings)
+    And the steps are localized (en and es)
+```
+
+### Story 3 — Bilingual visitor reads in their language
+
+**As a** Spanish-speaking Client, **I want** every visible string on the landing page to switch to Spanish when I toggle the language, **so that** I can read the entire page without language gaps.
+
+**Acceptance Criteria:**
+
+- [ ] NavBar, HeroSection, HowItWorks, SocialProof, FaqSection, and Footer all render in Spanish
+- [ ] no English fallback strings appear in the rendered HTML
+
+```gherkin
+Feature: Full landing-page localization
+  Scenario: Spanish toggle
+    Given I click "Español" in the NavBar
+    When the page reloads
+    Then NavBar, HeroSection, HowItWorks, SocialProof, FaqSection, and Footer all render in Spanish
+    And no English fallback strings appear in the rendered HTML
+```
+
+### Story 4 — Visitor joins the waitlist
+
+**As a** Client interested in the platform, **I want** to submit my email to a waitlist from the hero section, **so that** the team can contact me when onboarding opens.
+
+**Acceptance Criteria:**
+
+- [ ] my email is recorded
+- [ ] I see a localized confirmation message
+- [ ] the email is validated client-side and server-side
+
+```gherkin
+Feature: Waitlist capture
+  Scenario: Successful waitlist submission
+    Given I enter a valid email in the HeroSection waitlist form
+    When I submit the form
+    Then my email is recorded
+    And I see a localized confirmation message
+    And the email is validated client-side and server-side
+```
+
+
 ## Component Tree
 
 ```

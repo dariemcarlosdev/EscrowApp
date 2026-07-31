@@ -11,7 +11,9 @@ namespace EscrowApp.Infrastructure.Webhooks.Stripe;
 /// Stripe webhook endpoint — receives raw events from Stripe and dispatches
 /// to domain handlers after signature verification.
 ///
-/// Route: POST /api/webhooks/stripe
+/// Routes:
+/// - GET /api/webhooks/stripe (development-only diagnostic)
+/// - POST /api/webhooks/stripe (Stripe callback)
 /// Returns: 204 NoContent on success, RFC 7807 error response on failure
 ///
 /// SECURITY: This endpoint does NOT require [Authorize] — Stripe sends unauthenticated
@@ -25,6 +27,21 @@ namespace EscrowApp.Infrastructure.Webhooks.Stripe;
 public static class StripeWebhookEndpoint
 {
     /// <summary>
+    /// Lightweight diagnostic response for manual local checks.
+    /// Confirms the route exists without pretending that GET is a valid Stripe delivery.
+    /// </summary>
+    public static IResult HandleStatus()
+    {
+        var response = new StripeWebhookStatusResponse(
+            Endpoint: "/api/webhooks/stripe",
+            AcceptedMethod: "POST",
+            Status: "ready",
+            Message: "Stripe webhooks are accepted on POST only. Use Stripe CLI or another HTTP client to send a signed POST request to this route.");
+
+        return TypedResults.Ok(response);
+    }
+
+    /// <summary>
     /// Main webhook handler. Validates signature, deduplicates by event ID,
     /// and dispatches to the MediatR notification pipeline.
     /// </summary>
@@ -33,9 +50,13 @@ public static class StripeWebhookEndpoint
         [FromServices] StripeSignatureVerifier verifier,
         [FromServices] IOptions<StripeWebhookOptions> webhookOptions,
         [FromServices] IPublisher mediator,
-        [FromServices] ILogger logger,
+        [FromServices] ILoggerFactory loggerFactory,
         CancellationToken ct)
     {
+        // Non-generic ILogger is NOT registered in DI by default — only ILogger<T> and ILoggerFactory.
+        // Resolving ILogger directly throws InvalidOperationException, which ApiExceptionMiddleware
+        // would translate to 422. Use the factory to create a category-named logger instead.
+        var logger = loggerFactory.CreateLogger(nameof(StripeWebhookEndpoint));
         try
         {
             // Step 1: Read raw body as string (required for signature verification)
@@ -169,3 +190,9 @@ public sealed record PaymentIntentSucceededNotification(
     long Amount,
     string Currency,
     string StripeEventId) : INotification;
+
+public sealed record StripeWebhookStatusResponse(
+    string Endpoint,
+    string AcceptedMethod,
+    string Status,
+    string Message);

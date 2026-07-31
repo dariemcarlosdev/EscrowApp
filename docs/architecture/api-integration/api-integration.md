@@ -1,12 +1,28 @@
-#copu 09 — REST API Integration Layer
+# copu 09 — REST API Integration Layer
 
 **Status:** Implemented (MVP)
 
 ## Overview
 
-The NexTruzt.io REST API enables third-party platforms (e-commerce, marketplaces, SaaS) to
-integrate escrow functionality directly into their systems. The API wraps existing MediatR
-commands behind authenticated HTTP endpoints.
+The NexTruzt.io REST API enables third-party backends (e-commerce, marketplaces, SaaS)
+to integrate secure payment holding directly into their systems. The API wraps the
+existing MediatR application layer behind authenticated HTTP endpoints.
+
+> **Compliance-sensitive note:** If this document is adapted for external partners, use
+> approved user-facing terminology such as **secure payment holding** or **held funds**.
+> Do not imply that NexTruzt.io is a licensed escrow agent.
+
+## MVP Integration Stance
+
+- The primary public mutation entry point is **`POST /api/escrow/hold`**.
+- That endpoint performs an **atomic create-and-hold** in one call.
+- There is **no public `POST /api/escrow/{id}/hold` endpoint** in the current MVP controller.
+  `HoldFunds` exists as an application slice, but it is not exposed as a public REST operation.
+- The MVP integration model is **server-to-server only**.
+- The MVP does **not** provide outbound partner webhooks yet; integrators should poll
+  `GET /api/escrow/{id}` or `GET /api/escrow`.
+- URI versioning is **not introduced yet**. The current unversioned `/api/escrow/*`
+  surface is the single supported MVP contract.
 
 ## Architecture
 
@@ -15,55 +31,78 @@ Third-Party Platform
         │
         ▼ HTTP + X-Api-Key
 ┌───────────────────────────┐
-│   EscrowController        │  ← API Presentation Layer
+│   EscrowController        │  ← API presentation layer
 │   (REST endpoints)        │
 ├───────────────────────────┤
-│   MediatR Pipeline        │  ← Application Layer (shared with Blazor UI)
+│   MediatR Pipeline        │  ← Application layer shared with Blazor UI
 │   Commands / Queries      │
 ├───────────────────────────┤
-│   Repository + Strategies │  ← Infrastructure Layer
+│   Repository + Strategies │  ← Infrastructure layer
 │   EF Core + Stripe SDK    │
 └───────────────────────────┘
 ```
 
-## Endpoints
+## Environments and Base URLs
 
-| Method | Path                        | Description                          |
-|--------|-----------------------------|--------------------------------------|
-| POST   | `/api/escrow/hold`          | Create transaction + hold funds      |
-| GET    | `/api/escrow/{id}`          | Get transaction by ID                |
-| GET    | `/api/escrow`               | List transactions (paginated)        |
-| POST   | `/api/escrow/{id}/release`  | Release held funds                   |
-| POST   | `/api/escrow/{id}/dispute`  | Raise dispute (cancels hold)         |
-| POST   | `/api/escrow/{id}/cancel`   | Cancel escrow by mutual agreement    |
+| Environment | Base URL | Notes |
+|---|---|---|
+| Local HTTP | `http://localhost:5093` | Default local API endpoint from `launchSettings.json` |
+| Local HTTPS | `https://localhost:7037` | Optional local HTTPS endpoint when local cert trust is configured |
+| Hosted non-local | Deployment-specific | Configure via environment variable or secrets; do not hardcode example domains in your client |
 
-## Authentication
+> **MVP note:** The repository does not currently define a separate hosted sandbox URL.
+> Use local development or an explicitly provisioned non-production deployment for integration testing.
 
-API Key authentication via `X-Api-Key` header.
+## Authentication and Onboarding
+
+API key authentication uses the `X-Api-Key` header on every request.
 
 ```bash
 curl -X GET http://localhost:5093/api/escrow \
   -H "X-Api-Key: ntzt_dev_k1_a3b9f7e2d1c4"
 ```
 
-Keys are configured in `appsettings.Development.json` under the `ApiKeys` section.
-Each key maps to a client identity with claims.
+### Onboarding flow
 
-### Security Model
+1. Obtain an API key from the NexTruzt admin.
+2. Store the API key in your server-side secret store.
+3. Configure the environment-specific base URL.
+4. Send `X-Api-Key` on every request.
+5. Send a deterministic `X-Idempotency-Key` on every mutation request.
 
-- `ApiKeyAuthenticationHandler` validates the header against configured keys
+Example key handoff:
+
+```text
+Client ID:  your-platform-name
+API Key:    ntzt_prod_k1_xxxxxxxxxxxxxxxx
+```
+
+### Security model
+
+- `ApiKeyAuthenticationHandler` validates the incoming key
 - Successful auth creates a `ClaimsPrincipal` with `api_client_id` claim
-- `[Authorize(Policy = "ApiAccess")]` on all controller endpoints
-- `RaisedBy` on disputes is derived from the authenticated identity — not from the request body
+- `[Authorize(Policy = "ApiAccess")]` guards all controller endpoints
+- `RaisedBy` on disputes and `CancelledBy` on cancellations are derived from the authenticated identity
 
-## Request/Response Examples
+## MVP Public Integration Contract
 
-### Create and Hold Funds
+| Operation | Method + Path | Request shape | Response shape | Notes |
+|---|---|---|---|---|
+| Create and hold | `POST /api/escrow/hold` | `CreateAndHoldRequest` | `EscrowTransactionResponse` | Primary Day-1 write path; creates the transaction and places the hold atomically |
+| Get by ID | `GET /api/escrow/{id}` | None | `EscrowTransactionResponse` | Poll a single transaction state |
+| List | `GET /api/escrow?page=1&pageSize=20&status=...` | Query params | `PaginatedResponse<EscrowTransactionResponse>` | Supports optional `status` filter |
+| Release | `POST /api/escrow/{id}/release` | Header only (`X-Idempotency-Key`) | `ReleaseFundsResult` | Releases held funds |
+| Dispute | `POST /api/escrow/{id}/dispute` | `DisputeFundsApiRequest` | `DisputeFundsResult` | Cancels the hold and marks the transaction disputed |
+| Cancel | `POST /api/escrow/{id}/cancel` | `CancelFundsApiRequest` | `CancelFundsResult` | Cooperative cancellation path |
+
+## Request / Response Examples
+
+### Create and hold funds
 
 ```http
 POST /api/escrow/hold
 X-Api-Key: ntzt_dev_k1_a3b9f7e2d1c4
-X-Idempotency-Key: unique-request-id-123
+X-Idempotency-Key: order-123
 Content-Type: application/json
 
 {
@@ -77,6 +116,7 @@ Content-Type: application/json
 ```
 
 **Response: 201 Created**
+
 ```json
 {
   "id": 1,
@@ -87,171 +127,154 @@ Content-Type: application/json
   "status": "Funded (Held)",
   "externalReference": "pi_3abc...",
   "externalProvider": "Stripe",
+  "platformFee": 7.50,
+  "platformFeePercentage": 0.015,
+  "totalCharged": 507.50,
   "createdAt": "2026-04-04T21:00:00Z"
 }
 ```
 
-**Response: 400 Bad Request (Validation Error)**
+### Release held funds
+
+```http
+POST /api/escrow/123/release
+X-Api-Key: ntzt_dev_k1_a3b9f7e2d1c4
+X-Idempotency-Key: release-123
+```
+
+**Response: 200 OK**
+
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc7807",
-  "title": "Validation Failed",
-  "status": 400,
-  "detail": "One or more validation errors occurred.",
-  "errors": {
-    "Amount": ["Escrow amount must be greater than zero."],
-    "IdempotencyKey": ["Idempotency key is required."],
-    "ClientEmail": ["Client and consultant cannot be the same person."]
-  }
+  "transactionId": 123,
+  "status": "Completed (Released)",
+  "success": true
 }
 ```
 
-> **Note:** All POST endpoints (`/hold`, `/release`, `/dispute`, `/cancel`) validate input before handler execution. Validation failures always return 400 with grouped errors (errors grouped by property name for client-side mapping).
-
-### List Transactions (Paginated)
+### List transactions
 
 ```http
 GET /api/escrow?page=1&pageSize=10&status=Funded%20(Held)
 X-Api-Key: ntzt_dev_k1_a3b9f7e2d1c4
 ```
 
+### Validation failure
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "Validation Failed",
+  "status": 400,
+  "detail": "One or more validation errors occurred.",
+  "errors": {
+    "Amount": ["'Amount' must be greater than '0'."],
+    "ClientEmail": ["Client and consultant cannot be the same person."]
+  }
+}
+```
+
+> **Validation note:** All POST endpoints validate input before handler execution.
+> Validation errors return 400 with errors grouped by property name.
+
 ## Error Handling
 
-All API errors return RFC 7807 ProblemDetails:
+All API errors return RFC 7807-compatible `ProblemDetails`.
 
 ```json
 {
   "status": 422,
   "title": "Business Rule Violation",
-  "detail": "Transaction 5 not found.",
-  "instance": "/api/escrow/hold",
+  "detail": "Transaction 5 must be in 'Funded (Held)' status to release. Current: 'Pending'.",
+  "instance": "/api/escrow/5/release",
   "type": "https://httpstatuses.com/422"
 }
 ```
 
-| Status | When                                    |
-|--------|-----------------------------------------|
-| 400    | Validation failed (invalid input)       |
-| 401    | Missing or invalid API key              |
-| 404    | Transaction not found                   |
-| 422    | Business rule violation (wrong state)   |
-| 500    | Unexpected server error (details hidden)|
-
-> **Validation errors (400):** Grouped by property name for client-side mapping. See example above.
+| Status | When |
+|---|---|
+| 400 | Validation failed (invalid body or rule input) |
+| 401 | Missing or invalid API key |
+| 403 | Authenticated but not allowed |
+| 404 | `GET /api/escrow/{id}` did not find the resource |
+| 422 | Business rule violation, including wrong state and mutation lookups that fail in handlers |
+| 500 | Unexpected server error (details hidden) |
 
 ## Swagger / OpenAPI
 
-Available at `/swagger` in Development environment only.
-OpenAPI spec: `/swagger/v1/swagger.json`
+Swagger is available at `/swagger` in Development only. The local OpenAPI document is:
 
-## Key Files
+```text
+/swagger/v1/swagger.json
+```
 
-| File | Purpose |
-|------|---------|
-| `Features/Escrow/Api/EscrowController.cs` | REST controller |
-| `Features/Escrow/Api/ApiContracts.cs` | Request/response DTOs |
-| `Features/Escrow/CreateAndHoldFunds/` | New MediatR command + handler |
-| `Features/Escrow/CancelFunds/` | Cancel escrow MediatR command + handler (stub) |
-| `Features/Escrow/GetTransaction/` | Query handler for GET by ID |
-| `Features/Escrow/ListTransactions/` | Paginated query handler |
-| `Infrastructure/Auth/ApiKeyAuthenticationHandler.cs` | API key validation |
-| `Infrastructure/Middleware/ApiExceptionMiddleware.cs` | ProblemDetails error handler |
+> **MVP note:** The OpenAPI document is generated from the running app and is not yet
+> published as a separately versioned partner artifact.
 
-## Future Enhancements
-
-- [ ] JWT Bearer auth for SPA/mobile clients
-- [ ] Multi-tenant isolation (`TenantId` on transactions)
-- [ ] Webhook delivery for domain events
-- [ ] Rate limiting on mutation endpoints
-- [ ] SDK generation (C#, JavaScript, Python)
-
----
+For the full Swagger-discovered route inventory, including minimal app endpoints and the Stripe webhook routes, see [API endpoint reference](api-endpoint-reference.md).
 
 ## Third-Party Integration Guide
 
-### How It Works
+### How it works
 
-NexTruzt.io acts as a **payment escrow middleware** — your platform handles the user
-experience, and NexTruzt holds/releases money on your behalf. The integration is
-purely server-to-server via REST.
-
-```
-┌─────────────────────┐          ┌──────────────────────┐          ┌─────────┐
-│  Your Platform       │  REST    │  NexTruzt.io API     │  Stripe  │  Bank   │
-│  (e-commerce, SaaS)  │────────▶│  /api/escrow/*       │────────▶│  $$$    │
-│                      │◀────────│                      │◀────────│         │
-└─────────────────────┘  JSON    └──────────────────────┘  SDK     └─────────┘
-```
-
-### Step 1 — Obtain an API Key
-
-Request an API key from the NexTruzt admin. You'll receive:
+NexTruzt.io acts as secure payment holding middleware: your platform owns the user
+experience and business workflow, while NexTruzt owns payment hold, release, dispute,
+and cancellation operations.
 
 ```
-Client ID:  your-platform-name
-API Key:    ntzt_prod_k1_xxxxxxxxxxxxxxxx
+┌─────────────────────┐          ┌────────────────────────┐          ┌─────────┐
+│ Your platform       │  REST    │ NexTruzt.io API        │  Stripe  │ Bank /  │
+│ (e-commerce, SaaS)  │────────▶│ /api/escrow/*          │────────▶│ card    │
+│ backend only        │◀────────│ JSON responses         │◀────────│ network │
+└─────────────────────┘          └────────────────────────┘          └─────────┘
 ```
 
-Include it in every request:
+### Happy path
 
-```
-X-Api-Key: ntzt_prod_k1_xxxxxxxxxxxxxxxx
-```
+Your platform orchestrates the following flow:
 
-### Step 2 — Escrow Lifecycle (Happy Path)
-
-Your platform orchestrates the following 3-call flow:
-
-```
-Client places order → Your backend calls NexTruzt
-                                │
-                      ┌─────────▼──────────┐
-                      │  POST /hold        │  Funds captured from client's card
-                      │  Status: "Funded   │  and held in escrow.
-                      │  (Held)"           │
-                      └─────────┬──────────┘
-                                │
-                      Consultant delivers service
-                                │
-                      ┌─────────▼──────────┐
-                      │  POST /{id}/release │  Client confirms delivery.
-                      │  Status: "Completed │  Funds released to consultant.
-                      │  (Released)"        │
-                      └────────────────────┘
+```text
+Client places order
+        │
+        ▼
+POST /api/escrow/hold
+        │
+        ├─ creates transaction
+        ├─ authorizes payment
+        └─ returns transactionId + status "Funded (Held)"
+        │
+        ▼
+Store transactionId in your system
+        │
+        ▼
+Consultant delivers service
+        │
+        ▼
+POST /api/escrow/{id}/release
+        │
+        └─ returns status "Completed (Released)"
 ```
 
-**Dispute path** — If the client is unsatisfied:
+### Alternate paths
 
-```
-                      ┌─────────────────────┐
-                      │  POST /{id}/dispute  │  Hold cancelled, funds returned
-                      │  Status: "Disputed"  │  to client automatically.
-                      └─────────────────────┘
-```
+- **Dispute:** `POST /api/escrow/{id}/dispute`
+- **Cancel:** `POST /api/escrow/{id}/cancel`
+- **Status polling:** `GET /api/escrow/{id}` or `GET /api/escrow`
 
-**Cancel path** — If both parties agree to void the escrow (cooperative):
+> **Important nuance:** There is no public `POST /api/escrow/{id}/hold` endpoint in the MVP.
+> If your workflow needs a two-step create-then-hold process, that is a post-MVP enhancement.
 
-```
-                      ┌─────────────────────┐
-                      │  POST /{id}/cancel   │  Hold voided, funds returned
-                      │  Status: "Cancelled" │  to client by mutual agreement.
-                      └─────────────────────┘
-```
+## Implementation Examples
 
-> **Dispute vs Cancel:** Dispute is a *contested* action — one party objects. Cancel
-> is a *cooperative* action — both parties agree to void the transaction. Both cancel
-> the Stripe PaymentIntent, but the status and audit trail differ.
-
-### Step 3 — Implementation Examples
+Use a configurable base URL rather than hardcoding an example production hostname.
 
 #### Node.js / Express
 
 ```javascript
-const NEXTRUZT_API = 'https://api.nextruzt.io';
+const NEXTRUZT_API = process.env.NEXTRUZT_BASE_URL;
 const API_KEY = process.env.NEXTRUZT_API_KEY;
 
-// When client confirms an order
-async function createEscrow(order) {
+async function createHold(order) {
   const res = await fetch(`${NEXTRUZT_API}/api/escrow/hold`, {
     method: 'POST',
     headers: {
@@ -268,11 +291,15 @@ async function createEscrow(order) {
       providerName: 'Stripe'
     })
   });
-  return res.json(); // { id, status: "Funded (Held)", ... }
+
+  if (!res.ok) {
+    throw new Error(`Create hold failed: ${res.status}`);
+  }
+
+  return res.json();
 }
 
-// When service is delivered and client approves
-async function releaseEscrow(transactionId) {
+async function releaseFunds(transactionId) {
   const res = await fetch(`${NEXTRUZT_API}/api/escrow/${transactionId}/release`, {
     method: 'POST',
     headers: {
@@ -280,40 +307,50 @@ async function releaseEscrow(transactionId) {
       'X-Idempotency-Key': `release-${transactionId}`
     }
   });
-  return res.json(); // { status: "Completed (Released)", success: true }
+
+  if (!res.ok) {
+    throw new Error(`Release failed: ${res.status}`);
+  }
+
+  return res.json();
 }
 ```
 
 #### Python / FastAPI
 
 ```python
-import httpx, os
+import httpx
+import os
 
 API_KEY = os.environ["NEXTRUZT_API_KEY"]
-BASE_URL = "https://api.nextruzt.io"
+BASE_URL = os.environ["NEXTRUZT_BASE_URL"]
 HEADERS = {"X-Api-Key": API_KEY}
 
-async def create_escrow(order: dict) -> dict:
+async def create_hold(order: dict) -> dict:
     async with httpx.AsyncClient() as client:
-        r = await client.post(f"{BASE_URL}/api/escrow/hold", json={
-            "clientEmail": order["client_email"],
-            "consultantEmail": order["vendor_email"],
-            "amount": order["total"],
-            "serviceDescription": order["description"],
-            "paymentMethodId": order["stripe_pm_id"],
-            "providerName": "Stripe",
-        }, headers={**HEADERS, "X-Idempotency-Key": f"order-{order['id']}"})
-        r.raise_for_status()
-        return r.json()
-
-async def release_escrow(transaction_id: int) -> dict:
-    async with httpx.AsyncClient() as client:
-        r = await client.post(
-            f"{BASE_URL}/api/escrow/{transaction_id}/release",
-            headers={**HEADERS, "X-Idempotency-Key": f"release-{transaction_id}"}
+        response = await client.post(
+            f"{BASE_URL}/api/escrow/hold",
+            json={
+                "clientEmail": order["client_email"],
+                "consultantEmail": order["vendor_email"],
+                "amount": order["total"],
+                "serviceDescription": order["description"],
+                "paymentMethodId": order["stripe_pm_id"],
+                "providerName": "Stripe",
+            },
+            headers={**HEADERS, "X-Idempotency-Key": f"order-{order['id']}"},
         )
-        r.raise_for_status()
-        return r.json()
+        response.raise_for_status()
+        return response.json()
+
+async def release_funds(transaction_id: int) -> dict:
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{BASE_URL}/api/escrow/{transaction_id}/release",
+            headers={**HEADERS, "X-Idempotency-Key": f"release-{transaction_id}"},
+        )
+        response.raise_for_status()
+        return response.json()
 ```
 
 #### C# / HttpClient
@@ -321,56 +358,78 @@ async def release_escrow(transaction_id: int) -> dict:
 ```csharp
 public sealed class NexTruztClient(HttpClient http)
 {
-    public async Task<EscrowResponse> HoldFundsAsync(CreateEscrowRequest req)
+    public async Task<EscrowTransactionResponse> CreateHoldAsync(
+        CreateAndHoldRequest request,
+        string idempotencyKey,
+        CancellationToken ct = default)
     {
-        var response = await http.PostAsJsonAsync("/api/escrow/hold", req);
+        using var message = new HttpRequestMessage(HttpMethod.Post, "/api/escrow/hold")
+        {
+            Content = JsonContent.Create(request)
+        };
+        message.Headers.Add("X-Idempotency-Key", idempotencyKey);
+
+        using var response = await http.SendAsync(message, ct);
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<EscrowResponse>())!;
+        return (await response.Content.ReadFromJsonAsync<EscrowTransactionResponse>(cancellationToken: ct))!;
     }
 
-    public async Task<EscrowResponse> ReleaseFundsAsync(int transactionId)
+    public async Task<ReleaseFundsResult> ReleaseFundsAsync(
+        int transactionId,
+        string idempotencyKey,
+        CancellationToken ct = default)
     {
-        var response = await http.PostAsync($"/api/escrow/{transactionId}/release", null);
+        using var message = new HttpRequestMessage(
+            HttpMethod.Post,
+            $"/api/escrow/{transactionId}/release");
+        message.Headers.Add("X-Idempotency-Key", idempotencyKey);
+
+        using var response = await http.SendAsync(message, ct);
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<EscrowResponse>())!;
+        return (await response.Content.ReadFromJsonAsync<ReleaseFundsResult>(cancellationToken: ct))!;
     }
 }
 
-// Registration in DI:
 builder.Services.AddHttpClient<NexTruztClient>(client =>
 {
-    client.BaseAddress = new Uri("https://api.nextruzt.io");
-    client.DefaultRequestHeaders.Add("X-Api-Key", config["NexTruzt:ApiKey"]);
+    client.BaseAddress = new Uri(configuration["NexTruzt:BaseUrl"]!);
+    client.DefaultRequestHeaders.Add("X-Api-Key", configuration["NexTruzt:ApiKey"]);
 });
 ```
 
-### Step 4 — Handling Errors
+## Integration Checklist
 
-Always check HTTP status codes. Wrap calls in retry logic for transient failures:
+- [ ] Obtain an API key from NexTruzt admin
+- [ ] Configure `NEXTRUZT_BASE_URL` (or equivalent secret-backed config)
+- [ ] Add `X-Api-Key` to every request
+- [ ] Add deterministic `X-Idempotency-Key` values to all mutation requests
+- [ ] Call `POST /api/escrow/hold` for the atomic create-and-hold workflow
+- [ ] Store `transactionId` from the hold response in your own database
+- [ ] Use `GET /api/escrow/{id}` or `GET /api/escrow` for status polling
+- [ ] Implement release, dispute, and cancel flows as needed
+- [ ] Handle `400`, `401`, `403`, `404`, `422`, and `500` responses explicitly
+- [ ] Test the full lifecycle locally or in an assigned non-production environment
 
-| Status | Action |
-|--------|--------|
-| `201`  | Success — store the `id` in your database for future release/dispute |
-| `401`  | Check your API key — it may be expired or revoked |
-| `422`  | Business rule error — read `detail` field for specifics |
-| `500`  | Transient error — retry with the same `X-Idempotency-Key` |
+## Key Files
 
-### Step 5 — Idempotency
+| File | Purpose |
+|---|---|
+| `Features/Escrow/Api/EscrowController.cs` | Public REST controller |
+| `Features/Escrow/Api/ApiContracts.cs` | Request/response contracts |
+| `Features/Escrow/CreateAndHoldFunds/` | Atomic create-and-hold slice |
+| `Features/Escrow/ReleaseFunds/` | Release held funds |
+| `Features/Escrow/DisputeFunds/` | Dispute flow |
+| `Features/Escrow/CancelFunds/` | Cooperative cancellation flow |
+| `Features/Escrow/GetTransaction/` | Query handler for GET by ID |
+| `Features/Escrow/ListTransactions/` | Paginated query handler |
+| `Infrastructure/Auth/ApiKeyAuthenticationHandler.cs` | API key validation |
+| `Infrastructure/Middleware/ApiExceptionMiddleware.cs` | `ProblemDetails` error handling |
 
-All mutation endpoints accept `X-Idempotency-Key` header. Use a deterministic key
-(e.g., your order ID) so retries don't create duplicate transactions:
+## Deferred Beyond MVP
 
-```
-X-Idempotency-Key: order-12345
-```
-
-### Integration Checklist
-
-- [ ] Obtained production API key from NexTruzt admin
-- [ ] Store `transactionId` from hold response in your database
-- [ ] Implement release flow when service is confirmed
-- [ ] Implement dispute flow for unsatisfied clients
-- [ ] Add idempotency keys to all mutation calls
-- [ ] Handle error responses (401, 422, 500) with appropriate UX
-- [ ] Set up monitoring/alerting on escrow status changes
-- [ ] Test full lifecycle in sandbox environment
+- [ ] Dedicated public `POST /api/escrow/{id}/hold` endpoint for a true two-step partner workflow
+- [ ] JWT Bearer auth for SPA/mobile clients
+- [ ] Multi-tenant isolation (`TenantId` on transactions)
+- [ ] Outbound partner webhooks for domain events
+- [ ] Rate limiting on mutation endpoints
+- [ ] SDK generation (C#, JavaScript, Python)

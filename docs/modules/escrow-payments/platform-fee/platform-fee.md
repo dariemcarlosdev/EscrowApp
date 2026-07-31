@@ -20,6 +20,93 @@ Client holds $5,000 for consulting project
 └── NexTruzt.io net revenue: $75.00
 ```
 
+## User Stories
+
+Stories for the configurable platform fee — NexTruzt.io's Day-1 revenue mechanism. **User-facing copy must say *platform fee* or *service fee* — never *escrow fee*.**
+
+### Story 1 — Transparent fee preview before authorization
+
+**As a** Client, **I want** to see the platform fee broken out from the principal amount before I authorize a hold, **so that** I know exactly what NexTruzt.io retains and what the consultant will receive.
+
+**Acceptance Criteria:**
+
+- [ ] the UI shows "Platform fee: $75.00"
+- [ ] the UI shows "Consultant receives: $4,925.00" (excluding Stripe pass-through fees)
+- [ ] the wording uses "platform fee" or "service fee" — never "escrow fee"
+
+```gherkin
+Feature: Fee transparency on the create form
+  Scenario: Quote calculation
+    Given the platform fee rate is 1.5%
+    When I enter a project amount of $5,000.00
+    Then the UI shows "Platform fee: $75.00"
+    And the UI shows "Consultant receives: $4,925.00" (excluding Stripe pass-through fees)
+    And the wording uses "platform fee" or "service fee" — never "escrow fee"
+```
+
+### Story 2 — Fee captured only on release
+
+**As a** Platform Admin, **I want** the platform fee to be captured to the platform Stripe account only when funds are released, **so that** cancelled or disputed transactions correctly produce zero revenue.
+
+**Acceptance Criteria:**
+
+- [ ] the platform Stripe account retains $75.00 as application_fee_amount
+- [ ] the consultant's connected account receives the principal minus the fee
+- [ ] the Stripe hold is fully voided
+- [ ] no application fee is captured
+
+```gherkin
+Feature: Fee captured on release
+  Scenario: Release captures principal and fee
+    Given a transaction in "Funded (Held)" with PlatformFee=$75.00
+    When ReleaseFundsCommand succeeds
+    Then the platform Stripe account retains $75.00 as application_fee_amount
+    And the consultant's connected account receives the principal minus the fee
+
+  Scenario: Cancellation produces zero fee revenue
+    Given a transaction in "Funded (Held)" with PlatformFee=$75.00
+    When CancelFundsCommand succeeds
+    Then the Stripe hold is fully voided
+    And no application fee is captured
+```
+
+### Story 3 — Audit-stable percentage on each transaction
+
+**As a** Compliance Officer, **I want** the `PlatformFeePercentage` used for each transaction to be persisted at creation time and never overwritten, **so that** future rate changes do not retroactively alter historical revenue records.
+
+**Acceptance Criteria:**
+
+- [ ] transaction 42 still reports PlatformFeePercentage=0.015
+- [ ] historical revenue reports are unchanged
+
+```gherkin
+Feature: Immutable fee percentage per transaction
+  Scenario: Rate change does not affect history
+    Given transaction 42 was created with PlatformFeePercentage=0.015
+    When the platform rate is later updated to 0.02 in configuration
+    Then transaction 42 still reports PlatformFeePercentage=0.015
+    And historical revenue reports are unchanged
+```
+
+### Story 4 — Fee rate is configuration, not code
+
+**As a** Developer, **I want** the platform fee rate to be configurable via the Options pattern (`appsettings.json` / environment variables), **so that** product can tune the rate per environment without a code change or redeploy of business logic.
+
+**Acceptance Criteria:**
+
+- [ ] the resolved fee for a $1,000 transaction is $20.00
+- [ ] no recompilation is required
+
+```gherkin
+Feature: Configurable fee rate
+  Scenario: Rate changes via configuration
+    Given PlatformFeeOptions:Rate is set to 0.02 in appsettings.{Environment}.json
+    When the application starts and the next CreateAndHoldFundsCommand is processed
+    Then the resolved fee for a $1,000 transaction is $20.00
+    And no recompilation is required
+```
+
+
 ---
 
 ## Revenue Gate Status

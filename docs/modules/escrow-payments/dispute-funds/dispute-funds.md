@@ -14,6 +14,90 @@ Either the client or consultant can raise a dispute while funds are in the
 which **automatically refunds** the authorized amount to the client's payment method.
 A `DisputeRaisedEvent` is published for admin review and future webhook delivery.
 
+## User Stories
+
+Stories for the adversarial dispute flow. **User-facing copy must use *dispute held funds* — never *escrow*.** A dispute voids the Stripe authorization (auto-refund to the client) and records the dispute for admin review.
+
+### Story 1 — Client raises a dispute
+
+**As a** Client, **I want** to raise a dispute on a held payment when the consultant has not delivered the agreed service, **so that** my authorized funds are not captured and an admin can review the case.
+
+**Acceptance Criteria:**
+
+- [ ] IFundCancellable.CancelHoldAsync is called for "pi_abc123"
+- [ ] the Stripe hold is voided (auto-refund to the client's payment method)
+- [ ] the transaction status transitions to "Disputed"
+- [ ] DisputeReason is persisted
+- [ ] a DisputeRaisedEvent is published after persistence
+
+```gherkin
+Feature: Client-initiated dispute
+  Scenario: Dispute raised on Funded (Held) transaction
+    Given a transaction in status "Funded (Held)" with ExternalReference "pi_abc123"
+    When the client submits DisputeFundsCommand with RaisedBy="Client" and a reason
+    Then IFundCancellable.CancelHoldAsync is called for "pi_abc123"
+    And the Stripe hold is voided (auto-refund to the client's payment method)
+    And the transaction status transitions to "Disputed"
+    And DisputeReason is persisted
+    And a DisputeRaisedEvent is published after persistence
+```
+
+### Story 2 — Consultant raises a dispute
+
+**As a** Consultant, **I want** to raise a dispute when the client refuses to release funds despite delivery, **so that** the platform admin reviews the engagement instead of the funds being silently cancelled by the client.
+
+**Acceptance Criteria:**
+
+- [ ] the transaction status transitions to "Disputed"
+- [ ] DisputeRaisedEvent.RaisedBy = "Consultant"
+
+```gherkin
+Feature: Consultant-initiated dispute
+  Scenario: Dispute raised by consultant
+    Given a transaction in status "Funded (Held)"
+    When the consultant submits DisputeFundsCommand with RaisedBy="Consultant"
+    Then the transaction status transitions to "Disputed"
+    And DisputeRaisedEvent.RaisedBy = "Consultant"
+```
+
+### Story 3 — Dispute prevents subsequent release
+
+**As a** Compliance Officer, **I want** a disputed transaction to be ineligible for release, **so that** funds cannot be captured while a dispute is open and the regulatory audit trail remains consistent.
+
+**Acceptance Criteria:**
+
+- [ ] the handler rejects with InvalidOperationException
+- [ ] the transaction status remains "Disputed"
+- [ ] no Stripe capture call is made
+
+```gherkin
+Feature: Dispute blocks release
+  Scenario: Release attempted after dispute
+    Given a transaction in status "Disputed"
+    When ReleaseFundsCommand is submitted for that transaction
+    Then the handler rejects with InvalidOperationException
+    And the transaction status remains "Disputed"
+    And no Stripe capture call is made
+```
+
+### Story 4 — Admin reviews open disputes
+
+**As a** Platform Admin, **I want** every dispute to emit a `DisputeRaisedEvent` carrying the reason, parties, and external reference, **so that** I can build review queues and webhook deliveries without polling the database.
+
+**Acceptance Criteria:**
+
+- [ ] the DisputeRaisedEvent contains TransactionId, RaisedBy, Reason, and ExternalReference
+- [ ] the event is published only after the transaction row is committed
+
+```gherkin
+Feature: Dispute event for downstream review
+  Scenario: Event payload is complete
+    When a dispute is raised on transaction 42
+    Then the DisputeRaisedEvent contains TransactionId, RaisedBy, Reason, and ExternalReference
+    And the event is published only after the transaction row is committed
+```
+
+
 ## MediatR Command
 
 ```csharp

@@ -1,7 +1,7 @@
 # NexTruzt.io — Strategic Pre-Launch Plan
 
 > Decision-oriented action register for pre-launch readiness.
-> Last updated: 2026-04-10
+> Last updated: 2026-04-30
 
 ---
 
@@ -119,6 +119,18 @@ These items MUST be resolved before any public launch. Each has a clear go/no-go
 **GO/NO-GO Gate:**
 - ✅ GO: Stripe confirms platform model is compliant; 7-day limit addressed
 - 🔴 NO-GO: Stripe rejects the use case or imposes unworkable restrictions
+
+#### Why payment and webhook test guidance still requires legal review
+
+Even when the engineering team is only documenting or manually testing Stripe webhook behavior, the workflow is still compliance-sensitive because it touches the platform's real payment lifecycle assumptions:
+
+1. **Payment state transitions** - webhook processing can confirm, reject, retry, dispute, or otherwise influence how the platform records held funds and release readiness.
+2. **Audit trail expectations** - production webhook handling becomes part of the evidentiary record for disputes, reconciliation, and operational controls.
+3. **Operational representations** - any runbook, dashboard procedure, or support process built from webhook guidance can become de facto production policy.
+4. **Regulatory posture** - if the workflow implies NexTruzt.io is operating as a licensed escrow agent, money transmitter, or regulated holder of funds, the wording and process design create legal risk.
+5. **Stripe platform compliance** - webhook-driven payment operations must remain consistent with Stripe's terms, KYC expectations, payout rules, and the platform's approved account model.
+
+**Practical rule:** engineering may use local Stripe CLI and webhook runbooks for development verification, but any production rollout, support playbook, or user-facing operational process derived from those runbooks requires attorney review before release.
 
 ---
 

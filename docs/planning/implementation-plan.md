@@ -1,6 +1,6 @@
 # NexTruzt.io EscrowApp — Implementation Plan
 
-**Last synced with codebase:** 2026-04-29 14:42 UTC  
+$12026-05-01 08:26 EDT
 **Current Phase:** Track C Complete ✅ — Stripe Webhook Handler Finished + Missing Tests Created  
 **Overall Progress:** Track B (100%) + Track C (100%) = 27 of 27 tasks completed (13 Track C: 11 original + 2 test files)  
 **Test Status:** 132/132 passing ✅ | Build: 0 errors, 0 warnings
@@ -25,6 +25,7 @@ Track B (User Access / Authentication) is **100% complete and tested**. Track C 
 - ✅ Event handler: Observational pattern, PaymentReceivedEvent publishing  
 - ✅ Comprehensive testing: 6 unit tests (PaymentIntentEventHandlerTests) + 4 signature tests + 5 integration tests = 15 tests total  
 - ✅ DI registration and environment-specific config (appsettings.json/Production/Development)  
+- ✅ Local developer probe: `GET /api/webhooks/stripe` now returns a diagnostic payload in Development while `POST` remains the real Stripe callback route  
 - ✅ Documentation fully updated  
 - ✅ **Missing test files created:** PaymentIntentEventHandlerTests.cs (tc-5 realized), WebhookIntegrationTests.cs (tc-9 realized)
 
@@ -151,7 +152,7 @@ $ dotnet test EscrowApp.Tests --filter "AuthenticationCascadeTests"
 |------|-------------|--------|---------|
 | tc-1 | StripeWebhookOptions.cs | ✅ | Configuration record, IOptions{T} pattern, nested Stripe:Webhook:EndpointSecret |
 | tc-2 | StripeSignatureVerifier.cs | ✅ | HMAC-SHA256 constant-time comparison, timestamp validation (5 min tolerance), no secrets in logs |
-| tc-3 | StripeWebhookEndpoint.cs | ✅ | HTTP POST /api/webhooks/stripe, MediatR dispatcher, 204 on success, 401 on invalid signature |
+| tc-3 | StripeWebhookEndpoint.cs | ✅ | Development GET diagnostic + HTTP POST /api/webhooks/stripe, MediatR dispatcher, 204 on success, 401 on invalid signature |
 
 **Build Status:** ✅ Phase 1 compiling with 0 errors
 
@@ -169,7 +170,7 @@ $ dotnet test EscrowApp.Tests --filter "AuthenticationCascadeTests"
 | tc-6 | appsettings.json | ✅ | Base config: `Stripe:Webhook:EndpointSecret = "whsec_test_secret"` |
 |  | appsettings.Development.json | ✅ | Dev config: `Stripe:Webhook:EndpointSecret = "whsec_test_secret_development"` |
 |  | appsettings.Production.json | ✅ | Prod config: `Stripe:Webhook:EndpointSecret = "${STRIPE_WEBHOOK_SECRET}"` (env var) |
-| tc-7 | Program.cs (DI) | ✅ | Added: Configure<StripeWebhookOptions>, AddScoped<StripeSignatureVerifier>, MapPost endpoint |
+| tc-7 | Program.cs (DI) | ✅ | Added: Configure<StripeWebhookOptions>, AddScoped<StripeSignatureVerifier>, Development MapGet diagnostic, MapPost endpoint |
 
 **Build Status:** ✅ All phases compiling cleanly
 
@@ -196,8 +197,10 @@ $ dotnet test EscrowApp.Tests --filter "AuthenticationCascadeTests"
 
 - ⏳ **tc-10: Manual Stripe CLI Testing**
   - **Prerequisites:** Stripe CLI installed, test account with webhook endpoint secret
-  - **Steps:** Run app → `stripe listen --forward-to localhost:8080/api/webhooks/stripe` → `stripe trigger payment_intent.succeeded`
+  - **Manual check:** Browser `GET` to `/api/webhooks/stripe` now confirms the route exists in Development, but Stripe CLI must still send `POST`
+  - **Steps:** Run app → `stripe listen --forward-to http://localhost:5093/api/webhooks/stripe` → `stripe trigger payment_intent.succeeded`
   - **Success Criteria:** 204 response, handler logs, database reflects event
+  - **Guide:** `docs/Test/local-stripe-cli-webhook-test.md`
   - **Status:** Ready but not automated (requires Stripe CLI environment)
 
 ---
