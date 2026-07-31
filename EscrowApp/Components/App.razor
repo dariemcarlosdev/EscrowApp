@@ -10,8 +10,8 @@
         // Immediately apply persisted theme before CSS loads to avoid flash
         (function(){
             try{
-                var t = localStorage.getItem('theme');
-                if(t){ document.documentElement.setAttribute('data-theme', t); }
+                var t = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', t);
             }catch(e){ }
         })();
         // Listen for theme changes and trigger a small repaint to ensure component styles update
@@ -33,7 +33,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
@@ -48,6 +48,9 @@
     <ReconnectModal />
     <script src="@Assets["lib/bootstrap/dist/js/bootstrap.bundle.min.js"]"></script>
     <script src="/js/theme.js"></script>
+    <script src="/lib/gsap/gsap.min.js"></script>
+    <script src="/lib/gsap/ScrollTrigger.min.js"></script>
+    <script src="/js/motion.js"></script>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
 

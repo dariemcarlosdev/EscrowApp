@@ -14,6 +14,9 @@
     <div class="bg-blob blob-2" aria-hidden="true"></div>
 
     <main id="main-content">
+        @* Reveal/stagger choreography lives inside each section on meaningful
+           elements (headers vs. card groups). Hero is above the fold and owns
+           its own CSS entrance, so it is intentionally not scroll-revealed. *@
         <HeroSection />
         <HowItWorks />
         <SocialProof />

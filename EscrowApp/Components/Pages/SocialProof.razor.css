@@ -11,3 +11,10 @@
 .stat-card:hover {
     transform: translateY(-5px);
 }
+
+/* Metric value: solid teal display type — trust signal, not a gradient flourish. */
+.stat-value {
+    font-family: var(--font-display);
+    color: var(--accent-teal);
+    letter-spacing: -0.02em;
+}
