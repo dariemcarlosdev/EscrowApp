@@ -96,5 +96,6 @@ desktop.ini
 
 # NexSynapse IP-block opt-in marker (local-only)
 .nexsynapse-ip-guard
-/docs/FrontEnd/FrontEnd_Design_Framework.md
-/docs/FrontEnd/UI-Redesign-Plan.md
+
+# --- Docs (local-only, never commit root docs folder) ---
+/docs/
