@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Localization;
+using Microsoft.JSInterop;
 
 namespace EscrowApp.Components.Pages.Dashboard;
 
@@ -14,6 +15,7 @@ public sealed partial class ConsultantDashboard : ComponentBase, IDisposable
     [Inject] private IMediator Mediator { get; set; } = default!;
     [Inject] private IStringLocalizer<ConsultantDashboard> L { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthState { get; set; } = default!;
@@ -31,6 +33,27 @@ public sealed partial class ConsultantDashboard : ComponentBase, IDisposable
         // TODO: wire to ListTransactionsQuery filtered by authenticated consultant email
         await Task.Delay(0);
         _isLoading = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("nexMotion.init");
+        }
+        catch (JSDisconnectedException)
+        {
+            // Circuit disconnected during teardown — nothing to animate.
+        }
+        catch (OperationCanceledException)
+        {
+            // Navigation cancelled the render — safe to ignore.
+        }
     }
 
     public void Dispose() => _cts.Cancel();

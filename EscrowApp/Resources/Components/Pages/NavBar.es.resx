@@ -61,6 +61,9 @@
   <data name="HowItWorks" xml:space="preserve">
     <value>Como Funciona</value>
   </data>
+  <data name="Faq" xml:space="preserve">
+    <value>FAQ</value>
+  </data>
   <data name="LanguageToggleAriaLabel" xml:space="preserve">
     <value>Cambiar idioma</value>
   </data>

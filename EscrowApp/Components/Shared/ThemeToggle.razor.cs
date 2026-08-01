@@ -9,7 +9,7 @@ public partial class ThemeToggle : ComponentBase
 
     private string _currentTheme = "light";
     protected bool IsLight => _currentTheme == "light";
-    protected string Icon => IsLight ? "☀️" : "🌙";
+    protected string IconClass => IsLight ? "bi-sun" : "bi-moon-stars";
 
     private bool _initialized = false;
 

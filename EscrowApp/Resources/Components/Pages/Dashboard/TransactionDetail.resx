@@ -46,4 +46,7 @@
   <data name="CancelHold" xml:space="preserve"><value>Cancel Hold</value></data>
   <data name="Timeline" xml:space="preserve"><value>Activity Timeline</value></data>
   <data name="TimelineComingSoon" xml:space="preserve"><value>Transaction timeline will be available in a future update.</value></data>
+  <data name="Created" xml:space="preserve"><value>Created</value></data>
+  <data name="Held" xml:space="preserve"><value>Held</value></data>
+  <data name="Released" xml:space="preserve"><value>Released</value></data>
 </root>

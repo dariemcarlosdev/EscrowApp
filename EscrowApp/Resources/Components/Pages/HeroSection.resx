@@ -77,7 +77,28 @@
     <value>Funds Secured</value>
   </data>
   <data name="HeroSubtitle" xml:space="preserve">
-    <value>The first Escrow system designed for independent consultants and clients. Payment is held upfront and only released when the service is 100% completed. Zero risks.</value>
+    <value>Payment protection for independent consultants and their clients. Funds are secured upfront and released only when the work is approved — no chargebacks, no ghosting.</value>
+  </data>
+  <data name="Eyebrow" xml:space="preserve">
+    <value>Payment protection for independent work</value>
+  </data>
+  <data name="TrustProcessor" xml:space="preserve">
+    <value>Held by a licensed processor</value>
+  </data>
+  <data name="TrustNoCard" xml:space="preserve">
+    <value>Card data never stored</value>
+  </data>
+  <data name="TrustApproval" xml:space="preserve">
+    <value>Released on your approval</value>
+  </data>
+  <data name="StepDeposited" xml:space="preserve">
+    <value>Deposited</value>
+  </data>
+  <data name="StepHeld" xml:space="preserve">
+    <value>Held</value>
+  </data>
+  <data name="StepReleased" xml:space="preserve">
+    <value>Released</value>
   </data>
   <data name="HeroTitle1" xml:space="preserve">
     <value>Protect your payments,</value>

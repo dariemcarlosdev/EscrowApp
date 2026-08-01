@@ -69,7 +69,7 @@
                         <div class="mb-4 register-form-group">
                             <label class="form-label">@L["RoleLabel"]</label>
                             <div class="d-flex gap-3">
-                                <div class="form-check flex-fill border rounded p-3 role-option @(RegisterModel.Role == "Client" ? "border-primary bg-primary bg-opacity-10" : "")" @onclick='() => RegisterModel.Role = "Client"' style="cursor:pointer;">
+                                <div class="form-check flex-fill border rounded p-3 role-option @(RegisterModel.Role == "Client" ? "border-primary bg-primary bg-opacity-10" : "")" @onclick='() => RegisterModel.Role = "Client"'>
                                     <input class="form-check-input" type="radio" name="role"
                                            id="roleClient" value="Client"
                                            checked="@(RegisterModel.Role == "Client")"
@@ -78,7 +78,7 @@
                                         @L["RoleClient"]
                                     </label>
                                 </div>
-                                <div class="form-check flex-fill border rounded p-3 role-option @(RegisterModel.Role == "Consultant" ? "border-primary bg-primary bg-opacity-10" : "")" @onclick='() => RegisterModel.Role = "Consultant"' style="cursor:pointer;">
+                                <div class="form-check flex-fill border rounded p-3 role-option @(RegisterModel.Role == "Consultant" ? "border-primary bg-primary bg-opacity-10" : "")" @onclick='() => RegisterModel.Role = "Consultant"'>
                                     <input class="form-check-input" type="radio" name="role"
                                            id="roleConsultant" value="Consultant"
                                            checked="@(RegisterModel.Role == "Consultant")"

@@ -1,95 +1,317 @@
-/* Scoped styles for HeroSection.razor */
+/* Scoped styles for HeroSection.razor
+   Editorial fintech hero: security-print backdrop, ink headline with one teal
+   keyword (no gradient text), and a Protection Receipt artifact.
+   Money & IDs use tabular / mono figures to read like a real instrument. */
 
-.waitlist-input {
-    max-width: 280px;
-    border-radius: var(--radius-md);
-    background: var(--waitlist-bg);
-    color: var(--waitlist-text);
-    border: 1px solid var(--panel-border);
-    padding: .6rem 1rem;
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 7.5rem 0 3rem;   /* top clears the fixed nav bar */
 }
 
-/* Two-tone editorial headline: ink primary + a single deliberate teal keyword
-   (retires the blue→magenta gradient-text tell — see frontend-aesthetics rule). */
-.hero-headline {
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+/* ── Security-print (guilloché) backdrop — retires the AI blob/gradient.
+   Fine crosshatch of hairlines, faded toward the edges with a radial mask. */
+.hero-guilloche {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+        repeating-linear-gradient(60deg,  rgba(var(--accent-blue-rgb), .05) 0 1px, transparent 1px 9px),
+        repeating-linear-gradient(-60deg, rgba(var(--accent-teal-rgb), .05) 0 1px, transparent 1px 9px);
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 70% 40%, #000 0%, transparent 75%);
+            mask-image: radial-gradient(ellipse 80% 70% at 70% 40%, #000 0%, transparent 75%);
 }
 
-.hero-accent {
-    color: var(--accent-teal);
-}
+.hero-inner { position: relative; z-index: 1; }
 
-.hero-card {
-    max-width: 450px;
-}
-
-/* Simulation CTA: deliberate radius, not pill (chips keep the pill, buttons don't). */
-.hero-release-btn {
-    border-radius: var(--radius-md);
+/* ── Copy column ───────────────────────────────────────── */
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: var(--font-display);
+    font-size: .8rem;
     font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent-teal);
+    margin-bottom: 1.25rem;
 }
 
-.status-row {
-    background: var(--overlay-surface);
-    border: 1px solid var(--dash-border);
+.eyebrow-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-teal);
+    box-shadow: 0 0 0 4px rgba(var(--accent-teal-rgb), .15);
 }
 
-/* Success alert styled for dark theme */
+.hero-headline {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 5vw, 3.9rem);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+}
+
+/* Single deliberate keyword in teal — a solid color, NOT gradient text. */
+.hero-accent { color: var(--accent-teal); }
+
+.hero-sub {
+    font-size: 1.12rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    max-width: 34rem;
+    margin: 0 auto 1.75rem;
+}
+
+@media (min-width: 992px) {
+    .hero-sub { margin-left: 0; margin-right: 0; }
+}
+
+/* Waitlist control tuned for the hero (base styles live in app.css). */
+.hero-form .waitlist-input {
+    max-width: 300px;
+    flex: 1 1 auto;
+}
+
+.hero-feedback { min-height: 2.25rem; margin-top: 1rem; }
+
 .alert-glass {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    font-size: 0.875rem;
+    border-radius: var(--radius-md);
+    font-size: .875rem;
+    color: var(--text-primary);
 }
 
-/* Card released state — success accent via border + restrained elevation (no neon glow). */
-.card-released {
-    border-color: rgba(var(--accent-green-rgb), 0.45) !important;
+.hero-nospam {
+    font-size: .85rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* ── Factual trust row (no fake logos / metrics) ───────── */
+.trust-row {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1.25rem;
+    padding: 0;
+    margin: 2rem 0 0;
+    justify-content: center;
+}
+
+@media (min-width: 992px) { .trust-row { justify-content: flex-start; } }
+
+.trust-row li {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    font-size: .82rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.trust-row i { color: var(--accent-teal); font-size: .95rem; }
+
+/* ── Protection Receipt artifact ───────────────────────── */
+.receipt {
+    max-width: 430px;
+    background: var(--surface);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
     box-shadow: var(--shadow-md);
+    animation: receiptIn .7s cubic-bezier(.16,.84,.44,1) .15s both;
 }
 
-/* Hero card entrance animation */
-.animate-enter {
-    animation: slideUpFadeIn 0.8s ease-out both;
-    animation-delay: 0.3s;
+.receipt.is-released { border-color: rgba(var(--accent-green-rgb), .45); }
+
+.receipt-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 1.1rem;
 }
 
-@keyframes slideUpFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.receipt-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: .8rem;
+    letter-spacing: .02em;
+    color: var(--accent-blue);
+    background: rgba(var(--accent-blue-rgb), .1);
+    border-radius: var(--radius-pill);
+    padding: .3rem .7rem;
 }
 
-/* Scroll hint bounce */
-.scroll-hint {
-    margin-top: -2rem;
-    padding-bottom: 2rem;
+.receipt-ref {
+    font-family: var(--font-mono);
+    font-size: .72rem;
+    letter-spacing: .04em;
+    color: var(--text-secondary);
 }
 
-.bounce-animation {
+.receipt-desc {
+    font-size: .82rem;
+    color: var(--text-secondary);
+    margin: 0 0 .35rem;
+}
+
+.receipt-amount {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 2.9rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 1.5rem;
+}
+
+.receipt-cents { color: var(--text-secondary); font-size: 1.7rem; }
+
+/* ── Status track: Deposited → Held → Released ─────────── */
+.track {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .25rem;
+    margin-bottom: 1.5rem;
+}
+
+.track-step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .45rem;
+    padding-top: .85rem;
+}
+
+/* The connecting rail sits behind the dots. */
+.track-step::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--glass-border);
+}
+
+.track-step:first-child::before { left: 5px; }
+.track-step:last-child::before  { right: calc(100% - 11px); }
+
+.track-dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 11px;
+    height: 11px;
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    border: 2px solid var(--glass-border);
+    transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+
+.track-label {
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: var(--text-secondary);
+    transition: color .3s ease;
+}
+
+/* Completed steps: green rail + filled dot. */
+.track-step.is-done::before { background: var(--accent-green); }
+.track-step.is-done .track-dot {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+}
+.track-step.is-done .track-label { color: var(--text-primary); }
+
+/* Current step: teal accent + ring pulse. */
+.track-step.is-current .track-dot {
+    background: var(--accent-teal);
+    border-color: var(--accent-teal);
+    box-shadow: 0 0 0 4px rgba(var(--accent-teal-rgb), .18);
+}
+.track-step.is-current .track-label { color: var(--accent-teal); }
+
+/* ── Release action ────────────────────────────────────── */
+.receipt-action {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .7rem 1rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--accent-green);
+    background: transparent;
+    border: 1px solid var(--accent-green);
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease, opacity .18s ease;
+}
+
+.receipt-action:hover { background: rgba(var(--accent-green-rgb), .1); }
+
+.receipt-action.is-complete {
+    color: var(--text-secondary);
+    border-color: var(--glass-border);
+    cursor: default;
+    opacity: .8;
+}
+
+/* ── Scroll cue — quiet, meaningful (there is content below) ─ */
+.scroll-hint { margin-top: 2.5rem; }
+.scroll-hint a {
+    color: var(--text-secondary);
+    font-size: 1.4rem;
     display: inline-block;
-    animation: bounce 2s infinite;
+    transition: color .15s ease, transform .2s ease;
+}
+.scroll-hint a:hover { color: var(--accent-teal); transform: translateY(2px); }
+
+/* ── Entrance choreography (above the fold — CSS, not scroll-reveal) ── */
+.hero-eyebrow,
+.hero-headline,
+.hero-sub,
+.hero-form,
+.trust-row { animation: heroRise .6s ease-out both; }
+
+.hero-headline { animation-delay: .06s; }
+.hero-sub      { animation-delay: .12s; }
+.hero-form     { animation-delay: .18s; }
+.trust-row     { animation-delay: .24s; }
+
+@keyframes heroRise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    60% { transform: translateY(-5px); }
+@keyframes receiptIn {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive: full-width input on mobile */
+/* ── Responsive ────────────────────────────────────────── */
 @media (max-width: 575.98px) {
-    .waitlist-input {
-        max-width: 100%;
-    }
-
-    .hero-card {
-        padding: 1.5rem !important;
-    }
+    .hero-form .waitlist-input { max-width: 100%; }
+    .receipt { padding: 1.35rem; }
+    .receipt-amount { font-size: 2.4rem; }
+    .track-label { font-size: .68rem; }
 }

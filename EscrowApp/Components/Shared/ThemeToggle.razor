@@ -1,6 +1,6 @@
 @using Microsoft.JSInterop
 
 <button id="theme-toggle-btn" class="theme-toggle" @onclick="ToggleTheme" aria-pressed="@IsLight" aria-label="Toggle theme">
-    <span class="theme-icon">@Icon</span>
+    <i class="bi @IconClass theme-icon" aria-hidden="true"></i>
     <span class="sr-only">Toggle theme</span>
 </button>

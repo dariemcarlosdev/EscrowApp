@@ -1,7 +1,7 @@
 # Front-End Design Framework — NexTruzt.io
 
 > The design standard every UI change in `EscrowApp` must follow.
-> **Last synced with codebase:** 2026-07-29 · **Status:** Active (Phase 1 — design system + landing shipped)
+> **Last synced with codebase:** 2026-07-31 · **Status:** Active (Phases 1–3 shipped — design system + landing + dashboards/auth + hero/navbar refinement)
 > **Governing rule:** [`.claude/rules/frontend-aesthetics.md`](../../.claude/rules/frontend-aesthetics.md) — 🔴 STRONG, non-negotiable.
 
 Design like a senior product designer shipping a real brand — **not** like an AI filling a template.
@@ -33,7 +33,7 @@ These are the specific patterns the strong rule forbids. If a diff introduces on
 | ❌ Banned tell | ✅ Do instead |
 |---|---|
 | Purple/violet → pink/blue "AI gradient" as a brand device | Restrained navy + blue primary, **teal** trust-secondary, **gold** micro-accent |
-| Gradient text on headings | Solid ink headings; gradient reserved for the **brand wordmark only** (`.text-gradient`) |
+| Gradient text **anywhere** (headings *or* wordmark) | Solid ink headings; the brand wordmark is **solid two-tone** — ink `NexTruzt` + `--accent-teal` `.io` span. `.text-gradient` fully retired; no `linearGradient` fills in brand SVGs. |
 | Glassmorphism / backdrop-blur on every surface | Solid card surfaces (`.glass-panel` is now solid + faint blur accent); frosting is a rare deliberate accent |
 | Floating blurred background "blobs" as default decor | At most one restrained ambient element at very low opacity |
 | Emoji used as icons (✅, 🔒) | **Bootstrap Icons** (`<i class="bi bi-…">`) or inline SVG — the sanctioned icon set |
@@ -90,9 +90,12 @@ Loaded via Google Fonts in [`App.razor`](../../EscrowApp/Components/App.razor) (
 
 | Var | Family | Applied to |
 |---|---|---|
-| `--font-display` | **Space Grotesk** (400–700) | All headings (`h1–h6`), numerals, stat values, buttons |
+| `--font-display` | **Space Grotesk** (400–700) | All headings (`h1–h6`), stat values, buttons |
 | `--font-body` | **Inter** (400–900) | Body, UI, labels |
+| `--font-mono` | System mono stack (JetBrains Mono → `ui-monospace` → SF Mono / Cascadia / Consolas) | Transaction refs, monetary amounts, tabular figures (hero Protection Receipt). **No web font added** — CSP-safe fallbacks only. |
 
+- **Wordmark treatment:** the brand wordmark is **solid two-tone** everywhere — ink `NexTruzt` + `--accent-teal` `.io` span, no gradient, no `linearGradient` in the brand SVG. Applied across **NavBar** (Phase 3), **Footer**, and **DashboardLayout**. The `.text-gradient` device is fully retired (removed from `app.css` and all scoped CSS) — do not reintroduce it.
+- Monetary/ref values use `--font-mono` + `font-variant-numeric: tabular-nums` so digits don't shift on state change.
 - Headings get `letter-spacing: -0.015em` globally; hero headline tightens to `-0.02em`.
 - Type scale uses Bootstrap's `display-*` / `lead` / `small` utilities — do not invent ad-hoc font sizes.
 - Body base 16px, line-height ≥ 1.5. Never body text < 12px.

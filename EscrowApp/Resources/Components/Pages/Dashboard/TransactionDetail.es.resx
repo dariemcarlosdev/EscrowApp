@@ -46,4 +46,7 @@
   <data name="CancelHold" xml:space="preserve"><value>Cancelar Retención</value></data>
   <data name="Timeline" xml:space="preserve"><value>Línea de Tiempo</value></data>
   <data name="TimelineComingSoon" xml:space="preserve"><value>La línea de tiempo estará disponible en una próxima actualización.</value></data>
+  <data name="Created" xml:space="preserve"><value>Creado</value></data>
+  <data name="Held" xml:space="preserve"><value>Retenido</value></data>
+  <data name="Released" xml:space="preserve"><value>Liberado</value></data>
 </root>

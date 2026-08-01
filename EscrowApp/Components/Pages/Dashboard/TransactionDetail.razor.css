@@ -6,13 +6,65 @@ h4 {
 
 dl dt {
     font-weight: 500;
-    color: var(--bs-secondary);
+    color: var(--text-muted);
 }
 
-.badge {
-    font-size: 0.9rem;
-    padding: 0.4em 0.8em;
+.lifecycle-strip {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem;
 }
 
-/* TODO: Add timeline styles — vertical connector line, status dots,
-   state machine visualization with colored progress indicators */
+.lifecycle-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.lifecycle-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 1.1rem;
+    left: 55%;
+    width: 90%;
+    height: 2px;
+    background: var(--dash-border);
+}
+
+.lifecycle-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-pill);
+    background: var(--dash-surface-2);
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    z-index: 1;
+}
+
+.lifecycle-step.is-complete .lifecycle-dot {
+    background: rgba(var(--accent-green-rgb), .15);
+    color: var(--accent-green);
+}
+
+.lifecycle-step.is-active .lifecycle-dot {
+    background: rgba(var(--accent-amber-rgb), .15);
+    color: var(--accent-amber);
+}
+
+.lifecycle-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.lifecycle-step.is-complete .lifecycle-label,
+.lifecycle-step.is-active .lifecycle-label {
+    color: var(--text-primary);
+}

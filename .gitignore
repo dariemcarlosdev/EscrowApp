@@ -91,3 +91,5 @@ node_modules/
 .DS_Store
 Thumbs.db
 desktop.ini
+/docs/operations/model-routing.md
+/docs/operations/skills-inventory.md

@@ -32,27 +32,11 @@ public sealed partial class TransactionDetail : ComponentBase, IDisposable
     private bool _notFound;
     private CancellationTokenSource _cts = new();
 
-    // TODO: Add transaction DTO property
-    // private EscrowTransactionDetailDto? _transaction;
-
     protected override async Task OnInitializedAsync()
     {
-        // TODO: Implement data loading
-        // 1. Get authenticated user identity from AuthState
-        // 2. Query transaction via IMediator.Send(new GetTransactionQuery(TransactionId))
-        // 3. Verify user is a party to this transaction (ownership check)
-        // 4. If not found or not authorized, set _notFound = true
-        // 5. Determine available actions based on role + status
-        // 6. Set _isLoading = false
-
         await Task.Delay(0); // placeholder
         _isLoading = false;
     }
-
-    // TODO: Add action handlers
-    // private async Task HandleRelease() { ... }
-    // private async Task HandleDispute() { ... }
-    // private async Task HandleCancel() { ... }
 
     public void Dispose() => _cts.Cancel();
 }

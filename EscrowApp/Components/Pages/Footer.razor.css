@@ -1,5 +1,9 @@
 /* Scoped styles for Footer.razor */
 
+/* Two-tone wordmark via a single accent color — deliberately NOT gradient text. */
+.brand-wordmark { color: var(--text-primary); }
+.brand-tld { color: var(--accent-teal); }
+
 .footer-link {
     transition: color 0.2s ease;
 }

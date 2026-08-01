@@ -29,12 +29,8 @@
     letter-spacing: .02em;
 }
 
-.text-gradient {
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-magenta));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
+/* Two-tone wordmark via a single accent color — deliberately NOT gradient text. */
+.brand-tld { color: var(--accent-teal); }
 
 .sidebar-nav {
     flex: 1;
@@ -117,7 +113,6 @@
     position: sticky;
     top: 0;
     z-index: 50;
-    backdrop-filter: blur(8px);
 }
 
 .topbar-greeting {

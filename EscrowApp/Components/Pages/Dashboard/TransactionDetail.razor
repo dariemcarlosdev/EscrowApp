@@ -4,19 +4,10 @@
 @attribute [StreamRendering]
 @using Microsoft.Extensions.Localization
 
-<!-- TODO: Implement Transaction Detail page
-     Shows full details of a single escrow transaction including:
-     - Transaction metadata (parties, amount, service description)
-     - Current status with visual state machine indicator
-     - Timeline of status changes
-     - Actions available based on current status and user role
-     - External references (Stripe PaymentIntent ID)
--->
-
 <div class="container mt-4">
     @if (_isLoading)
     {
-        <div class="d-flex justify-content-center py-5">
+        <div class="dash-loader">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">@L["Loading"]</span>
             </div>
@@ -38,12 +29,11 @@
             </ol>
         </nav>
 
-        <!-- TODO: Status indicator with state machine visualization -->
-        <div class="card mb-4">
-            <div class="card-header bg-dark text-white">
-                <h4 class="mb-0">@L["TransactionDetail"] #@TransactionId</h4>
+        <div class="dash-panel mb-4">
+            <div class="dash-panel-header">
+                <span class="panel-title">@L["TransactionDetail"] #@TransactionId</span>
             </div>
-            <div class="card-body">
+            <div class="dash-panel-body">
                 <div class="row">
                     <div class="col-md-6">
                         <dl class="row">
@@ -54,7 +44,7 @@
                             <dt class="col-sm-4">@L["Amount"]</dt>
                             <dd class="col-sm-8">$--</dd>
                             <dt class="col-sm-4">@L["Status"]</dt>
-                            <dd class="col-sm-8"><span class="badge bg-secondary">--</span></dd>
+                            <dd class="col-sm-8"><span class="status-badge badge-held">--</span></dd>
                         </dl>
                     </div>
                     <div class="col-md-6">
@@ -71,18 +61,32 @@
             </div>
         </div>
 
-        <!-- TODO: Action buttons (context-sensitive based on status + role) -->
         <div class="d-flex gap-2 mb-4">
             <button class="btn btn-success" disabled>@L["ReleaseFunds"]</button>
             <button class="btn btn-outline-warning" disabled>@L["RaiseDispute"]</button>
             <button class="btn btn-outline-danger" disabled>@L["CancelHold"]</button>
         </div>
 
-        <!-- TODO: Timeline / audit log of status changes -->
-        <div class="card">
-            <div class="card-header">@L["Timeline"]</div>
-            <div class="card-body">
-                <div class="alert alert-secondary">
+        <div class="dash-panel" data-reveal>
+            <div class="dash-panel-header">
+                <span class="panel-title">@L["Timeline"]</span>
+            </div>
+            <div class="dash-panel-body">
+                <ol class="lifecycle-strip">
+                    <li class="lifecycle-step is-complete">
+                        <span class="lifecycle-dot"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                        <span class="lifecycle-label">@L["Created"]</span>
+                    </li>
+                    <li class="lifecycle-step is-active">
+                        <span class="lifecycle-dot"><i class="bi bi-lock" aria-hidden="true"></i></span>
+                        <span class="lifecycle-label">@L["Held"]</span>
+                    </li>
+                    <li class="lifecycle-step">
+                        <span class="lifecycle-dot"><i class="bi bi-flag" aria-hidden="true"></i></span>
+                        <span class="lifecycle-label">@L["Released"]</span>
+                    </li>
+                </ol>
+                <div class="alert alert-secondary mb-0">
                     @L["TimelineComingSoon"]
                 </div>
             </div>

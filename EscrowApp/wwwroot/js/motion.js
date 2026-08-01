@@ -73,4 +73,32 @@
       if (window.nexMotion) window.nexMotion.init();
     });
   });
+
+  // Navbar condense-on-scroll: transparent over the hero → solid surface once
+  // the page scrolls past the threshold. Functional (legibility), not decorative,
+  // so it runs regardless of reduced-motion; the visual change is a CSS transition.
+  (function () {
+    var THRESHOLD = 24;
+    var ticking = false;
+
+    function apply() {
+      ticking = false;
+      var bar = document.querySelector('[data-nav-shell]');
+      if (!bar) return;
+      var scrolled = window.scrollY > THRESHOLD;
+      bar.classList.toggle('is-scrolled', scrolled);
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(apply);
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('spa:navigation', function () {
+      window.requestAnimationFrame(apply);
+    });
+    apply();
+  })();
 })();
