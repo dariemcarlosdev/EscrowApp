@@ -22,6 +22,18 @@
         </div>
     </div>
 }
+else if (_hasError)
+{
+    <div class="dash-panel">
+        <div class="empty-state error-state">
+            <div class="empty-icon is-error"><i class="bi bi-exclamation-octagon" aria-hidden="true"></i></div>
+            <p class="empty-title">@L["LoadError"]</p>
+            <button class="btn-primary-dash mt-3" @onclick="LoadAsync">
+                <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i> @L["Retry"]
+            </button>
+        </div>
+    </div>
+}
 else
 {
     @* ── KPI cards ─────────────────────────────────────────────────────── *@

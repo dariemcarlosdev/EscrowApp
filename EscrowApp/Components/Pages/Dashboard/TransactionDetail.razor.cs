@@ -32,10 +32,26 @@ public sealed partial class TransactionDetail : ComponentBase, IDisposable
     private bool _notFound;
     private CancellationTokenSource _cts = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
     {
-        await Task.Delay(0); // placeholder
-        _isLoading = false;
+        _isLoading = true;
+        _notFound = false;
+        try
+        {
+            // TODO: wire to GetTransactionByIdQuery + ownership check (authenticated user must be a party).
+            await Task.Delay(0, _cts.Token);
+            _notFound = TransactionId <= 0;
+        }
+        catch (OperationCanceledException)
+        {
+            // Component disposed mid-load — nothing to surface.
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 
     public void Dispose() => _cts.Cancel();

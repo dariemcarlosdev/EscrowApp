@@ -1,6 +1,7 @@
 @* NavBar — Brand, language toggle, authentication controls, and navigation links *@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Routing
+@using EscrowApp.Models
 
 <nav class="navbar navbar-expand-lg fixed-top nav-shell" data-nav-shell>
     <div class="container">
@@ -36,7 +37,7 @@
                                 <i class="bi bi-person-circle me-1" aria-hidden="true"></i>@context.User.Identity?.Name
                             </button>
                             <ul class="dropdown-menu dropdown-menu-lg-end" aria-labelledby="userMenuDropdown">
-                                <li><a class="dropdown-item" href="/dashboard/client">@L["Dashboard"]</a></li>
+                                <li><a class="dropdown-item" href="@(context.User.IsInRole(AppRoles.Consultant) ? "/dashboard/consultant" : "/dashboard/client")">@L["Dashboard"]</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     @* POST to /auth/logout — must be a real HTTP POST so the server

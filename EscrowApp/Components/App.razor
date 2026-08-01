@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="utf-8" />
@@ -7,10 +7,12 @@
     <base href="/" />
     <ResourcePreloader />
     <script>
-        // Immediately apply persisted theme before CSS loads to avoid flash
+        // Theme locked to light (dark deferred). Applied before CSS loads to avoid flash.
+        // To restore user preference later, drop the LOCK constant here and in /js/theme.js.
         (function(){
             try{
-                var t = localStorage.getItem('theme') || 'light';
+                var LOCK = 'light';
+                var t = LOCK || localStorage.getItem('theme') || 'light';
                 document.documentElement.setAttribute('data-theme', t);
             }catch(e){ }
         })();

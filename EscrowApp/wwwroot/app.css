@@ -1,38 +1,39 @@
 /* Custom Escrow Premium Styles */
+/* Single theme: LIGHT. Dark theme retired — these are the only semantic tokens. */
 :root {
-    /* DEFAULT (dark) semantic tokens */
-    --bg: #020617;
-    --surface: #0f172a;
-    --surface-2: #111827;
-    --text-primary: #f8fafc;
-    --text-secondary: #a8b8cc;
-    --text-muted: rgba(248,250,252,0.7);
-    --accent-blue: #3b82f6;
-    --accent-magenta: #d946ef;
-    --accent-green: #22c55e;
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --surface-2: #f6f9fc;
+    --text-primary: #0b1220;
+    --text-secondary: #334155;
+    --text-muted: rgba(11,18,32,0.65);
+    --accent-blue: #2563eb;
+    --accent-magenta: #be185d;
+    --accent-green: #16a34a;
     --accent-amber: #f59e0b;
     --accent-red: #ef4444;
     /* RGB helpers for alpha variants */
-    --accent-blue-rgb: 59,130,246;
-    --accent-magenta-rgb: 217,70,239;
-    --accent-green-rgb: 34,197,94;
+    --accent-blue-rgb: 37,99,235;
+    --accent-magenta-rgb: 190,24,93;
+    --accent-green-rgb: 22,163,74;
     --accent-amber-rgb: 245,158,11;
     --accent-red-rgb: 239,68,68;
-    --glass-bg: rgba(30, 41, 59, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    /* Overlay tokens for panels and status rows, adapt per theme */
-    --overlay-surface: rgba(0, 0, 0, 0.44);
-    --muted-on-surface: rgba(255,255,255,0.40);
-    --muted-weak: rgba(255,255,255,0.12);
-    --muted-medium: rgba(255,255,255,0.55);
-    --hover-bg: rgba(255,255,255,0.06);
-    --bg-weak: rgba(255,255,255,0.07);
-    --hover-weak: rgba(255,255,255,0.025);
+    --glass-bg: rgba(255, 255, 255, 1); /* card white to separate surfaces */
+    --glass-border: rgba(15, 23, 42, 0.06);
+    /* Overlay tokens for panels and status rows */
+    --overlay-surface: rgba(15, 23, 42, 0.06);
+    --muted-on-surface: rgba(15,23,42,0.75);
+    --muted-weak: rgba(15,23,42,0.32);
+    --muted-medium: rgba(15,23,42,0.72);
+    --hover-bg: rgba(15,23,42,0.08);
+    --bg-weak: rgba(15,23,42,0.08);
+    --hover-weak: rgba(15,23,42,0.04);
+    --panel-border: rgba(15,23,42,0.06);
     /* Shadows & scrim */
-    --shadow-1: rgba(0, 0, 0, 0.08);
-    --modal-scrim: rgba(0, 0, 0, 0.6);
-    /* waitlist control tokens (dark default) */
-    --waitlist-bg: rgba(255,255,255,0.06);
+    --shadow-1: rgba(0, 0, 0, 0.06);
+    --modal-scrim: rgba(15,23,42,0.4);
+    /* waitlist control */
+    --waitlist-bg: #ffffff;
     --waitlist-text: var(--text-primary);
 
     /* ── Typographic voice (Modern Institutional) ── */
@@ -47,61 +48,16 @@
     --radius-pill: 999px;   /* chips/tags only */
 
     /* ── Trust secondary (teal) + premium micro-accent (gold) ── */
-    --accent-teal: #14b8a6;
-    --accent-teal-rgb: 20,184,166;
-    --accent-gold: #f59e0b;
-    --accent-gold-rgb: 245,158,11;
-
-    /* ── Elevation scale (single, restrained shadows — no neon glow) ── */
-    --shadow-sm: 0 1px 2px rgba(2,6,23,.24);
-    --shadow-md: 0 6px 20px rgba(2,6,23,.28);
-
-    /* Deprecated: --accent-magenta kept only so legacy refs don't break; do not use in new work */
-}
-
-/* LIGHT THEME OVERRIDES */
-[data-theme="light"] {
-    --bg: #f4f7fb; /* slightly stronger background for contrast */
-    --surface: #ffffff;
-    --surface-2: #f6f9fc;
-    --text-primary: #0b1220; /* darker main text for better legibility */
-    --text-secondary: #334155;
-    --accent-blue: #2563eb;
-    --accent-magenta: #be185d;
-    --accent-green: #16a34a;
-    --accent-amber: #f59e0b;
-    --accent-red: #ef4444;
-    /* RGB helpers for alpha variants */
-    --accent-blue-rgb: 37,99,235;
-    --accent-magenta-rgb: 190,24,93;
-    --accent-green-rgb: 22,163,74;
-    --accent-amber-rgb: 245,158,11;
-    --accent-red-rgb: 239,68,68;
-    --glass-bg: rgba(255, 255, 255, 1); /* card white to separate surfaces */
-    --glass-border: rgba(15, 23, 42, 0.06);
-    /* light-theme overlays */
-    --overlay-surface: rgba(15, 23, 42, 0.06);
-    --muted-on-surface: rgba(15,23,42,0.75); /* stronger secondary contrast */
-    --muted-weak: rgba(15,23,42,0.32);
-    --muted-medium: rgba(15,23,42,0.72);
-    --hover-bg: rgba(15,23,42,0.08);
-    --bg-weak: rgba(15,23,42,0.08);
-    --hover-weak: rgba(15,23,42,0.04);
-    --modal-scrim: rgba(15,23,42,0.4);
-    --shadow-1: rgba(0, 0, 0, 0.06);
-    --text-muted: rgba(11,18,32,0.65);
-    --panel-border: rgba(15,23,42,0.06);
-    /* light theme: make waitlist input a white filled control with subtle border */
-    --waitlist-bg: #ffffff;
-    --waitlist-text: var(--text-primary);
-
-    /* premium light-trust accents + softer elevation (fonts/radius inherit from :root) */
     --accent-teal: #0f766e;
     --accent-teal-rgb: 15,118,110;
     --accent-gold: #A16207;
     --accent-gold-rgb: 161,98,7;
+
+    /* ── Elevation scale (single, restrained shadows — no neon glow) ── */
     --shadow-sm: 0 1px 2px rgba(15,23,42,.06);
     --shadow-md: 0 8px 24px rgba(15,23,42,.08);
+
+    /* Deprecated: --accent-magenta kept only so legacy refs don't break; do not use in new work */
 }
 
 body {
@@ -189,8 +145,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Buttons */
 /* Primary CTA — solid, considered radius, display type. No gradient/pill/glow. */
 .btn-glass {
-    background: var(--accent-blue);
-    color: #ffffff;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-fg);
     border: none;
     padding: 0.7rem 1.5rem;
     border-radius: var(--radius-md);
@@ -202,10 +158,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-glass:hover {
-    filter: brightness(0.94);
+    background: var(--btn-primary-bg-hover);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
-    color: #ffffff;
+    color: var(--btn-primary-fg);
 }
 
 .form-control-glass {
@@ -241,28 +197,24 @@ h1:focus {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-    /* DASH defaults mapped to semantic tokens (will adapt with theme) */
+    /* DASH tokens mapped to semantic tokens (single light theme) */
     --dash-sidebar-w: 220px;
     --dash-topbar-h: 56px;
     --dash-bg:        var(--surface);
     --dash-surface:   var(--surface);
     --dash-surface-2: var(--surface-2);
-    --dash-border:    rgba(255,255,255,0.07);
-    --dash-muted:     rgba(255,255,255,0.40);
+    --dash-border:    rgba(15,23,42,0.06);
+    --dash-muted:     rgba(15,23,42,0.5);
     --dash-accent-blue:   var(--accent-blue);
     --dash-accent-green:  #22c55e;
     --dash-accent-amber:  #f59e0b;
     --dash-accent-red:    #ef4444;
     --dash-accent-purple: var(--accent-teal);   /* purple retired → teal (frontend-aesthetics rule) */
-}
 
-/* Light theme dash adjustments */
-[data-theme="light"] {
-    --dash-bg: var(--surface);
-    --dash-surface: var(--surface);
-    --dash-surface-2: var(--surface-2);
-    --dash-border: rgba(15,23,42,0.06);
-    --dash-muted: rgba(15,23,42,0.5);
+    /* ── Button standard: INK primary (blue is NOT a button color — links/info only) ── */
+    --btn-primary-bg:       #0b1220;   /* ink: near-black navy, white text */
+    --btn-primary-fg:       #ffffff;
+    --btn-primary-bg-hover: #1e293b;
 }
 
 /* Shell */
@@ -410,19 +362,19 @@ h1:focus {
     display: inline-flex;
     align-items: center;
     gap: .3rem;
-    background: var(--dash-accent-blue);
-    color: #fff;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-fg);
     border: none;
     border-radius: .5rem;
     padding: .48rem 1rem;
     font-size: .84rem;
     font-weight: 600;
     cursor: pointer;
-    transition: opacity .15s;
+    transition: background .15s ease;
     white-space: nowrap;
 }
 
-.btn-primary-dash:hover { opacity: .88; }
+.btn-primary-dash:hover { background: var(--btn-primary-bg-hover); color: var(--btn-primary-fg); }
 .dash-loader { display: flex; justify-content: center; padding: 4rem 0; }
 
 /* ── KPI grid ─────────────────────────────────────────────────────────── */
@@ -445,12 +397,13 @@ h1:focus {
     border-radius: .65rem;
     background: var(--dash-surface-2);
     border: 1px solid var(--dash-border);
-    border-left-width: 3px;
     overflow: hidden;
-    transition: border-color .2s;
+    transition: box-shadow .2s ease, transform .2s ease;
 }
 
-.kpi-card:hover { border-color: rgba(255,255,255,.14); }
+/* Quiet lift, no color shift — status is carried by the value + icon accent,
+   not a side-stripe (retired: reads as an AI tell). */
+.kpi-card:hover { box-shadow: var(--shadow-sm); transform: translateY(-1px); }
 
 .kpi-label {
     font-size: .7rem;
@@ -461,19 +414,15 @@ h1:focus {
 }
 
 .kpi-value    { font-size: 1.9rem; font-weight: 700; line-height: 1; color: var(--text-primary); }
-.kpi-currency { font-size: 1.4rem; }
-.kpi-icon     { position: absolute; top: .9rem; right: 1rem; font-size: 1.3rem; opacity: .16; }
+.kpi-currency { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+.kpi-icon     { position: absolute; top: .9rem; right: 1rem; font-size: 1.3rem; opacity: .22; }
 
-.kpi-blue   { border-left-color: var(--dash-accent-blue);   }
-.kpi-green  { border-left-color: var(--dash-accent-green);  }
-.kpi-amber  { border-left-color: var(--dash-accent-amber);  }
-.kpi-purple { border-left-color: var(--dash-accent-purple); }
-.kpi-red    { border-left-color: var(--dash-accent-red);    }
-
-.kpi-blue   .kpi-value { color: var(--dash-accent-blue);   }
-.kpi-green  .kpi-value { color: var(--dash-accent-green);  }
-.kpi-amber  .kpi-value { color: var(--dash-accent-amber);  }
-.kpi-purple .kpi-value { color: var(--dash-accent-purple); }
+/* Status meaning via the value color + icon tint (replaces the retired stripe). */
+.kpi-blue   .kpi-value, .kpi-blue   .kpi-icon { color: var(--dash-accent-blue);   }
+.kpi-green  .kpi-value, .kpi-green  .kpi-icon { color: var(--dash-accent-green);  }
+.kpi-amber  .kpi-value, .kpi-amber  .kpi-icon { color: var(--dash-accent-amber);  }
+.kpi-purple .kpi-value, .kpi-purple .kpi-icon { color: var(--dash-accent-purple); }
+.kpi-red    .kpi-value, .kpi-red    .kpi-icon { color: var(--dash-accent-red);    }
 
 /* ── Panel ────────────────────────────────────────────────────────────── */
 .dash-panel {
@@ -526,6 +475,9 @@ h1:focus {
 .empty-icon  { font-size: 2.5rem; color: var(--muted-weak); margin-bottom: .9rem; }
 .empty-title { font-size: .95rem; font-weight: 600; color: var(--muted-medium); margin: 0 0 .3rem; }
 .empty-sub   { font-size: .82rem; color: var(--muted-weak); margin: 0; }
+
+/* Error variant — same layout as empty, red icon + a retry affordance. */
+.empty-icon.is-error { color: var(--dash-accent-red); }
 
 /* ── Data table ───────────────────────────────────────────────────────── */
 .dash-table { width: 100%; border-collapse: collapse; font-size: .84rem; }

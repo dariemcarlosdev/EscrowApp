@@ -38,16 +38,19 @@
 .navbar-brand:hover .brand-mark { transform: translateY(-1px); }
 
 /* ── Links ─────────────────────────────────────────────── */
+/* Readable over the transparent bar on the light hero: ink text, medium weight,
+   accent on hover — not the washed-out muted grey it was before. */
 .nav-anchor {
     position: relative;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     font-weight: 500;
-    font-size: .95rem;
+    font-size: .9rem;
+    letter-spacing: -0.005em;
     transition: color .15s ease;
 }
 
 .nav-anchor:hover,
-.nav-anchor:focus-visible { color: var(--text-primary); }
+.nav-anchor:focus-visible { color: var(--accent-blue); }
 
 /* Hairline underline reveal — meaningful hover affordance, fast. */
 .nav-anchor::after {
@@ -57,7 +60,7 @@
     right: .95rem;
     bottom: .15rem;
     height: 1.5px;
-    background: var(--accent-teal);
+    background: var(--accent-blue);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform .2s ease;
@@ -125,12 +128,37 @@
 @media (max-width: 991.98px) {
     .navbar-collapse {
         margin-top: .6rem;
-        padding: .75rem;
+        padding: .5rem;
         background: var(--surface);
         border: 1px solid var(--glass-border);
         border-radius: var(--radius-md);
         box-shadow: var(--shadow-md);
     }
 
+    /* Full-width rows with 44px tap targets, divided for scannability. */
+    .navbar-nav .nav-anchor {
+        display: flex;
+        align-items: center;
+        min-height: 44px;
+        padding: .35rem .75rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .navbar-nav .nav-anchor:hover,
+    .navbar-nav .nav-anchor:focus-visible { background: var(--hover-bg); }
+
     .nav-anchor::after { display: none; }
+
+    /* Controls stack full-width and separate from the anchor group. */
+    .lang-toggle,
+    .btn-signin,
+    .btn-account {
+        width: 100%;
+        justify-content: center;
+        margin-top: .5rem;
+    }
+
+    .dropdown { width: 100%; }
+    .btn-account { margin-top: .5rem; }
+    .dropdown-menu { width: 100%; }
 }

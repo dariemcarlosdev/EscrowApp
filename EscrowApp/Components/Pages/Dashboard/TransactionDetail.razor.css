@@ -9,6 +9,21 @@ dl dt {
     color: var(--text-muted);
 }
 
+/* Monetary figures align in a column — no reflow as digit counts change. */
+.txn-amount {
+    font-variant-numeric: tabular-nums;
+}
+
+/* External reference (Stripe PaymentIntent / tx hash) reads as a machine token. */
+.txn-ref {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    background: none;
+    padding: 0;
+    word-break: break-all;
+}
+
 .lifecycle-strip {
     display: flex;
     list-style: none;

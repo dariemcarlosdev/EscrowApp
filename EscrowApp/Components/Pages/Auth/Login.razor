@@ -2,79 +2,106 @@
 @using Microsoft.Extensions.Localization
 @using Microsoft.AspNetCore.Components.Forms
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card shadow-sm login-card">
-                <div class="card-body p-4">
-                    <h2 class="text-center mb-4">@L["SignInTitle"]</h2>
+<div class="auth-shell">
+    <aside class="auth-aside">
+        <div class="auth-aside-inner">
+            <span class="auth-brand">Nex<span class="auth-brand-accent">Truzt</span></span>
+            <h2 class="auth-aside-headline">@L["LoginBrandHeadline"]</h2>
+            <ul class="auth-trust">
+                <li class="auth-trust-item">
+                    <span class="auth-trust-icon"><i class="bi bi-shield-lock" aria-hidden="true"></i></span>
+                    <span class="auth-trust-copy">
+                        <span class="auth-trust-title">@L["TrustHeldTitle"]</span>
+                        <span class="auth-trust-text">@L["TrustHeldText"]</span>
+                    </span>
+                </li>
+                <li class="auth-trust-item">
+                    <span class="auth-trust-icon"><i class="bi bi-check2-circle" aria-hidden="true"></i></span>
+                    <span class="auth-trust-copy">
+                        <span class="auth-trust-title">@L["TrustReleasedTitle"]</span>
+                        <span class="auth-trust-text">@L["TrustReleasedText"]</span>
+                    </span>
+                </li>
+                <li class="auth-trust-item">
+                    <span class="auth-trust-icon"><i class="bi bi-activity" aria-hidden="true"></i></span>
+                    <span class="auth-trust-copy">
+                        <span class="auth-trust-title">@L["TrustTrackedTitle"]</span>
+                        <span class="auth-trust-text">@L["TrustTrackedText"]</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </aside>
 
-                    @if (!string.IsNullOrEmpty(ErrorMessage))
-                    {
-                        <div class="alert alert-danger alert-dismissible fade show login-error" role="alert">
-                            @ErrorMessage
-                            <button type="button" class="btn-close" @onclick="ClearError"></button>
-                        </div>
-                    }
+    <main class="auth-form-panel">
+        <div class="auth-form-inner">
+            <header class="auth-form-head">
+                <h1 class="auth-title">@L["SignInTitle"]</h1>
+                <p class="auth-subtitle">@L["LoginFormSubtitle"]</p>
+            </header>
 
-                    <EditForm Model="LoginModel" OnValidSubmit="HandleLogin" FormName="LoginForm">
-                        <DataAnnotationsValidator />
-
-                        <div class="mb-3 login-form-group">
-                            <label for="email" class="form-label">@L["Email"]</label>
-                            <InputText id="email" class="form-control" placeholder="user@example.com"
-                                @bind-Value="LoginModel.Email" @bind-Value:event="oninput" autocomplete="email" autofocus aria-describedby="emailHelp" />
-                            <small id="emailHelp" class="form-text text-muted">@L["EmailHelp"]</small>
-                            <ValidationMessage For="() => LoginModel.Email" />
-                        </div>
-
-                        <div class="mb-3 login-form-group">
-                            <label for="password" class="form-label">@L["Password"]</label>
-                            <div class="input-group">
-                                <InputText id="password" type="@PasswordInputType" class="form-control" placeholder="••••••••"
-                                    @bind-Value="LoginModel.Password" @bind-Value:event="oninput" autocomplete="current-password" aria-describedby="passwordHelp" />
-                                <button type="button" class="btn btn-outline-secondary" @onclick="TogglePasswordVisibility" aria-label="@((ShowPassword) ? L["HidePassword"] : L["ShowPassword"])">
-                                    <span class="visually-hidden">@((ShowPassword) ? L["HidePassword"] : L["ShowPassword"])</span>
-                                    <i class="bi @(ShowPassword ? "bi-eye-slash" : "bi-eye")" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                            <small id="passwordHelp" class="form-text text-muted">@L["PasswordHelp"]</small>
-                            <ValidationMessage For="() => LoginModel.Password" />
-                        </div>
-
-                        <div class="mb-3 form-check d-flex justify-content-between align-items-center">
-                            <div>
-                                <InputCheckbox id="rememberMe" class="form-check-input"
-                                    @bind-Value="LoginModel.RememberMe" />
-                                <label class="form-check-label ms-2" for="rememberMe">
-                                    @L["RememberMe"]
-                                </label>
-                            </div>
-                            <div>
-                                <a href="/auth/forgot-password" class="small">@L["ForgotPassword"]</a>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary-dash w-100 login-btn" disabled="@IsLoading">
-                            @if (IsLoading)
-                            {
-                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                <span>@L["SigningIn"]</span>
-                            }
-                            else
-                            {
-                                <span>@L["SignIn"]</span>
-                            }
-                        </button>
-                    </EditForm>
-
-                    <div class="login-footer">
-                        <p class="text-muted">
-                            @L["NoAccount"] <a href="/auth/register">@L["SignUp"]</a>
-                        </p>
-                    </div>
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show login-error" role="alert">
+                    @ErrorMessage
+                    <button type="button" class="btn-close" @onclick="ClearError" aria-label="@L["HidePassword"]"></button>
                 </div>
+            }
+
+            <EditForm Model="LoginModel" OnValidSubmit="HandleLogin" FormName="LoginForm">
+                <DataAnnotationsValidator />
+
+                <div class="mb-3 login-form-group">
+                    <label for="email" class="form-label">@L["Email"]</label>
+                    <InputText id="email" class="form-control" placeholder="user@example.com"
+                        @bind-Value="LoginModel.Email" @bind-Value:event="oninput" autocomplete="email" autofocus aria-describedby="emailHelp" />
+                    <small id="emailHelp" class="form-text text-muted">@L["EmailHelp"]</small>
+                    <ValidationMessage For="() => LoginModel.Email" />
+                </div>
+
+                <div class="mb-3 login-form-group">
+                    <label for="password" class="form-label">@L["Password"]</label>
+                    <div class="input-group">
+                        <InputText id="password" type="@PasswordInputType" class="form-control" placeholder="••••••••"
+                            @bind-Value="LoginModel.Password" @bind-Value:event="oninput" autocomplete="current-password" aria-describedby="passwordHelp" />
+                        <button type="button" class="btn login-toggle" @onclick="TogglePasswordVisibility" aria-label="@((ShowPassword) ? L["HidePassword"] : L["ShowPassword"])">
+                            <span class="visually-hidden">@((ShowPassword) ? L["HidePassword"] : L["ShowPassword"])</span>
+                            <i class="bi @(ShowPassword ? "bi-eye-slash" : "bi-eye")" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <small id="passwordHelp" class="form-text text-muted">@L["PasswordHelp"]</small>
+                    <ValidationMessage For="() => LoginModel.Password" />
+                </div>
+
+                <div class="mb-4 login-options">
+                    <div class="form-check mb-0">
+                        <InputCheckbox id="rememberMe" class="form-check-input"
+                            @bind-Value="LoginModel.RememberMe" />
+                        <label class="form-check-label ms-2" for="rememberMe">
+                            @L["RememberMe"]
+                        </label>
+                    </div>
+                    <a href="/auth/forgot-password" class="login-forgot">@L["ForgotPassword"]</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary-dash w-100 login-btn" disabled="@IsLoading">
+                    @if (IsLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <span>@L["SigningIn"]</span>
+                    }
+                    else
+                    {
+                        <span>@L["SignIn"]</span>
+                    }
+                </button>
+            </EditForm>
+
+            <div class="login-footer">
+                <p class="text-muted">
+                    @L["NoAccount"] <a href="/auth/register">@L["SignUp"]</a>
+                </p>
             </div>
         </div>
-    </div>
+    </main>
 </div>
