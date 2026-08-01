@@ -21,6 +21,7 @@ public sealed partial class ConsultantDashboard : ComponentBase, IDisposable
     private Task<AuthenticationState> AuthState { get; set; } = default!;
 
     private bool _isLoading = true;
+    private bool _hasError = false;
     private bool _hasEngagements = false;
     private decimal _fundsSecured = 0m;
     private decimal _totalEarned = 0m;
@@ -28,11 +29,29 @@ public sealed partial class ConsultantDashboard : ComponentBase, IDisposable
     private int _disputedCount = 0;
     private CancellationTokenSource _cts = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
     {
-        // TODO: wire to ListTransactionsQuery filtered by authenticated consultant email
-        await Task.Delay(0);
-        _isLoading = false;
+        _isLoading = true;
+        _hasError = false;
+        try
+        {
+            // TODO: wire to ListTransactionsQuery filtered by authenticated consultant email
+            await Task.Delay(0, _cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            // Component disposed mid-load — nothing to surface.
+        }
+        catch (Exception)
+        {
+            _hasError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

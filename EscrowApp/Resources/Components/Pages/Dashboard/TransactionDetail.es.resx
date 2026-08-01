@@ -41,6 +41,7 @@
   <data name="Service" xml:space="preserve"><value>Servicio</value></data>
   <data name="CreatedAt" xml:space="preserve"><value>Creado</value></data>
   <data name="Provider" xml:space="preserve"><value>Proveedor</value></data>
+  <data name="Reference" xml:space="preserve"><value>Referencia</value></data>
   <data name="ReleaseFunds" xml:space="preserve"><value>Liberar Fondos</value></data>
   <data name="RaiseDispute" xml:space="preserve"><value>Levantar Disputa</value></data>
   <data name="CancelHold" xml:space="preserve"><value>Cancelar Retención</value></data>

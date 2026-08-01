@@ -29,14 +29,16 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
-  <data name="PageTitle" xml:space="preserve"><value>Mis Pagos en Garantía</value></data>
-  <data name="PageSubtitle" xml:space="preserve"><value>Rastrea tus transacciones y administra tus pagos</value></data>
+  <data name="PageTitle" xml:space="preserve"><value>Mis Pagos Protegidos</value></data>
+  <data name="PageSubtitle" xml:space="preserve"><value>Rastrea tus pagos protegidos y administra las liberaciones</value></data>
   <data name="Loading" xml:space="preserve"><value>Cargando...</value></data>
   <data name="ActiveHolds" xml:space="preserve"><value>Fondos Retenidos</value></data>
   <data name="Released" xml:space="preserve"><value>Liberados</value></data>
   <data name="Disputed" xml:space="preserve"><value>En Disputa</value></data>
-  <data name="TotalEscrowed" xml:space="preserve"><value>Total en Garantía</value></data>
+  <data name="TotalEscrowed" xml:space="preserve"><value>Total Asegurado</value></data>
   <data name="TransactionsTitle" xml:space="preserve"><value>Tus Transacciones</value></data>
-  <data name="NewEscrow" xml:space="preserve"><value>+ Nueva Garantía</value></data>
-  <data name="NoTransactionsYet" xml:space="preserve"><value>Aún no hay transacciones. Crea tu primer pago en garantía para comenzar.</value></data>
+  <data name="NewEscrow" xml:space="preserve"><value>+ Nuevo Pago</value></data>
+  <data name="NoTransactionsYet" xml:space="preserve"><value>Aún no hay transacciones. Crea tu primer pago protegido para comenzar.</value></data>
+  <data name="LoadError" xml:space="preserve"><value>No pudimos cargar tus pagos.</value></data>
+  <data name="Retry" xml:space="preserve"><value>Reintentar</value></data>
 </root>

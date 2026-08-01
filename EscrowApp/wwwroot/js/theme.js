@@ -1,7 +1,11 @@
+// Theme locked to light while the dark theme is deferred. Set THEME_LOCK = null to
+// restore user preference + re-enable the toggle. Dark tokens/code below stay intact.
+var THEME_LOCK = 'light';
+
 window.themeManager = {
   get: function() {
     try {
-      var v = localStorage.getItem('theme') || 'light';
+      var v = THEME_LOCK || localStorage.getItem('theme') || 'light';
       console && console.log && console.log('[themeManager] get ->', v);
       return v;
     } catch (e) { console && console.log && console.log('[themeManager] get error', e); return 'light'; }
@@ -35,6 +39,7 @@ window.themeManager = {
   },
   toggle: function() {
     try {
+      if (THEME_LOCK) { this.set(THEME_LOCK); return THEME_LOCK; }
       var d = document.documentElement;
       var next = d.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
       this.set(next);
@@ -46,7 +51,7 @@ window.themeManager = {
 
 (function init() {
   try {
-    var t = localStorage.getItem('theme') || 'light';
+    var t = THEME_LOCK || localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', t);
     console && console.log && console.log('[themeManager] init ->', t);
     // expose ready flag
@@ -89,7 +94,7 @@ window.themeManager.attachToggle = attachThemeToggle;
 
     window.addEventListener('spa:navigation', function () {
       try {
-        var t = localStorage.getItem('theme') || 'light';
+        var t = THEME_LOCK || localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', t);
         // update toggle button aria/icon if present
         var btn = document.getElementById('theme-toggle-btn');

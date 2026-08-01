@@ -33,9 +33,11 @@
   <data name="PageSubtitle" xml:space="preserve"><value>Revisa tus fondos asegurados y compromisos activos</value></data>
   <data name="Loading" xml:space="preserve"><value>Cargando...</value></data>
   <data name="FundsSecured" xml:space="preserve"><value>Fondos Asegurados</value></data>
-  <data name="FundsSecuredDesc" xml:space="preserve"><value>Retenidos en garantía por tus servicios</value></data>
+  <data name="FundsSecuredDesc" xml:space="preserve"><value>Retenidos de forma segura por tus servicios</value></data>
   <data name="TotalEarned" xml:space="preserve"><value>Total Ganado</value></data>
   <data name="PendingDelivery" xml:space="preserve"><value>Pendiente de Entrega</value></data>
   <data name="ActiveEngagements" xml:space="preserve"><value>Compromisos Activos</value></data>
   <data name="NoEngagementsYet" xml:space="preserve"><value>Sin compromisos activos. Los clientes aparecerán aquí cuando depositen fondos por tus servicios.</value></data>
+  <data name="LoadError" xml:space="preserve"><value>No pudimos cargar tus compromisos.</value></data>
+  <data name="Retry" xml:space="preserve"><value>Reintentar</value></data>
 </root>

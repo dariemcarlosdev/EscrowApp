@@ -319,4 +319,28 @@
   <data name="HidePassword" xml:space="preserve">
     <value>Ocultar contraseña</value>
   </data>
+  <data name="LoginBrandHeadline" xml:space="preserve">
+    <value>Dinero que espera hasta que el trabajo esté hecho.</value>
+  </data>
+  <data name="LoginFormSubtitle" xml:space="preserve">
+    <value>Inicia sesión para gestionar tus pagos protegidos.</value>
+  </data>
+  <data name="TrustHeldTitle" xml:space="preserve">
+    <value>Fondos retenidos con seguridad</value>
+  </data>
+  <data name="TrustHeldText" xml:space="preserve">
+    <value>El pago queda asegurado en cuanto comienza el acuerdo.</value>
+  </data>
+  <data name="TrustReleasedTitle" xml:space="preserve">
+    <value>Liberados al entregar</value>
+  </data>
+  <data name="TrustReleasedText" xml:space="preserve">
+    <value>El dinero se mueve solo cuando ambas partes confirman el trabajo.</value>
+  </data>
+  <data name="TrustTrackedTitle" xml:space="preserve">
+    <value>Cada paso rastreado</value>
+  </data>
+  <data name="TrustTrackedText" xml:space="preserve">
+    <value>Estado claro desde la retención hasta la liberación, sin sorpresas.</value>
+  </data>
 </root>

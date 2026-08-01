@@ -1,9 +1,8 @@
 @inherits LayoutComponentBase
 
 @using EscrowApp.Components.Shared
-<header class="theme-toggle-container">
-    <ThemeToggle />
-</header>
+@* Theme toggle hidden while app is locked to light (dark deferred). Restore with THEME_LOCK. *@
+@* <header class="theme-toggle-container"><ThemeToggle /></header> *@
 
 <div class="page-container w-100 min-vh-100 position-relative">
     <main class="w-100 min-vh-100 d-flex flex-column">

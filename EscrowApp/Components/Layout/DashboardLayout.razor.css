@@ -142,3 +142,31 @@
     padding: 2rem 1.75rem;
     flex: 1;
 }
+
+/* ── Responsive: collapse to an icon rail below tablet ────────────────────
+   Labels stay in the a11y tree (visually hidden, not display:none) so screen
+   readers still announce each destination. No JS, no off-canvas. */
+@media (max-width: 768px) {
+    .dash-sidebar { width: var(--dash-sidebar-rail-w, 64px); }
+    .dash-main { margin-left: var(--dash-sidebar-rail-w, 64px); }
+
+    .sidebar-brand { justify-content: center; padding: 1.25rem 0 1rem; }
+    .sidebar-link,
+    .sidebar-logout { justify-content: center; padding: .6rem 0; gap: 0; }
+
+    .brand-name,
+    .sidebar-link span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .dash-topbar { padding: 0 1rem; }
+    .dash-body { padding: 1.5rem 1rem; }
+}
