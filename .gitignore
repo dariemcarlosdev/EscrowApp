@@ -93,3 +93,8 @@ Thumbs.db
 desktop.ini
 /docs/operations/model-routing.md
 /docs/operations/skills-inventory.md
+
+# NexSynapse IP-block opt-in marker (local-only)
+.nexsynapse-ip-guard
+/docs/FrontEnd/FrontEnd_Design_Framework.md
+/docs/FrontEnd/UI-Redesign-Plan.md
