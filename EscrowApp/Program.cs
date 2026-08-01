@@ -49,6 +49,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Stripe;
 using System.Globalization;
 using Microsoft.AspNetCore.Components.Server;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -253,6 +254,11 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(opts =>
 builder.Services.Configure<GzipCompressionProviderOptions>(opts =>
     opts.Level = System.IO.Compression.CompressionLevel.SmallestSize);
 
+// === Health Checks ===
+// Liveness endpoint for container orchestrators (Render health check, Azure
+// Container Apps probe). Mapped to /health in Phase 2.
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 // =============================================================================
@@ -261,6 +267,16 @@ var app = builder.Build();
 // come before Authorization; Antiforgery MUST come after Authentication;
 // Exception handling MUST be registered early so it can catch downstream throws.
 // =============================================================================
+
+// === Forwarded Headers (must be first — before HTTPS redirection/auth) ===
+// Render and Azure Container Apps terminate TLS at a reverse proxy and forward
+// plain HTTP to the container. Without this, the app sees scheme=http, breaking
+// UseHttpsRedirection (redirect loop) and Secure cookies (login fails).
+// Trust the proxy's X-Forwarded-Proto so the original https scheme is honored.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+});
 
 // === API Exception Middleware (must be early — before routing) ===
 // Translates uncaught domain/validation exceptions into RFC 7807 ProblemDetails
@@ -328,6 +344,10 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// === Health Check Endpoint ===
+// Anonymous liveness probe for Render / Azure Container Apps.
+app.MapHealthChecks("/health").AllowAnonymous();
+
 app.UseAntiforgery();
 app.MapStaticAssets();
 
@@ -391,6 +411,16 @@ app.MapPost("/auth/logout", async (SignInManager<ApplicationUser> signInManager)
 
 app.MapRazorComponents<EscrowApp.Components.App>()
     .AddInteractiveServerRenderMode();
+
+// === Database Migration ===
+// Applies pending EF Core migrations on startup so a freshly provisioned
+// database (e.g. Neon on first Render deploy) has its schema before the role
+// seeding below queries AspNetRoles. Idempotent — no-op when already current.
+using (var migrateScope = app.Services.CreateScope())
+{
+    var db = migrateScope.ServiceProvider.GetRequiredService<EscrowDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 // === Role Seeding ===
 // Ensures AppRoles.Client and AppRoles.Consultant exist in AspNetRoles before
